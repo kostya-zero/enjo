@@ -1,4 +1,4 @@
-use std::{fs, path::Path, process::exit, iter::repeat_with};
+use std::{fs, iter::repeat_with, path::Path, process::exit};
 
 use args::get_args;
 use config::Config;
@@ -26,14 +26,25 @@ fn main() {
                 Term::error("Directory with projects by given path in config not found.");
                 exit(1);
             }
-            path.push_str(format!("/{}", sub.get_one::<String>("name").unwrap()).as_str());
+            let name = sub.get_one::<String>("name").unwrap();
+            if name.is_empty() {
+                Term::error("Cant create project with empty name.");
+                exit(1);
+            }
+            path.push_str(format!("/{}", name).as_str());
 
             if Path::new(&path).exists() {
                 Term::error("Project with same name already exists.");
                 exit(1);
             }
 
+            if fs::create_dir(&path).is_err() {
+                Term::error("Failed to create directory for new project.");
+                exit(0);
+            }
+
+            Term::done("Project created.");
         }
-        _ => println!("Unknown command!"),
+        _ => Term::error("Command not found or it's not implemented yet.")
     }
 }
