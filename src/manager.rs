@@ -49,7 +49,7 @@ impl Manager {
                 default_config.set_shell("zsh");
                 default_config.set_editor("code");
             }
-            _ => panic!("Unknown platform detected.")
+            _ => panic!("Unknown platform detected."),
         };
         default_config
     }

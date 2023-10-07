@@ -7,5 +7,4 @@ impl Term {
     pub fn done(msg: &str) {
         println!(" \x1b[92m\x1b[0m {}", msg);
     }
-    
 }

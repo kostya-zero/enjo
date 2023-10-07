@@ -1,5 +1,5 @@
 [package]
-name = "vel"
+name = "enjo"
 description = "Minimalist projects manager."
 authors = [ "Konstantin Zhigaylo <kostya.zero@outlook.com>" ]
 version = "0.1.0-dev"

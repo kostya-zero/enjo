@@ -45,6 +45,6 @@ fn main() {
 
             Term::done("Project created.");
         }
-        _ => Term::error("Command not found or it's not implemented yet.")
+        _ => Term::error("Command not found or it's not implemented yet."),
     }
 }

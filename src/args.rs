@@ -1,7 +1,7 @@
 use clap::{value_parser, Arg, ArgAction, Command};
 
 pub fn get_args() -> Command {
-    Command::new("vel")
+    Command::new("enjo")
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .version(env!("CARGO_PKG_VERSION"))
         .subcommand_required(true)
@@ -22,6 +22,6 @@ pub fn get_args() -> Command {
                     .required(false),
             ]),
             Command::new("list").about("List projects."),
-            Command::new("path").about("Set path to projects")
+            Command::new("path").about("Set path to projects"),
         ])
 }
