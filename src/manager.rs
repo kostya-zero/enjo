@@ -13,7 +13,7 @@ pub enum ManagerError {
 pub struct Manager;
 impl Manager {
     pub fn get_config_path() -> String {
-        home_dir().unwrap().display().to_string() + ".vel.toml"
+        home_dir().unwrap().display().to_string() + "/.enjo.toml"
     }
 
     pub fn get_home_path() -> String {
