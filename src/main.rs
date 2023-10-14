@@ -109,6 +109,24 @@ fn main() {
                 Term::item(i.as_str());
             }
         }
+        Some(("delete", sub)) => {
+            let config: Config = Manager::load_config().expect("Faield to load config.");
+            let path: String = config.get_path().unwrap();
+
+            if !Path::new(&path).exists() {
+                Term::error("Directory with projects by given path in config not found.");
+                exit(1);
+            }
+            
+            let project: &str = sub.get_one::<String>("name").unwrap();
+            let fullpath = path.clone() + "/" + project;
+            if !Path::new(&fullpath).exists() {
+                Term::error("Project not found.");
+            }
+
+            fs::remove_dir_all(fullpath).expect("Failed to remove project directory due to lack of permissions.");
+            Term::done("Project deleted.")
+        }
         _ => Term::error("Command not found or it's not implemented yet."),
     }
 }
