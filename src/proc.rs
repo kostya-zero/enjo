@@ -35,7 +35,9 @@ impl Proc {
         cmd.stderr(Stdio::inherit());
         let converted_args: Vec<&str> = self.args.iter().map(|i| i.as_str()).collect();
         cmd.args(converted_args);
-        cmd.current_dir(self.cwd.as_str());
+        if !self.cwd.is_empty() {
+            cmd.current_dir(self.cwd.as_str());
+        }
         cmd.output().expect("Failed to launch program.");
     }
 }

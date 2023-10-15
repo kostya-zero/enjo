@@ -127,6 +127,22 @@ fn main() {
             fs::remove_dir_all(fullpath).expect("Failed to remove project directory due to lack of permissions.");
             Term::done("Project deleted.")
         }
+        Some(("config", _sub)) => {
+            let config: Config = Manager::load_config().expect("Faield to load config.");
+            let editor: String = config.get_editor().unwrap();
+
+            if editor.is_empty() {
+                Term::error("Editor option is empty!");
+                exit(1);
+            }
+
+            let mut proc: Proc = Proc::new(editor.as_str());
+            let mut editor_args = config.get_editor_args().unwrap();
+            let config_path = Manager::get_config_path();
+            editor_args.push(config_path.as_str());
+            proc.set_args(editor_args);
+            proc.run();
+        }
         _ => Term::error("Command not found or it's not implemented yet."),
     }
 }
