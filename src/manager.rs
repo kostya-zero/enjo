@@ -30,23 +30,18 @@ impl Manager {
 
         match env::consts::OS.to_string().as_str() {
             "windows" => {
-                default_config.set_shell("pwsh");
                 default_config.set_editor("code");
             }
             "linux" => {
-                default_config.set_shell("bash");
                 default_config.set_editor("nvim");
             }
             "freebsd" => {
-                default_config.set_shell("bash");
                 default_config.set_editor("nvim");
             }
             "netbsd" => {
-                default_config.set_shell("bash");
                 default_config.set_editor("nvim");
             }
             "macos" => {
-                default_config.set_shell("zsh");
                 default_config.set_editor("code");
             }
             _ => panic!("Unknown platform detected."),

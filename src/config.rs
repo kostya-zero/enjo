@@ -5,7 +5,6 @@ pub struct Config {
     path: Option<String>,
     editor: Option<String>,
     editor_args: Option<Vec<String>>,
-    shell: Option<String>,
 }
 
 impl Default for Config {
@@ -14,7 +13,6 @@ impl Default for Config {
             path: Some(String::new()),
             editor: Some(String::from("nvim")),
             editor_args: Some(Vec::new()),
-            shell: Some(String::new()),
         }
     }
 }
@@ -43,15 +41,5 @@ impl Config {
         }
     }
 
-    pub fn set_editor_args(&mut self, new_editor_args: Vec<&str>) {
-        self.editor_args = Some(new_editor_args.iter().map(|i| i.to_string()).collect());
-    }
 
-    pub fn get_shell(&self) -> Option<String> {
-        self.shell.clone()
-    }
-
-    pub fn set_shell(&mut self, shell: &str) {
-        self.shell = Some(String::from(shell));
-    }
 }
