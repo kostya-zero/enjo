@@ -1,3 +1,5 @@
+use std::process::exit;
+
 pub struct Term;
 impl Term {
     pub fn error(msg: &str) {
@@ -14,5 +16,10 @@ impl Term {
 
     pub fn item(msg: &str) {
         println!("   {}", msg)
+    }
+
+    pub fn fail(msg: &str) {
+        println!(" \x1b[91m\x1b[0m {}", msg);
+        exit(1);        
     }
 }

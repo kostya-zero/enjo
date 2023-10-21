@@ -1,8 +1,4 @@
-use std::{
-    fs,
-    path::Path,
-    process::{exit, Command},
-};
+use std::{fs, path::Path};
 
 use args::get_args;
 use config::Config;
@@ -28,24 +24,20 @@ fn main() {
             let config: Config = Manager::load_config().ok().unwrap();
             let mut path: String = config.get_path().unwrap();
             if !Path::new(&path).exists() {
-                Term::error("Directory with projects by given path in config not found.");
-                exit(1);
+                Term::fail("Directory with projects by given path in config not found.");
             }
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
-                Term::error("Cant create project with empty name.");
-                exit(1);
+                Term::fail("Cant create project with empty name.");
             }
             path.push_str(format!("/{}", name).as_str());
 
             if Path::new(&path).exists() {
-                Term::error("Project with same name already exists.");
-                exit(1);
+                Term::fail("Project with same name already exists.");
             }
 
             if fs::create_dir(&path).is_err() {
-                Term::error("Failed to create directory for new project.");
-                exit(0);
+                Term::fail("Failed to create directory for new project.");
             }
 
             Term::done("Project created.");
@@ -57,24 +49,21 @@ fn main() {
             let editor: String = config.get_editor().unwrap();
 
             if path.is_empty() {
-                Term::error("Path option is empty!");
-                exit(1);
+                Term::fail("Path option is empty!");
             }
 
             if editor.is_empty() {
-                Term::error("Editor option is empty!");
-                exit(1);
+                Term::fail("Editor option is empty!");
             }
 
             if !Path::new(&path).exists() {
-                Term::error("Directory with project not found.");
-                exit(1);
+                Term::fail("Directory with project not found.");
             }
 
             let project: &str = sub.get_one::<String>("name").unwrap();
             let fullpath = path.clone() + "/" + project;
             if !Path::new(&fullpath).exists() {
-                Term::error("Project not found.");
+                Term::fail("Project not found.");
             }
 
             let mut proc: Proc = Proc::new(editor.as_str());
@@ -87,8 +76,7 @@ fn main() {
             let path: String = config.get_path().unwrap();
 
             if !Path::new(&path).exists() {
-                Term::error("Directory with projects by given path in config not found.");
-                exit(1);
+                Term::fail("Directory with projects by given path in config not found.");
             }
 
             let mut projects: Vec<String> = Vec::new();
@@ -114,17 +102,17 @@ fn main() {
             let path: String = config.get_path().unwrap();
 
             if !Path::new(&path).exists() {
-                Term::error("Directory with projects by given path in config not found.");
-                exit(1);
+                Term::fail("Directory with projects by given path in config not found.");
             }
-            
+
             let project: &str = sub.get_one::<String>("name").unwrap();
             let fullpath = path.clone() + "/" + project;
             if !Path::new(&fullpath).exists() {
-                Term::error("Project not found.");
+                Term::fail("Project not found.");
             }
 
-            fs::remove_dir_all(fullpath).expect("Failed to remove project directory due to lack of permissions.");
+            fs::remove_dir_all(fullpath)
+                .expect("Failed to remove project directory due to lack of permissions.");
             Term::done("Project deleted.")
         }
         Some(("config", _sub)) => {
@@ -132,8 +120,7 @@ fn main() {
             let editor: String = config.get_editor().unwrap();
 
             if editor.is_empty() {
-                Term::error("Editor option is empty!");
-                exit(1);
+                Term::fail("Editor option is empty!");
             }
 
             let mut proc: Proc = Proc::new(editor.as_str());

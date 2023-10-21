@@ -1,13 +1,22 @@
 [package]
-name = "enjo"
-description = "Minimalist projects manager."
-authors = [ "Konstantin Zhigaylo <kostya.zero@outlook.com>" ]
-version = "0.1.0-dev"
-edition = "2021"
-
+name        = "enjo"
+description = "Minimalist workspace assistant tool."
+authors     = [ "Konstantin Zhigaylo <zero@kostyazero.com>" ]
+homepage    = "https://github.com/kostya-zero/enjo"
+keyword     = ["development", "workspace"]
+readme      = "README.md"
+license     = "MIT"
+version     = "0.1.0-dev"
+edition     = "2021"
 
 [dependencies]
-clap = "4.4.4"
-home = "0.5.5"
+clap  = "4.4.4"
+home  = "0.5.5"
 serde = { version = "1.0.188", features = ["derive"] }
-toml = "0.8.0"
+toml  = "0.8.0"
+
+[profile.release]
+lto       = "thin"
+opt-level = 3
+
+  
