@@ -1,6 +1,7 @@
 use std::{fs, path::Path};
 
 use args::get_args;
+use clap::builder::StringValueParser;
 use config::Config;
 use manager::Manager;
 use proc::Proc;
@@ -21,14 +22,14 @@ fn main() {
     let args = get_args().get_matches();
     match args.subcommand() {
         Some(("new", sub)) => {
-            let config: Config = Manager::load_config().ok().unwrap();
+            let config: Config = Manager::load_config().unwrap();
             let mut path: String = config.get_path().unwrap();
             if !Path::new(&path).exists() {
-                Term::fail("Directory with projects by given path in config not found.");
+                Term::fail("Directory with projects not found. Check if path set correctly.");
             }
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
-                Term::fail("Cant create project with empty name.");
+                Term::fail("New project should have a name.");
             }
             path.push_str(format!("/{}", name).as_str());
 
@@ -43,21 +44,21 @@ fn main() {
             Term::done("Project created.");
         }
         Some(("open", sub)) => {
-            let config: Config = Manager::load_config().expect("Faield to load config.");
+            let config: Config = Manager::load_config().expect("Failed to load config.");
 
             let path: String = config.get_path().unwrap();
             let editor: String = config.get_editor().unwrap();
 
             if path.is_empty() {
-                Term::fail("Path option is empty!");
+                Term::fail("Path option is empty. Please specify it manually.");
             }
 
             if editor.is_empty() {
-                Term::fail("Editor option is empty!");
+                Term::fail("Editor option is empty. Please specify it manually.");
             }
 
             if !Path::new(&path).exists() {
-                Term::fail("Directory with project not found.");
+                Term::fail("Directory with project not found. Check if path set correctly.");
             }
 
             let project: &str = sub.get_one::<String>("name").unwrap();
@@ -72,11 +73,11 @@ fn main() {
             proc.run();
         }
         Some(("list", _sub)) => {
-            let config: Config = Manager::load_config().expect("Faield to load config.");
+            let config: Config = Manager::load_config().expect("Failed to load config.");
             let path: String = config.get_path().unwrap();
 
             if !Path::new(&path).exists() {
-                Term::fail("Directory with projects by given path in config not found.");
+                Term::fail("Directory with projects not found. Check if path set correctly.");
             }
 
             let mut projects: Vec<String> = Vec::new();
@@ -98,11 +99,11 @@ fn main() {
             }
         }
         Some(("delete", sub)) => {
-            let config: Config = Manager::load_config().expect("Faield to load config.");
+            let config: Config = Manager::load_config().expect("Failed to load config.");
             let path: String = config.get_path().unwrap();
 
             if !Path::new(&path).exists() {
-                Term::fail("Directory with projects by given path in config not found.");
+                Term::fail("Directory with projects not found. Check if path set correctly.");
             }
 
             let project: &str = sub.get_one::<String>("name").unwrap();
@@ -116,11 +117,11 @@ fn main() {
             Term::done("Project deleted.")
         }
         Some(("config", _sub)) => {
-            let config: Config = Manager::load_config().expect("Faield to load config.");
+            let config: Config = Manager::load_config().expect("Failed to load config.");
             let editor: String = config.get_editor().unwrap();
 
             if editor.is_empty() {
-                Term::fail("Editor option is empty!");
+                Term::fail("Editor option is empty. Please specify it manually.");
             }
 
             let mut proc: Proc = Proc::new(editor.as_str());
