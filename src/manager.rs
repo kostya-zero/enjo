@@ -46,6 +46,10 @@ impl Manager {
             }
             _ => panic!("Unknown platform detected."),
         };
+
+        if let Ok(editor) = env::var("EDITOR") {
+            default_config.set_editor(editor.as_str());
+        }
         default_config
     }
 
