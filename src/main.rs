@@ -1,12 +1,13 @@
 use std::{fs, path::Path};
 
+use actions::Actions;
 use args::get_args;
-use clap::builder::StringValueParser;
 use config::Config;
 use manager::Manager;
 use proc::Proc;
 use term::Term;
 
+mod actions;
 mod args;
 mod config;
 mod manager;
@@ -16,13 +17,20 @@ mod term;
 fn main() {
     if !Manager::check_exists() {
         let default_config: Config = Manager::make_default();
-        Manager::write_config(default_config).expect("Failed to write config.");
+        match Manager::write_config(default_config) {
+            Ok(_) => Term::done("Default configuration generated."),
+            Err(e) => match e {
+                manager::ManagerError::WriteFailed => Term::fail("Failed to write default configuration to file."),
+                manager::ManagerError::FormatFailed => Term::fail("Failed to format configuration to TOML."),
+                _ => Term::fail("Unknown error occured.")
+            },
+        }
     }
 
     let args = get_args().get_matches();
     match args.subcommand() {
         Some(("new", sub)) => {
-            let config: Config = Manager::load_config().unwrap();
+            let config: Config = Actions::get_config().unwrap();
             let mut path: String = config.get_path().unwrap();
             if !Path::new(&path).exists() {
                 Term::fail("Directory with projects not found. Check if path set correctly.");
@@ -44,8 +52,7 @@ fn main() {
             Term::done("Project created.");
         }
         Some(("open", sub)) => {
-            let config: Config = Manager::load_config().expect("Failed to load config.");
-
+            let config: Config = Actions::get_config().unwrap();
             let path: String = config.get_path().unwrap();
             let editor: String = config.get_editor().unwrap();
 
@@ -58,7 +65,7 @@ fn main() {
             }
 
             if !Path::new(&path).exists() {
-                Term::fail("Directory with project not found. Check if path set correctly.");
+                Term::fail("Directory with projects not found. Check if path set correctly.");
             }
 
             let project: &str = sub.get_one::<String>("name").unwrap();
@@ -73,7 +80,7 @@ fn main() {
             proc.run();
         }
         Some(("list", _sub)) => {
-            let config: Config = Manager::load_config().expect("Failed to load config.");
+            let config: Config = Actions::get_config().unwrap();
             let path: String = config.get_path().unwrap();
 
             if !Path::new(&path).exists() {
@@ -99,7 +106,7 @@ fn main() {
             }
         }
         Some(("delete", sub)) => {
-            let config: Config = Manager::load_config().expect("Failed to load config.");
+            let config: Config = Actions::get_config().unwrap();
             let path: String = config.get_path().unwrap();
 
             if !Path::new(&path).exists() {
@@ -112,12 +119,13 @@ fn main() {
                 Term::fail("Project not found.");
             }
 
-            fs::remove_dir_all(fullpath)
-                .expect("Failed to remove project directory due to lack of permissions.");
-            Term::done("Project deleted.")
+            match fs::remove_dir_all(fullpath) {
+                Ok(_) => Term::fail("Failed to remove project directory."),
+                Err(_) => Term::done("The project has been deleted."),
+            }
         }
         Some(("config", _sub)) => {
-            let config: Config = Manager::load_config().expect("Failed to load config.");
+            let config: Config = Actions::get_config().unwrap();
             let editor: String = config.get_editor().unwrap();
 
             if editor.is_empty() {
