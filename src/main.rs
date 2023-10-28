@@ -31,10 +31,16 @@ fn main() {
     match args.subcommand() {
         Some(("new", sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let mut path: String = config.get_path().unwrap();
+            let mut path: String = config.get_path();
+
+            if path.is_empty() {
+                Term::fail("Path option is empty. Please specify it manually.");
+            }
+            
             if !Path::new(&path).exists() {
                 Term::fail("Directory with projects not found. Check if path set correctly.");
             }
+
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("New project should have a name.");
@@ -53,8 +59,8 @@ fn main() {
         }
         Some(("open", sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let path: String = config.get_path().unwrap();
-            let editor: String = config.get_editor().unwrap();
+            let path: String = config.get_path();
+            let editor: String = config.get_editor();
 
             if path.is_empty() {
                 Term::fail("Path option is empty. Please specify it manually.");
@@ -75,13 +81,13 @@ fn main() {
             }
 
             let mut proc: Proc = Proc::new(editor.as_str());
-            proc.set_args(config.get_editor_args().unwrap());
+            proc.set_args(config.get_editor_args());
             proc.set_cwd(fullpath.as_str());
             proc.run();
         }
         Some(("list", _sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let path: String = config.get_path().unwrap();
+            let path: String = config.get_path();
 
             if !Path::new(&path).exists() {
                 Term::fail("Directory with projects not found. Check if path set correctly.");
@@ -107,7 +113,7 @@ fn main() {
         }
         Some(("delete", sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let path: String = config.get_path().unwrap();
+            let path: String = config.get_path();
 
             if !Path::new(&path).exists() {
                 Term::fail("Directory with projects not found. Check if path set correctly.");
@@ -126,14 +132,14 @@ fn main() {
         }
         Some(("config", _sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let editor: String = config.get_editor().unwrap();
+            let editor: String = config.get_editor();
 
             if editor.is_empty() {
                 Term::fail("Editor option is empty. Please specify it manually.");
             }
 
             let mut proc: Proc = Proc::new(editor.as_str());
-            let mut editor_args = config.get_editor_args().unwrap();
+            let mut editor_args = config.get_editor_args();
             let config_path = Manager::get_config_path();
             editor_args.push(config_path.as_str());
             proc.set_args(editor_args);
