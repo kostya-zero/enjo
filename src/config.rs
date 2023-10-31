@@ -19,7 +19,7 @@ impl Default for Config {
 
 impl Config {
     pub fn get_path(&self) -> String {
-        match self.editor.clone() {
+        match self.path.clone() {
             Some(i) => i,
             None => String::new(),
         }
