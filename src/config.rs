@@ -46,6 +46,4 @@ impl Config {
             None => Vec::new(),
         }
     }
-
-
 }

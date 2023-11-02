@@ -20,9 +20,13 @@ fn main() {
         match Manager::write_config(default_config) {
             Ok(_) => Term::done("Default configuration generated."),
             Err(e) => match e {
-                manager::ManagerError::WriteFailed => Term::fail("Failed to write default configuration to file."),
-                manager::ManagerError::FormatFailed => Term::fail("Failed to format configuration to TOML."),
-                _ => Term::fail("Unknown error occured.")
+                manager::ManagerError::WriteFailed => {
+                    Term::fail("Failed to write default configuration to file.")
+                }
+                manager::ManagerError::FormatFailed => {
+                    Term::fail("Failed to format configuration to TOML.")
+                }
+                _ => Term::fail("Unknown error occured."),
             },
         }
     }
@@ -36,7 +40,7 @@ fn main() {
             if path.is_empty() {
                 Term::fail("Path option is empty. Please specify it manually.");
             }
-            
+
             if !Path::new(&path).exists() {
                 Term::fail("Directory with projects not found. Check if path set correctly.");
             }
@@ -144,6 +148,26 @@ fn main() {
             editor_args.push(config_path.as_str());
             proc.set_args(editor_args);
             proc.run();
+        }
+        Some(("reset", sub)) => {
+            let yes: bool = sub.get_flag("yes");
+            if !yes {
+                Term::fail("You should give your agreement to reset your configuratuion. YOU CANT ABORT THIS ACTION.")
+            }
+
+            let new_config: Config = Manager::make_default();
+            match Manager::write_config(new_config) {
+                Ok(_) => Term::done("Configuration has been set to defaults."),
+                Err(e) => match e {
+                    manager::ManagerError::WriteFailed => {
+                        Term::fail("Failed to write default configuration to file.")
+                    }
+                    manager::ManagerError::FormatFailed => {
+                        Term::fail("Failed to format configuration to TOML.")
+                    }
+                    _ => Term::fail("Unknown error occured."),
+                },
+            }
         }
         _ => Term::error("Command not found or it's not implemented yet."),
     }

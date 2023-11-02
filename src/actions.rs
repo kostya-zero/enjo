@@ -13,15 +13,15 @@ impl Actions {
                 crate::manager::ManagerError::WriteFailed => {
                     Term::fail("Unknown error.");
                     Err(())
-                },
+                }
                 crate::manager::ManagerError::BadStructure => {
                     Term::fail("Configuration file has a bad structure and cant be serialized.");
                     Err(())
-                },
+                }
                 crate::manager::ManagerError::FormatFailed => {
                     Term::fail("Configuration file has a bad structure and cant be serialized.");
                     Err(())
-                },
+                }
             },
         }
     }
