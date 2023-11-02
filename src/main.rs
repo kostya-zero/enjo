@@ -152,7 +152,8 @@ fn main() {
         Some(("reset", sub)) => {
             let yes: bool = sub.get_flag("yes");
             if !yes {
-                Term::fail("You should give your agreement to reset your configuratuion. YOU CANT ABORT THIS ACTION.")
+                Term::error("You should give your agreement to reset your configuratuion by passing '--yes' argument.");
+                Term::fail("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
             }
 
             let new_config: Config = Manager::make_default();
