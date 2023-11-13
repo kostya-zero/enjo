@@ -134,40 +134,47 @@ fn main() {
                 Err(_) => Term::done("The project has been deleted."),
             }
         }
-        Some(("config", _sub)) => {
-            let config: Config = Actions::get_config().unwrap();
-            let editor: String = config.get_editor();
+        Some(("config", sub)) => {
+            match sub.subcommand() {
+                Some(("edit", _sub)) => {
+                    let config: Config = Actions::get_config().unwrap();
+                    let editor: String = config.get_editor();
 
-            if editor.is_empty() {
-                Term::fail("Editor option is empty. Please specify it manually.");
-            }
-
-            let mut proc: Proc = Proc::new(editor.as_str());
-            let mut editor_args = config.get_editor_args();
-            let config_path = Manager::get_config_path();
-            editor_args.push(config_path.as_str());
-            proc.set_args(editor_args);
-            proc.run();
-        }
-        Some(("reset", sub)) => {
-            let yes: bool = sub.get_flag("yes");
-            if !yes {
-                Term::error("You should give your agreement to reset your configuratuion by passing '--yes' argument.");
-                Term::fail("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
-            }
-
-            let new_config: Config = Manager::make_default();
-            match Manager::write_config(new_config) {
-                Ok(_) => Term::done("Configuration has been set to defaults."),
-                Err(e) => match e {
-                    manager::ManagerError::WriteFailed => {
-                        Term::fail("Failed to write default configuration to file.")
+                    if editor.is_empty() {
+                        Term::fail("Editor option is empty. Please specify it manually.");
                     }
-                    manager::ManagerError::FormatFailed => {
-                        Term::fail("Failed to format configuration to TOML.")
+
+                    let mut proc: Proc = Proc::new(editor.as_str());
+                    let mut editor_args = config.get_editor_args();
+                    let config_path = Manager::get_config_path();
+                    editor_args.push(config_path.as_str());
+                    proc.set_args(editor_args);
+                    proc.run();
+                }
+                Some(("reset", sub)) => {
+                    let yes: bool = sub.get_flag("yes");
+                    if !yes {
+                        Term::error("You should give your agreement to reset your configuratuion by passing '--yes' argument.");
+                        Term::fail("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
                     }
-                    _ => Term::fail("Unknown error occured."),
-                },
+
+                    let new_config: Config = Manager::make_default();
+                    match Manager::write_config(new_config) {
+                        Ok(_) => Term::done("Configuration has been set to defaults."),
+                        Err(e) => match e {
+                            manager::ManagerError::WriteFailed => {
+                                Term::fail("Failed to write default configuration to file.")
+                            }
+                            manager::ManagerError::FormatFailed => {
+                                Term::fail("Failed to format configuration to TOML.")
+                            }
+                            _ => Term::fail("Unknown error occured."),
+                        },
+                    }
+                }
+                _ => Term::fail(
+                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.",
+                ),
             }
         }
         _ => Term::error("Command not found or it's not implemented yet."),

@@ -15,7 +15,7 @@ impl Term {
     }
 
     pub fn item(msg: &str) {
-        println!("   {}", msg)
+        println!(" {}", msg)
     }
 
     pub fn fail(msg: &str) {

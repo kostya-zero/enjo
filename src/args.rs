@@ -1,5 +1,3 @@
-use std::process::CommandArgs;
-
 use clap::{value_parser, Arg, ArgAction, Command};
 
 pub fn get_args() -> Command {
@@ -29,12 +27,14 @@ pub fn get_args() -> Command {
                     .required(false)
                     .num_args(1),
             ),
-            Command::new("config").about("Open configuration file."),
+            Command::new("config").about("Manage your config file.").subcommands([
+                Command::new("edit").about("Edit configuration file."),
             Command::new("reset").about("Reset your configuration.").arg(
                 Arg::new("yes")
                     .help("You understand that your configuration will be reset WITHOUT A WAY TO RESTORE.")
                     .long("yes")
                     .action(ArgAction::SetTrue)
             )
+            ]),
         ])
 }
