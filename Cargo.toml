@@ -6,7 +6,7 @@ homepage    = "https://github.com/kostya-zero/enjo"
 keywords    = ["development", "workspace"]
 readme      = "README.md"
 license     = "MIT"
-version     = "0.1.0-dev"
+version     = "0.1.0"
 edition     = "2021"
 
 [dependencies]
@@ -17,6 +17,6 @@ toml  = "0.8.0"
 
 [profile.release]
 lto       = "thin"
-opt-level = 3
+opt-level = 2
 
   

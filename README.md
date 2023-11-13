@@ -1,16 +1,51 @@
 # Enjo
-Enjo is a minimalist workspace assistant tool that allows you to quickly manager your projects.
+Enjo is a minimalist workspace assistant tool that allows you to quickly manage your projects.
 
 ### Installation
 
-Download binary from releases on GitHub and place it in place that exists in PATH.
+You have 3 ways to install Enjo.
+
+##### Binary from releases
+
+You can download latest releases on GitHub and place binary in directory that was added to `PATH`.
+
+##### 
 
 ### Usage
 
-To see full list of available arguments, run Enjo with argument `help`:
+Before you start, You should configure your Enjo settings. Go to [configuration](#configuration) section for help.
+
+Enjo allows you to manage your projects and work with it.
+You can get list of projects by using `list` subcommand.
 
 ```shell
-enjo help
+enjo list
+```
+
+Also you can create and delete projects.
+
+```shell
+# Use `new` to create new project.
+enjo new bookshelf
+
+# Use `delete` to delete project.
+enjo delete bookshelf
+```
+
+Enjo allows you to quickly jump into your project with editor that specified in your configuration. 
+Use `open` subcommand and then specify name of project.
+
+```
+enjo open bookshelf
+```
+
+If you want to get help about something, use `--help` argument.
+
+```shell
+enjo --help
+
+# It's also works with subcommands
+enjo config --help
 ```
 
 ### Configuration
@@ -27,9 +62,18 @@ editor_args = []
 ```
 
 Configuration file is located at root of your user home directory and named as `.enjo.toml`.
-You can open editor with configuration file opened by running Enjo with `config` argument:
+You can open editor with configuration file opened by running Enjo with `config edit` argument:
 
 ```shell
-enjo config
+enjo config edit
 ```
+
+To reset your config use `config reset` subcommand with provided `--yes` argument.
+
+
+```shell
+enjo config reset
+```
+
+> `--yes` required because it shows your agreement to reset configuration.
 
