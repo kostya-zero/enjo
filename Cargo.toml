@@ -3,7 +3,7 @@ name        = "enjo"
 description = "Minimalist workspace assistant tool."
 authors     = [ "Konstantin Zhigaylo <zero@kostyazero.com>" ]
 homepage    = "https://github.com/kostya-zero/enjo"
-keywords    = ["development", "workspace"]
+keywords    = ["workspace"]
 readme      = "README.md"
 license     = "MIT"
 version     = "0.1.0"
@@ -19,4 +19,3 @@ toml  = "0.8.0"
 lto       = "thin"
 opt-level = 2
 
-  
