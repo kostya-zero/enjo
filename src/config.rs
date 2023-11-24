@@ -18,32 +18,23 @@ impl Default for Config {
 }
 
 impl Config {
-    pub fn get_path(&self) -> String {
-        match self.path.clone() {
-            Some(i) => i,
-            None => String::new(),
-        }
+    pub fn get_path(&self) -> Option<String> {
+        self.path.clone()
     }
 
     pub fn set_path(&mut self, path: &str) {
         self.path = Some(String::from(path));
     }
 
-    pub fn get_editor(&self) -> String {
-        match self.editor.clone() {
-            Some(i) => i,
-            None => String::new(),
-        }
+    pub fn get_editor(&self) -> Option<String> {
+        self.editor.clone()
     }
 
     pub fn set_editor(&mut self, editor: &str) {
         self.editor = Some(String::from(editor));
     }
 
-    pub fn get_editor_args(&self) -> Vec<&str> {
-        match &self.editor_args {
-            Some(vect) => vect.iter().map(|i| i.as_str()).collect(),
-            None => Vec::new(),
-        }
+    pub fn get_editor_args(&self) -> Option<Vec<&str>> {
+        self.editor_args.as_ref().map(|vect| vect.iter().map(|i| i.as_str()).collect())
     }
 }
