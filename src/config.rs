@@ -35,6 +35,8 @@ impl Config {
     }
 
     pub fn get_editor_args(&self) -> Option<Vec<&str>> {
-        self.editor_args.as_ref().map(|vect| vect.iter().map(|i| i.as_str()).collect())
+        self.editor_args
+            .as_ref()
+            .map(|vect| vect.iter().map(|i| i.as_str()).collect())
     }
 }

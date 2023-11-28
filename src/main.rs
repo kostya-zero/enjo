@@ -1,18 +1,19 @@
-use std::{fs, path::Path};
+use std::{any::type_name, fs, path::Path, process::exit};
 
-use actions::Utils;
 use args::get_args;
 use config::Config;
 use manager::Manager;
 use proc::Proc;
 use term::Term;
+use utils::{Utils, UtilsError};
 
-mod actions;
 mod args;
 mod config;
 mod manager;
 mod proc;
+mod projects;
 mod term;
+mod utils;
 
 fn main() {
     if !Manager::check_exists() {
@@ -36,22 +37,21 @@ fn main() {
         Some(("new", sub)) => {
             let config: Config = Utils::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
-                let path = Path::new(&dir_path);
-                if !path.exists() {
-                    Term::fail("Directory with projects not exists.");
+                if dir_path.is_empty() {
+                    Term::fail("Path option in configuration is empty.")
                 }
 
+                let projects = Utils::fetch_directory(&dir_path).unwrap();
                 if let Some(name) = sub.get_one::<String>("name") {
                     if name.is_empty() {
-                        Term::fail("Specify a name for your new project.");
+                        Term::fail("Specify a name for your new project");
                     }
 
-                    let new_path = path.join(name);
-
-                    if new_path.exists() {
-                        Term::fail("Project with the same name already exists.");
+                    if projects.projects.contains(name) {
+                        Term::fail("Project with same name already exists.");
                     }
 
+                    let new_path = Path::new(&projects.root).join(name);
                     match fs::create_dir(&new_path) {
                         Ok(_) => Term::done("Project created."),
                         Err(_) => Term::fail("Failed to make project directory."),
@@ -64,23 +64,14 @@ fn main() {
         Some(("open", sub)) => {
             let config: Config = Utils::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
+                if dir_path.is_empty() {
+                    Term::fail("Path option in configuration is empty.")
+                }
                 if let Some(editor) = config.get_editor() {
-                    if dir_path.is_empty() {
-                        Term::fail("Path option is empty.");
-                    }
-
-                    if editor.is_empty() {
-                        Term::fail("Editor option is empty.");
-                    }
-
-                    let path: &Path = Path::new(&dir_path);
-                    if !path.exists() {
-                        Term::fail("Directory with projects not exists.");
-                    }
+                    let projects = Utils::fetch_directory(&dir_path).unwrap();
 
                     if let Some(project) = sub.get_one::<String>("name") {
-                        let new_path = path.join(project);
-                        if !new_path.exists() {
+                        if !projects.projects.contains(project) {
                             Term::fail("Project not found.");
                         }
                         let editor_args = if let Some(opt_args) = config.get_editor_args() {
@@ -88,9 +79,12 @@ fn main() {
                         } else {
                             Vec::new()
                         };
+
+                        let append: &str = sub.get_one::<String>("append").unwrap();
+                        let path = Path::new(&dir_path).join(project).join(append);
                         let mut proc: Proc = Proc::new(editor.as_str());
                         proc.set_args(editor_args);
-                        proc.set_cwd(new_path.to_str().unwrap());
+                        proc.set_cwd(path.to_str().unwrap());
                         Term::busy(format!("Launching editor ({})...", editor).as_str());
                         proc.run();
                         Term::done("Editor closed.");
@@ -101,41 +95,36 @@ fn main() {
         Some(("list", _sub)) => {
             let config: Config = Utils::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
-                let path = Path::new(&dir_path);
-                if !path.exists() {
-                    Term::fail("Directory with projects not exists.");
+                if dir_path.is_empty() {
+                    Term::fail("Path option in configuration is empty.")
                 }
-
-                match Utils::fetch_entries_in_dir(path.to_str().unwrap()) {
-                    Ok(projects) => {
-                        Term::list_title("All projects");
-                        for project in projects {
-                            Term::item(&project);
-                        }
-                    },
-                    Err(e) => match e {
-                        actions::UtilsError::FetchEntriesError(info) => Term::fail(format!("Failed to fetch projects. {info}").as_str()),
-                    },
+                let projects = Utils::fetch_directory(dir_path.as_str()).unwrap();
+                Term::list_title("All projects");
+                for project in projects.projects.iter() {
+                    Term::item(project.as_str());
                 }
             }
         }
         Some(("delete", sub)) => {
             let config: Config = Utils::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
-                let path = Path::new(&dir_path);
+                println!("{:?}", dir_path);
 
-                if !path.exists() {
-                    Term::fail("Directory with projects not exists.");
+                if dir_path.is_empty() {
+                    Term::fail("Path option in configuration is empty.")
                 }
-
+                let projects = Utils::fetch_directory(&dir_path).unwrap();
                 if let Some(name) = sub.get_one::<String>("name") {
-                    let new_path = path.join(name);
+                    if name.eq(".") || name.eq("..") {
+                        Term::fail("You cant remove parent or directory with projects.");
+                    }
 
-                    if !new_path.exists() {
+                    if !projects.projects.contains(name) {
                         Term::fail("Project not found.");
                     }
 
-                    match fs::remove_dir_all(new_path.to_str().unwrap()) {
+                    let path = Path::new(&dir_path).join(name);
+                    match fs::remove_dir_all(path.to_str().unwrap()) {
                         Ok(_) => Term::done("The project has been deleted."),
                         Err(_) => Term::fail("Failed to remove project directory"),
                     }

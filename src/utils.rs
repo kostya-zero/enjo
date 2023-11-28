@@ -3,6 +3,7 @@ use std::fs;
 use crate::{
     config::Config,
     manager::{Manager, ManagerError},
+    projects::{ProjectsContainer, ProjectsError},
     term::Term,
 };
 
@@ -36,23 +37,19 @@ impl Utils {
         }
     }
 
-    pub fn fetch_entries_in_dir(path: &str) -> Result<Vec<String>, UtilsError> {
-        let mut new_vec: Vec<String> = Vec::new();
-        if let Ok(entries) = fs::read_dir(path) {
-            for entry in entries.flatten() {
-                if let Some(name) = entry.file_name().to_str() {
-                    if entry.metadata().map(|m| m.is_dir()).unwrap_or(false)
-                        && !name.starts_with('.')
-                    {
-                        new_vec.push(name.to_owned());
-                    }
+    pub fn fetch_directory(path: &str) -> Option<ProjectsContainer> {
+        match ProjectsContainer::new(path) {
+            Ok(container) => Some(container),
+            Err(e) => match e {
+                ProjectsError::RootNotFound => {
+                    Term::fail("Cannot find directory by given path.");
+                    None
                 }
-            }
-        } else {
-            return Err(UtilsError::FetchEntriesError(
-                "Cant read directory.".to_string(),
-            ));
+                ProjectsError::DirReadFailed => {
+                    Term::fail("Cannot read directory by given path.");
+                    None
+                }
+            },
         }
-        Ok(new_vec)
     }
 }
