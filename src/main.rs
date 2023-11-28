@@ -46,7 +46,7 @@ fn main() {
                         Term::fail("Specify a name for your new project.");
                     }
 
-                    let new_path = path.join(format!("{name}").as_str());
+                    let new_path = path.join(name);
 
                     if new_path.exists() {
                         Term::fail("Project with the same name already exists.");
@@ -79,7 +79,7 @@ fn main() {
                     }
 
                     if let Some(project) = sub.get_one::<String>("name") {
-                        let new_path = path.join(format!("{}", project).as_str());
+                        let new_path = path.join(project);
                         if !new_path.exists() {
                             Term::fail("Project not found.");
                         }
@@ -129,7 +129,7 @@ fn main() {
                 }
 
                 if let Some(name) = sub.get_one::<String>("name") {
-                    let new_path = path.join(format!("{name}").as_str());
+                    let new_path = path.join(name);
 
                     if !new_path.exists() {
                         Term::fail("Project not found.");
