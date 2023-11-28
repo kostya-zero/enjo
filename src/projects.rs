@@ -1,7 +1,5 @@
 use std::{fs, path::Path};
 
-use crate::utils::Utils;
-
 pub struct ProjectsContainer {
     pub root: String,
     pub projects: Vec<String>,

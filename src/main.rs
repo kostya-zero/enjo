@@ -1,11 +1,11 @@
-use std::{any::type_name, fs, path::Path, process::exit};
+use std::{fs, path::Path};
 
 use args::get_args;
 use config::Config;
 use manager::Manager;
 use proc::Proc;
 use term::Term;
-use utils::{Utils, UtilsError};
+use utils::Utils;
 
 mod args;
 mod config;
@@ -52,7 +52,7 @@ fn main() {
                     }
 
                     let new_path = Path::new(&projects.root).join(name);
-                    match fs::create_dir(&new_path) {
+                    match fs::create_dir(new_path) {
                         Ok(_) => Term::done("Project created."),
                         Err(_) => Term::fail("Failed to make project directory."),
                     }

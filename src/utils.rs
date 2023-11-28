@@ -1,15 +1,9 @@
-use std::fs;
-
 use crate::{
     config::Config,
     manager::{Manager, ManagerError},
     projects::{ProjectsContainer, ProjectsError},
     term::Term,
 };
-
-pub enum UtilsError {
-    FetchEntriesError(String),
-}
 
 pub struct Utils;
 impl Utils {
