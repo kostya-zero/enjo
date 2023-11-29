@@ -37,4 +37,8 @@ impl ProjectsContainer {
             projects: new_vec,
         })
     }
+
+    pub fn contains(&self, name: &str) -> bool {
+        self.projects.contains(&name.to_string())
+    }
 }

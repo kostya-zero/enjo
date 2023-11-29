@@ -47,7 +47,7 @@ fn main() {
                         Term::fail("Specify a name for your new project");
                     }
 
-                    if projects.projects.contains(name) {
+                    if projects.contains(name) {
                         Term::fail("Project with same name already exists.");
                     }
 
@@ -71,7 +71,7 @@ fn main() {
                     let projects = Utils::fetch_directory(&dir_path).unwrap();
 
                     if let Some(project) = sub.get_one::<String>("name") {
-                        if !projects.projects.contains(project) {
+                        if !projects.contains(project) {
                             Term::fail("Project not found.");
                         }
                         let editor_args = if let Some(opt_args) = config.get_editor_args() {
@@ -119,7 +119,7 @@ fn main() {
                         Term::fail("You cant remove parent or directory with projects.");
                     }
 
-                    if !projects.projects.contains(name) {
+                    if !projects.contains(name) {
                         Term::fail("Project not found.");
                     }
 
