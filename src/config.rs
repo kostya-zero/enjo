@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     path: Option<String>,
     editor: Option<String>,
+    shell: Option<String>,
     editor_args: Option<Vec<String>>,
 }
 
@@ -12,6 +13,7 @@ impl Default for Config {
         Self {
             path: Some(String::new()),
             editor: Some(String::from("nvim")),
+            shell: Some(String::from("bash")),
             editor_args: Some(Vec::new()),
         }
     }
@@ -32,6 +34,14 @@ impl Config {
 
     pub fn set_editor(&mut self, editor: &str) {
         self.editor = Some(String::from(editor));
+    }
+
+    pub fn get_shell(&self) -> Option<String> {
+        self.shell.clone()
+    }
+
+    pub fn set_shell(&mut self, shell: &str) {
+        self.shell = Some(String::from(shell));
     }
 
     pub fn get_editor_args(&self) -> Option<Vec<&str>> {

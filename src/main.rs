@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{fs, path::Path, process::exit};
 
 use args::get_args;
 use config::Config;
@@ -67,6 +67,28 @@ fn main() {
                 if dir_path.is_empty() {
                     Term::fail("Path option in configuration is empty.")
                 }
+
+                if sub.get_flag("shell") {
+                    if let Some(shell) = config.get_shell() {
+                        let projects = Utils::fetch_directory(&dir_path).unwrap();
+                        let project = sub.get_one::<String>("name").unwrap();
+                        if !projects.contains(project) {
+                            Term::fail("Project not found.");
+                        }
+
+                        let append: &str = sub.get_one::<String>("append").unwrap();
+                        let path = Path::new(&dir_path).join(project).join(append);
+                        let mut proc: Proc = Proc::new(shell.as_str());
+                        proc.set_cwd(path.to_str().unwrap());
+                        Term::busy(format!("Launching shell ({})...", shell).as_str());
+                        proc.run();
+                        Term::done("Shell closed.");
+                        exit(0);
+                    } else {
+                        Term::fail("Shell not set in configuration.");
+                    }
+                }
+
                 if let Some(editor) = config.get_editor() {
                     let projects = Utils::fetch_directory(&dir_path).unwrap();
 

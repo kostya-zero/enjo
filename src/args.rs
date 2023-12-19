@@ -19,6 +19,7 @@ pub fn get_args() -> Command {
                     .help("Name of the project to open.")
                     .value_parser(value_parser!(String))
                     .required(false)
+                    .default_value("")
                     .num_args(1),
                 Arg::new("append")
                     .help("Append path to the project.")
@@ -27,6 +28,10 @@ pub fn get_args() -> Command {
                     .required(false)
                     .default_value("")
                     .num_args(1),
+                Arg::new("shell")
+                    .help("Open shell instead of editor.")
+                    .long("shell")
+                    .action(ArgAction::SetTrue),
             ]),
             Command::new("list").about("List projects."),
             Command::new("delete").about("Delete project.").arg(
