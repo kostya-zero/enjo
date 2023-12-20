@@ -31,24 +31,32 @@ impl Manager {
         match env::consts::OS.to_string().as_str() {
             "windows" => {
                 default_config.set_editor("code");
+                default_config.set_shell("pwsh")
             }
             "linux" => {
                 default_config.set_editor("nvim");
+                default_config.set_shell("bash")
             }
             "freebsd" => {
                 default_config.set_editor("nvim");
+                default_config.set_shell("bash")
             }
             "netbsd" => {
                 default_config.set_editor("nvim");
+                default_config.set_shell("bash")
             }
             "macos" => {
                 default_config.set_editor("code");
+                default_config.set_shell("zsh")
             }
             _ => panic!("Unknown platform detected."),
         };
 
         if let Ok(editor) = env::var("EDITOR") {
             default_config.set_editor(editor.as_str());
+        }
+        if let Ok(shell) = env::var("SHELL") {
+            default_config.set_shell(shell.as_str());
         }
         default_config
     }

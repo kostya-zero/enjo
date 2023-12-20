@@ -181,7 +181,7 @@ fn main() {
 
                     let new_config: Config = Manager::make_default();
                     match Manager::write_config(new_config) {
-                        Ok(_) => Term::done("Configuration has been set to defaults."),
+                        Ok(_) => Term::done("Configuration values have been set to defaults."),
                         Err(e) => match e {
                             manager::ManagerError::WriteFailed => {
                                 Term::fail("Failed to write default configuration to file.")
