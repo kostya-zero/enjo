@@ -123,7 +123,7 @@ fn main() {
                 let projects = Utils::fetch_directory(dir_path.as_str()).unwrap();
                 Term::list_title("All projects");
                 for project in projects.projects.iter() {
-                    Term::item(project.as_str());
+                    Term::item(project.get_name());
                 }
             }
         }
