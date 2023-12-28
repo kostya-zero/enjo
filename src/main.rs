@@ -155,6 +155,9 @@ fn main() {
         }
         Some(("config", sub)) => {
             match sub.subcommand() {
+                Some(("path", _sub)) => {
+                    Term::info(Manager::get_config_path().as_str());
+                }
                 Some(("edit", _sub)) => {
                     let config: Config = Utils::get_config().unwrap();
 

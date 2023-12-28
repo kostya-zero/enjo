@@ -43,11 +43,12 @@ pub fn get_args() -> Command {
             ),
             Command::new("config").about("Manage your config file.").subcommands([
                 Command::new("edit").about("Edit configuration file."),
-            Command::new("reset").about("Reset your configuration.").arg(
-                Arg::new("yes")
-                    .help("You understand that your configuration will be reset WITHOUT A WAY TO RESTORE.")
-                    .long("yes")
-                    .action(ArgAction::SetTrue)
+                Command::new("path").about("Get path to the configuration file."),
+                Command::new("reset").about("Reset your configuration.").arg(
+                    Arg::new("yes")
+                        .help("You understand that your configuration will be reset WITHOUT A WAY TO RESTORE.")
+                        .long("yes")
+                        .action(ArgAction::SetTrue)
             )
             ]),
         ])

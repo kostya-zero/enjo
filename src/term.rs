@@ -14,6 +14,10 @@ impl Term {
         println!(" \x1b[97mWork\x1b[0m: {}", msg);
     }
 
+    pub fn info(msg: &str) {
+        println!(" \x1b[97m󰍡\x1b[0m {msg}");
+    }
+
     pub fn list_title(msg: &str) {
         println!(" \x1b[97m\x1b[0m {}", msg);
     }

@@ -1,10 +1,12 @@
 use std::{fs, path::Path};
 
+#[derive(Debug, Clone)]
 pub struct ProjectsContainer {
     pub root: String,
     pub projects: Vec<Project>,
 }
 
+#[derive(Debug, Clone)]
 pub struct Project {
     name: String,
     path: String,
