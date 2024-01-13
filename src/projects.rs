@@ -1,12 +1,6 @@
 use std::{fs, path::Path};
 
 #[derive(Debug, Clone)]
-pub struct ProjectsContainer {
-    pub root: String,
-    pub projects: Vec<Project>,
-}
-
-#[derive(Debug, Clone)]
 pub struct Project {
     name: String,
     path: String,
@@ -25,21 +19,18 @@ impl Project {
     }
 
     pub fn get_path(&self) -> &str {
-        self.name.as_str()
-    }
-
-    pub fn set_name(&mut self, new_name: &str) {
-        self.name = new_name.to_string();
-    }
-
-    pub fn set_path(&mut self, new_path: &str) {
-        self.path = new_path.to_string();
+        self.path.as_str()
     }
 }
 
 pub enum ProjectsError {
     RootNotFound,
     DirReadFailed,
+}
+
+#[derive(Debug, Clone)]
+pub struct ProjectsContainer {
+    projects: Vec<Project>,
 }
 
 impl ProjectsContainer {
@@ -50,7 +41,6 @@ impl ProjectsContainer {
         }
 
         let mut new_vec: ProjectsContainer = ProjectsContainer {
-            root: root_path.to_string(),
             projects: Vec::new(),
         };
 
@@ -76,6 +66,14 @@ impl ProjectsContainer {
 
     pub fn put(&mut self, project: Project) {
         self.projects.push(project);
+    }
+
+    pub fn get(&self, name: &str) -> Option<Project> {
+        self.projects.clone().into_iter().find(|i| i.get_name() == name)
+    }
+
+    pub fn get_all(&self) -> Vec<Project> {
+        self.projects.clone()
     }
 
     pub fn contains(&self, name: &str) -> bool {

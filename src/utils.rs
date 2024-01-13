@@ -46,4 +46,26 @@ impl Utils {
             },
         }
     }
+
+    pub fn resolve_program(program: Option<String>, is_shell: bool) -> String {
+        if let Some(prog) = program {
+            if prog.is_empty(){
+                if is_shell {
+                    Term::fail("Shell is not set in configuration file.");
+                    String::new()
+                } else {
+                    Term::fail("Editor is not set in configuration file.");
+                    String::new()
+                }
+            } else {
+                prog
+            }
+        } else if is_shell {
+            Term::fail("Shell is not set in configuration file.");
+            String::new()
+        } else {
+            Term::fail("Editor is not set in configuration file.");
+            String::new()
+        }
+    }
 }

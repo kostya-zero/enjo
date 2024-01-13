@@ -51,7 +51,7 @@ fn main() {
                         Term::fail("Project with same name already exists.");
                     }
 
-                    let new_path = Path::new(&projects.root).join(name);
+                    let new_path = Path::new(&dir_path).join(name);
                     match fs::create_dir(new_path) {
                         Ok(_) => Term::done("Project created."),
                         Err(_) => Term::fail("Failed to make project directory."),
@@ -68,49 +68,26 @@ fn main() {
                     Term::fail("Path option in configuration is empty.")
                 }
 
-                if sub.get_flag("shell") {
-                    if let Some(shell) = config.get_shell() {
-                        let projects = Utils::fetch_directory(&dir_path).unwrap();
-                        let project = sub.get_one::<String>("name").unwrap();
-                        if !projects.contains(project) {
-                            Term::fail("Project not found.");
-                        }
+                let program = if sub.get_flag("shell") {
+                    Utils::resolve_program(config.get_shell(), true)
+                } else {
+                    Utils::resolve_program(config.get_editor(), true)
+                };
 
-                        let append: &str = sub.get_one::<String>("append").unwrap();
-                        let path = Path::new(&dir_path).join(project).join(append);
-                        let mut proc: Proc = Proc::new(shell.as_str());
-                        proc.set_cwd(path.to_str().unwrap());
-                        Term::busy(format!("Launching shell ({})...", shell).as_str());
-                        proc.run();
-                        Term::done("Shell closed.");
-                        exit(0);
-                    } else {
-                        Term::fail("Shell not set in configuration.");
-                    }
+                let projects = Utils::fetch_directory(&dir_path).unwrap();
+                let project_name = sub.get_one::<String>("name").unwrap();
+                if !projects.contains(project_name) {
+                    Term::fail("Project not found.");
                 }
-
-                if let Some(editor) = config.get_editor() {
-                    let projects = Utils::fetch_directory(&dir_path).unwrap();
-
-                    if let Some(project) = sub.get_one::<String>("name") {
-                        if !projects.contains(project) {
-                            Term::fail("Project not found.");
-                        }
-                        let editor_args = if let Some(opt_args) = config.get_editor_args() {
-                            opt_args
-                        } else {
-                            Vec::new()
-                        };
-
-                        let append: &str = sub.get_one::<String>("append").unwrap();
-                        let path = Path::new(&dir_path).join(project).join(append);
-                        let mut proc: Proc = Proc::new(editor.as_str());
-                        proc.set_args(editor_args);
-                        proc.set_cwd(path.to_str().unwrap());
-                        Term::busy(format!("Launching editor ({})...", editor).as_str());
-                        proc.run();
-                        Term::done("Editor closed.");
-                    }
+                if let Some(project) = projects.get(project_name) {
+                    let append: &str = sub.get_one::<String>("append").unwrap();
+                    let path = Path::new(project.get_path()).join(append);
+                    let mut proc: Proc = Proc::new(program.as_str());
+                    proc.set_cwd(path.to_str().unwrap());
+                    Term::busy(format!("Launching program ({})...", program).as_str());
+                    proc.run();
+                    Term::done("Program closed.");
+                    exit(0);
                 }
             }
         }
@@ -122,7 +99,7 @@ fn main() {
                 }
                 let projects = Utils::fetch_directory(dir_path.as_str()).unwrap();
                 Term::list_title("All projects");
-                for project in projects.projects.iter() {
+                for project in projects.get_all().iter() {
                     Term::item(project.get_name());
                 }
             }
