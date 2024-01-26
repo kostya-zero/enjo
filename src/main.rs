@@ -2,6 +2,7 @@ use std::{fs, path::Path, process::exit};
 
 use args::get_args;
 use config::Config;
+use container::Container;
 use manager::Manager;
 use proc::Proc;
 use term::Term;
@@ -11,8 +12,9 @@ mod args;
 mod config;
 mod manager;
 mod proc;
-mod projects;
+mod container;
 mod term;
+
 mod utils;
 
 fn main() {
@@ -41,7 +43,7 @@ fn main() {
                     Term::fail("Path option in configuration is empty.")
                 }
 
-                let projects = Utils::fetch_directory(&dir_path).unwrap();
+                let projects = Container::new(&dir_path);
                 if let Some(name) = sub.get_one::<String>("name") {
                     if name.is_empty() {
                         Term::fail("Specify a name for your new project");
@@ -74,14 +76,14 @@ fn main() {
                     Utils::resolve_program(config.get_editor(), true)
                 };
 
-                let projects = Utils::fetch_directory(&dir_path).unwrap();
+                let projects = Container::new(&dir_path);
                 let project_name = sub.get_one::<String>("name").unwrap();
                 if !projects.contains(project_name) {
                     Term::fail("Project not found.");
                 }
                 if let Some(project) = projects.get(project_name) {
                     let append: &str = sub.get_one::<String>("append").unwrap();
-                    let path = Path::new(project.get_path()).join(append);
+                    let path = Path::new(&project.path).join(append);
                     let mut proc: Proc = Proc::new(program.as_str());
                     proc.set_cwd(path.to_str().unwrap());
                     Term::busy(format!("Launching program ({})...", program).as_str());
@@ -97,10 +99,10 @@ fn main() {
                 if dir_path.is_empty() {
                     Term::fail("Path option in configuration is empty.")
                 }
-                let projects = Utils::fetch_directory(dir_path.as_str()).unwrap();
+                let projects = Container::new(&dir_path);
                 Term::list_title("All projects");
-                for project in projects.get_all().iter() {
-                    Term::item(project.get_name());
+                for project in projects.get_vec().iter() {
+                    Term::item(project.name.as_str());
                 }
             }
         }
@@ -112,7 +114,7 @@ fn main() {
                 if dir_path.is_empty() {
                     Term::fail("Path option in configuration is empty.")
                 }
-                let projects = Utils::fetch_directory(&dir_path).unwrap();
+                let projects = Container::new(&dir_path);
                 if let Some(name) = sub.get_one::<String>("name") {
                     if name.eq(".") || name.eq("..") {
                         Term::fail("You cant remove parent or directory with projects.");
