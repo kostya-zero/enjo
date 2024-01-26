@@ -73,7 +73,7 @@ fn main() {
                 let program = if sub.get_flag("shell") {
                     Utils::resolve_program(config.get_shell(), true)
                 } else {
-                    Utils::resolve_program(config.get_editor(), true)
+                    Utils::resolve_program(config.get_editor(), false)
                 };
 
                 let projects = Container::new(&dir_path);
