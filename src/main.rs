@@ -1,7 +1,7 @@
 use std::{fs, path::Path, process::exit};
 use actions::Actions;
 use configs::config::Config;
-use configs::manager::{Manager, ManagerWriteError};
+use configs::manager::Manager;
 use tools::args::get_args;
 use tools::container::Container;
 use tools::proc::Proc;
@@ -53,7 +53,6 @@ fn main() {
                 }
 
                 let program = Actions::resolve_program(config.get_shell(), sub.get_flag("shell")).unwrap();
-
                 let projects = Container::new(&dir_path);
                 let project_name = sub.get_one::<String>("name").unwrap();
                 if !projects.contains(project_name) {
@@ -61,7 +60,7 @@ fn main() {
                 }
                 if let Some(project) = projects.get(project_name) {
                     let append: &str = sub.get_one::<String>("append").unwrap();
-                    let path = Path::new(&project.path).join(append);
+                    let path = Path::new(&project.get_path_str()).join(append);
                     let mut proc: Proc = Proc::new(program.as_str());
                     proc.set_cwd(path.to_str().unwrap());
                     Term::busy(format!("Launching program ({})...", program).as_str());
