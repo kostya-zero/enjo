@@ -1,43 +1,25 @@
 use std::{fs, path::Path, process::exit};
+use actions::Actions;
+use configs::config::Config;
+use configs::manager::{Manager, ManagerWriteError};
+use tools::args::get_args;
+use tools::container::Container;
+use tools::proc::Proc;
+use tools::term::Term;
 
-use args::get_args;
-use config::Config;
-use container::Container;
-use manager::Manager;
-use proc::Proc;
-use term::Term;
-use utils::Utils;
-
-mod args;
-mod config;
-mod manager;
-mod proc;
-mod container;
-mod term;
-
-mod utils;
+mod actions;
+mod configs;
+mod tools;
 
 fn main() {
     if !Manager::check_exists() {
         let default_config: Config = Manager::make_default();
-        match Manager::write_config(default_config) {
-            Ok(_) => Term::done("Default configuration generated."),
-            Err(e) => match e {
-                manager::ManagerError::WriteFailed => {
-                    Term::fail("Failed to write default configuration to file.")
-                }
-                manager::ManagerError::FormatFailed => {
-                    Term::fail("Failed to format configuration to TOML.")
-                }
-                _ => Term::fail("Unknown error occured."),
-            },
-        }
-    }
+        Actions::write_config(default_config);
 
-    let args = get_args().get_matches();
-    match args.subcommand() {
+        let args = get_args().get_matches();
+        match args.subcommand() {
         Some(("new", sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Actions::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
                 if dir_path.is_empty() {
                     Term::fail("Path option in configuration is empty.")
@@ -64,17 +46,13 @@ fn main() {
             }
         }
         Some(("open", sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Actions::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
                 if dir_path.is_empty() {
                     Term::fail("Path option in configuration is empty.")
                 }
 
-                let program = if sub.get_flag("shell") {
-                    Utils::resolve_program(config.get_shell(), true)
-                } else {
-                    Utils::resolve_program(config.get_editor(), false)
-                };
+                let program = Actions::resolve_program(config.get_shell(), sub.get_flag("shell")).unwrap();
 
                 let projects = Container::new(&dir_path);
                 let project_name = sub.get_one::<String>("name").unwrap();
@@ -94,7 +72,7 @@ fn main() {
             }
         }
         Some(("list", _sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Actions::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
                 if dir_path.is_empty() {
                     Term::fail("Path option in configuration is empty.")
@@ -107,7 +85,7 @@ fn main() {
             }
         }
         Some(("delete", sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Actions::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
                 println!("{:?}", dir_path);
 
@@ -138,7 +116,7 @@ fn main() {
                     Term::info(Manager::get_config_path().as_str());
                 }
                 Some(("edit", _sub)) => {
-                    let config: Config = Utils::get_config().unwrap();
+                    let config: Config = Actions::get_config().unwrap();
 
                     if let Some(editor) = config.get_editor() {
                         if editor.is_empty() {
@@ -158,22 +136,12 @@ fn main() {
                     let yes: bool = sub.get_flag("yes");
                     if !yes {
                         Term::error("You should give your agreement to reset your configuratuion by passing '--yes' argument.");
-                        Term::fail("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
+                        Term::info("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
+                        exit(1);
                     }
 
                     let new_config: Config = Manager::make_default();
-                    match Manager::write_config(new_config) {
-                        Ok(_) => Term::done("Configuration values have been set to default."),
-                        Err(e) => match e {
-                            manager::ManagerError::WriteFailed => {
-                                Term::fail("Failed to write default configuration to file.")
-                            }
-                            manager::ManagerError::FormatFailed => {
-                                Term::fail("Failed to format configuration to TOML.")
-                            }
-                            _ => Term::fail("Unknown error occured."),
-                        },
-                    }
+                    Actions::write_config(new_config);
                 }
                 _ => Term::fail(
                     "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.",
@@ -181,5 +149,6 @@ fn main() {
             }
         }
         _ => Term::error("Command not found or it's not implemented yet."),
+    }
     }
 }

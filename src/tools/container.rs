@@ -1,4 +1,7 @@
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 #[derive(Debug, Clone)]
 pub struct Project {
@@ -10,7 +13,7 @@ impl Project {
     pub fn new(new_name: &str, new_path: PathBuf) -> Self {
         Self {
             name: String::from(new_name),
-            path: new_path
+            path: new_path,
         }
     }
 
