@@ -15,6 +15,7 @@ fn main() {
     if !Manager::check_exists() {
         let default_config: Config = Manager::make_default();
         Actions::write_config(default_config);
+    }
 
         let args = get_args().get_matches();
         match args.subcommand() {
@@ -148,6 +149,5 @@ fn main() {
             }
         }
         _ => Term::error("Command not found or it's not implemented yet."),
-    }
     }
 }
