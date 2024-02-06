@@ -10,10 +10,10 @@ version     = "0.1.0"
 edition     = "2021"
 
 [dependencies]
-clap  = "4.4.4"
-home  = "0.5.5"
-serde = { version = "1.0.188", features = ["derive"] }
-toml  = "0.8.0"
+clap  = "4.4.18"
+home  = "0.5.9"
+serde = { version = "1.0.196", features = ["derive"] }
+toml  = "0.8.10"
 
 [profile.release]
 lto       = "thin"
