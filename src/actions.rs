@@ -1,8 +1,6 @@
-use crate::{
-    configs::config::Config,
-    configs::manager::{Manager, ManagerLoadError, ManagerWriteError},
-    tools::term::Term,
-};
+use enjo_configs::config::Config;
+use enjo_configs::manager::{Manager, ManagerLoadError, ManagerWriteError};
+use enjo_tools::term::Term;
 
 pub struct Actions;
 impl Actions {

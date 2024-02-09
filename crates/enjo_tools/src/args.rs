@@ -1,8 +1,9 @@
-use clap::{value_parser, Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, Command, value_parser};
 
 pub fn get_args() -> Command {
     Command::new("enjo")
-        .about(env!("CARGO_PKG_DESCRIPTION"))
+        .name("enjo")
+        .about("Minimalist workspace assistant tool.")
         .version(env!("CARGO_PKG_VERSION"))
         .subcommand_required(true)
         .arg_required_else_help(true)

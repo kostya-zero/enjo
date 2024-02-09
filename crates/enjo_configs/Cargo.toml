@@ -1,0 +1,10 @@
+[package]
+name = "enjo_configs"
+description = "Configuration file manager for Enjo."
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+home =  "0.5.9"
+serde = { version = "1.0.196", features = ["derive"] }
+toml = "0.8.10"

@@ -1,15 +1,14 @@
 use std::{fs, path::Path, process::exit};
+
 use actions::Actions;
-use configs::config::Config;
-use configs::manager::Manager;
-use tools::args::get_args;
-use tools::container::Container;
-use tools::proc::Proc;
-use tools::term::Term;
+use enjo_configs::config::Config;
+use enjo_configs::manager::Manager;
+use enjo_tools::args::get_args;
+use enjo_tools::container::Container;
+use enjo_tools::proc::Proc;
+use enjo_tools::term::Term;
 
 mod actions;
-mod configs;
-mod tools;
 
 fn main() {
     if !Manager::check_exists() {
@@ -135,7 +134,7 @@ fn main() {
                 Some(("reset", sub)) => {
                     let yes: bool = sub.get_flag("yes");
                     if !yes {
-                        Term::error("You should give your agreement to reset your configuratuion by passing '--yes' argument.");
+                        Term::error("You should give your agreement to reset your configuratuon by passing '--yes' argument.");
                         Term::info("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
                         exit(1);
                     }
