@@ -1,6 +1,6 @@
 [package]
 name        = "enjo"
-description = "Minimalist workspace assistant tool."
+description = "Minimalist workspace assistant."
 authors     = [ "Konstantin Zhigaylo <zero@kostyazero.com>" ]
 homepage    = "https://github.com/kostya-zero/enjo"
 keywords    = ["workspace"]
