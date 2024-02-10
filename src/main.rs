@@ -25,8 +25,8 @@ fn main() {
                     Term::fail("Path is not set in the configuration is empty.")
                 }
 
-                if dir_path.is_empty() {
-                    Term::fail("Path is not set in the configuration is empty.")
+                if !Path::new(&dir_path).exists() {
+                    Term::fail("A directory with projects does not exist on the file system.");
                 }
 
                 let projects = Container::new(&dir_path);
