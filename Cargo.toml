@@ -22,7 +22,6 @@ lto = "thin"
 opt-level = 2
 codegen-units = 1
 
-
 [workspace]
 members = [
     "crates/enjo_configs", 

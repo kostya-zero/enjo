@@ -9,11 +9,11 @@ impl Actions {
             Ok(i) => Some(i),
             Err(e) => match e {
                 ManagerLoadError::FileNotFound => {
-                    Term::fail("Cant load configuration file because it's not found.");
+                    Term::fail("Cannot load the configuration file because it does not exist on the file system.");
                     None
                 }
                 ManagerLoadError::BadStructure => {
-                    Term::fail("Configuration file has a bad structure and cant be serialized.");
+                    Term::fail("Configuration file has a bad structure and cannot be serialized.");
                     None
                 }
             },
@@ -22,11 +22,9 @@ impl Actions {
 
     pub fn write_config(config: Config) {
         match Manager::write_config(config) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => match e {
-                ManagerWriteError::WriteFailed => {
-                    Term::fail("Failed to write configuration file.")
-                }
+                ManagerWriteError::WriteFailed => Term::fail("Failed to write configuration file."),
                 ManagerWriteError::FormatFailed => {
                     Term::fail("Failed to format configuration to TOML.")
                 }
@@ -38,20 +36,20 @@ impl Actions {
         if let Some(prog) = program {
             if prog.is_empty() {
                 if is_shell {
-                    Term::fail("Shell is not set in configuration file.");
+                    Term::fail("Shell is not set in the configuration file.");
                     None
                 } else {
-                    Term::fail("Editor is not set in configuration file.");
+                    Term::fail("Editor is not set in the configuration file.");
                     None
                 }
             } else {
                 Some(prog)
             }
         } else if is_shell {
-            Term::fail("Shell is not set in configuration file.");
+            Term::fail("Shell is not set in the configuration file.");
             None
         } else {
-            Term::fail("Editor is not set in configuration file.");
+            Term::fail("Editor is not set in the configuration file.");
             None
         }
     }

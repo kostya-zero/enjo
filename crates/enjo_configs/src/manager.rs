@@ -1,8 +1,6 @@
-use std::{env, fs, path::Path};
-
-use home::home_dir;
-
 use crate::config::Config;
+use home::home_dir;
+use std::{env, fs, path::Path};
 
 #[derive(Debug)]
 pub enum ManagerLoadError {

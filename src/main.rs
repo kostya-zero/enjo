@@ -16,40 +16,44 @@ fn main() {
         Actions::write_config(default_config);
     }
 
-        let args = get_args().get_matches();
-        match args.subcommand() {
+    let args = get_args().get_matches();
+    match args.subcommand() {
         Some(("new", sub)) => {
             let config: Config = Actions::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
                 if dir_path.is_empty() {
-                    Term::fail("Path option in configuration is empty.")
+                    Term::fail("Path is not set in the configuration is empty.")
+                }
+
+                if dir_path.is_empty() {
+                    Term::fail("Path is not set in the configuration is empty.")
                 }
 
                 let projects = Container::new(&dir_path);
                 if let Some(name) = sub.get_one::<String>("name") {
                     if name.is_empty() {
-                        Term::fail("Specify a name for your new project");
+                        Term::fail("You need to provide a name for your new project.");
                     }
 
                     if projects.contains(name) {
-                        Term::fail("Project with same name already exists.");
+                        Term::fail("Project with this name already exists.");
                     }
 
                     let new_path = Path::new(&dir_path).join(name);
                     match fs::create_dir(new_path) {
                         Ok(_) => Term::done("Project created."),
-                        Err(_) => Term::fail("Failed to make project directory."),
+                        Err(_) => Term::fail("Failed to create project directory because of file system error."),
                     }
                 }
             } else {
-                Term::fail("Path to projects not set in configuration.");
+                Term::fail("Path to the projects is not set in the configuration file.");
             }
         }
         Some(("open", sub)) => {
             let config: Config = Actions::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
                 if dir_path.is_empty() {
-                    Term::fail("Path option in configuration is empty.")
+                    Term::fail("Path is not set in the configuration is empty.")
                 }
 
                 let program = Actions::resolve_program(config.get_shell(), sub.get_flag("shell")).unwrap();
@@ -65,7 +69,7 @@ fn main() {
                     proc.set_cwd(path.to_str().unwrap());
                     Term::busy(format!("Launching program ({})...", program).as_str());
                     proc.run();
-                    Term::done("Program closed.");
+                    Term::done("Program has closed.");
                     exit(0);
                 }
             }
@@ -74,10 +78,15 @@ fn main() {
             let config: Config = Actions::get_config().unwrap();
             if let Some(dir_path) = config.get_path() {
                 if dir_path.is_empty() {
-                    Term::fail("Path option in configuration is empty.")
+                    Term::fail("Path is not set in the configuration is empty.")
                 }
+
+                if !Path::new(&dir_path).exists() {
+                    Term::fail("A directory with projects does not exist on the file system.");
+                }
+
                 let projects = Container::new(&dir_path);
-                Term::list_title("All projects");
+                Term::list_title("Your projects:");
                 for project in projects.get_vec().iter() {
                     Term::item(project.name.as_str());
                 }
@@ -89,12 +98,12 @@ fn main() {
                 println!("{:?}", dir_path);
 
                 if dir_path.is_empty() {
-                    Term::fail("Path option in configuration is empty.")
+                    Term::fail("Path is not set in the configuration is empty.")
                 }
                 let projects = Container::new(&dir_path);
                 if let Some(name) = sub.get_one::<String>("name") {
                     if name.eq(".") || name.eq("..") {
-                        Term::fail("You cant remove parent or directory with projects.");
+                        Term::fail("Invalid argument value.");
                     }
 
                     if !projects.contains(name) {
@@ -104,7 +113,7 @@ fn main() {
                     let path = Path::new(&dir_path).join(name);
                     match fs::remove_dir_all(path.to_str().unwrap()) {
                         Ok(_) => Term::done("The project has been deleted."),
-                        Err(_) => Term::fail("Failed to remove project directory"),
+                        Err(_) => Term::fail("Failed to remove project directory bacause of the file system error."),
                     }
                 }
             }
@@ -119,7 +128,7 @@ fn main() {
 
                     if let Some(editor) = config.get_editor() {
                         if editor.is_empty() {
-                           Term::fail("Editor option is empty.") 
+                           Term::fail("Editor program name is not set in the configuration file.") 
                         }
 
                         let path = Manager::get_config_path();
@@ -134,7 +143,7 @@ fn main() {
                 Some(("reset", sub)) => {
                     let yes: bool = sub.get_flag("yes");
                     if !yes {
-                        Term::error("You should give your agreement to reset your configuratuon by passing '--yes' argument.");
+                        Term::error("You should give your agreement to reset your configuration by passing '--yes' argument.");
                         Term::info("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
                         exit(1);
                     }
