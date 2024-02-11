@@ -137,10 +137,8 @@ fn main() {
 
                         let path = Manager::get_config_path();
                         if let Some(mut editor_args) = config.get_editor_args() {
-                            let mut proc: Proc = Proc::new(editor.as_str());
                             editor_args.push(&path);
-                            proc.set_args(editor_args);
-                            proc.run();
+                            Actions::launch_program(editor.as_str(), editor_args, "");
                         }
                     }
                 }
