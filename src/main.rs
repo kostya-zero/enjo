@@ -56,19 +56,23 @@ fn main() {
                     Term::fail("Path is not set in the configuration is empty.")
                 }
 
-                let program = Actions::resolve_program(config.get_shell(), sub.get_flag("shell")).unwrap();
                 let projects = Container::new(&dir_path);
                 let project_name = sub.get_one::<String>("name").unwrap();
                 if !projects.contains(project_name) {
                     Term::fail("Project not found.");
                 }
+                let program = Actions::resolve_program(config.get_shell(), config.get_editor(), sub.get_flag("shell")).unwrap();
+
+                if program.is_empty() {
+                    Term::fail("")
+                }
+
+                Term::busy(format!("Launching program ({})...", program).as_str());
                 if let Some(project) = projects.get(project_name) {
                     let append: &str = sub.get_one::<String>("append").unwrap();
                     let path = Path::new(&project.get_path_str()).join(append);
-                    let mut proc: Proc = Proc::new(program.as_str());
-                    proc.set_cwd(path.to_str().unwrap());
-                    Term::busy(format!("Launching program ({})...", program).as_str());
-                    proc.run();
+                    let proc_args = config.get_editor_args().unwrap();
+                    Actions::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
                     Term::done("Program has closed.");
                     exit(0);
                 }

@@ -7,6 +7,12 @@ pub struct Proc {
     cwd: String,
 }
 
+pub enum ProcError {
+    ExecutableNotFound,
+    Interrupted,
+    Other(String),
+}
+
 impl Proc {
     pub fn new(program: &str) -> Self {
         let mut new_proc = Proc::default();
@@ -28,7 +34,7 @@ impl Proc {
         self.cwd = new_cwd.to_string();
     }
 
-    pub fn run(&self) {
+    pub fn run(&self) -> Result<(), ProcError> {
         let mut cmd = Command::new(self.prog.clone());
         cmd.stdin(Stdio::inherit());
         cmd.stdout(Stdio::inherit());
@@ -38,6 +44,13 @@ impl Proc {
         if !self.cwd.is_empty() {
             cmd.current_dir(self.cwd.as_str());
         }
-        cmd.output().expect("Failed to launch program.");
+        match cmd.output() {
+            Ok(_) => Ok(()),
+            Err(e) => match e.kind() {
+                std::io::ErrorKind::NotFound => Err(ProcError::ExecutableNotFound),
+                std::io::ErrorKind::Interrupted => Err(ProcError::Interrupted),
+                _ => Err(ProcError::Other(e.kind().to_string())),
+            },
+        }
     }
 }
