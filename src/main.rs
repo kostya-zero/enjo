@@ -63,10 +63,6 @@ fn main() {
                 }
                 let program = Actions::resolve_program(config.get_shell(), config.get_editor(), sub.get_flag("shell")).unwrap();
 
-                if program.is_empty() {
-                    Term::fail("")
-                }
-
                 Term::busy(format!("Launching program ({})...", program).as_str());
                 if let Some(project) = projects.get(project_name) {
                     let append: &str = sub.get_one::<String>("append").unwrap();
