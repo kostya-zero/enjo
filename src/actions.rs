@@ -40,16 +40,24 @@ impl Actions {
         }
         proc.set_args(args);
         match proc.run() {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => match e {
-                enjo_tools::proc::ProcError::ExecutableNotFound => Term::fail("Failed to launch program because executable was not found."),
+                enjo_tools::proc::ProcError::ExecutableNotFound => {
+                    Term::fail("Failed to launch program because executable was not found.")
+                }
                 enjo_tools::proc::ProcError::Interrupted => Term::error("Program was interrupted"),
-                enjo_tools::proc::ProcError::Other(reason) => Term::fail(format!("Program failed to launch or failed: {}", reason).as_str()),
+                enjo_tools::proc::ProcError::Other(reason) => {
+                    Term::fail(format!("Program failed to launch or failed: {}", reason).as_str())
+                }
             },
         }
     }
 
-    pub fn resolve_program(shell: Option<String>, editor: Option<String>, is_shell: bool) -> Option<String> {
+    pub fn resolve_program(
+        shell: Option<String>,
+        editor: Option<String>,
+        is_shell: bool,
+    ) -> Option<String> {
         if is_shell {
             if let Some(prog_shell) = shell {
                 if prog_shell.is_empty() {
