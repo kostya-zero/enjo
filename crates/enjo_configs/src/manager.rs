@@ -66,6 +66,7 @@ impl Manager {
         if let Ok(shell) = env::var("SHELL") {
             default_config.set_shell(shell.as_str());
         }
+        default_config.set_hide_dots(true);
         default_config
     }
 

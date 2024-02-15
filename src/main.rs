@@ -82,6 +82,9 @@ fn main() {
             let projects = Container::new(&dir_path);
             Term::list_title("Your projects:");
             for project in projects.get_vec().iter() {
+                if project.name.starts_with('.') && config.get_hide_dots() {
+                    continue;
+                } 
                 Term::item(project.name.as_str());
             }
         }
