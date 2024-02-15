@@ -55,4 +55,8 @@ impl Container {
     pub fn get(&self, name: &str) -> Option<Project> {
         self.0.clone().into_iter().find(|x| x.name == *name)
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 }

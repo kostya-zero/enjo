@@ -54,32 +54,22 @@ impl Actions {
     }
 
     pub fn resolve_program(
-        shell: Option<String>,
-        editor: Option<String>,
+        shell: String,
+        editor: String,
         is_shell: bool,
-    ) -> Option<String> {
+    ) -> String {
         if is_shell {
-            if let Some(prog_shell) = shell {
-                if prog_shell.is_empty() {
-                    Term::fail("Shell parameter in the configuration file is empty.");
-                    None
-                } else {
-                    Some(prog_shell)
-                }
-            } else {
+            if shell.is_empty() {
                 Term::fail("Shell parameter in the configuration file is empty.");
-                None
-            }
-        } else if let Some(prog_editor) = editor {
-            if prog_editor.is_empty() {
-                Term::fail("Editor parameter in the configuration file is empty.");
-                return None;
+                String::new()
             } else {
-                return Some(prog_editor);
+                shell
             }
-        } else {
+        } else if editor.is_empty() {
             Term::fail("Editor parameter in the configuration file is empty.");
-            return None;
+            return String::new();
+        } else {
+            return editor;
         }
     }
 }
