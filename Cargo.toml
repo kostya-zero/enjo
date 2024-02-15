@@ -19,8 +19,7 @@ enjo_tools = { version = "0.1.0", path = "./crates/enjo_tools" }
 
 [profile.release]
 lto = "thin"
-opt-level = 2
-codegen-units = 1
+opt-level = 3
 
 [workspace]
 members = [

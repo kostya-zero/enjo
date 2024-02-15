@@ -62,7 +62,7 @@ fn main() {
                 let path = Path::new(&project.get_path_str()).join(append);
                 let proc_args = config.get_editor_args();
                 Actions::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
-                Term::done("Program has closed.");
+                Term::done("Program has been closed.");
                 exit(0);
             } else {
                 Term::fail("Project not found.");
