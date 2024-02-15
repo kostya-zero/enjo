@@ -123,6 +123,7 @@ fn main() {
                 Some(("edit", _sub)) => {
                     let config: Config = Actions::get_config().unwrap();
                     let editor = config.get_editor();
+                    
                     if editor.is_empty() {
                         Term::fail("Editor program name is not set in the configuration file.") 
                     }
