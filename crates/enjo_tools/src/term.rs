@@ -27,7 +27,7 @@ impl Term {
     }
 
     pub fn fail(msg: &str) {
-        println!(" \x1b[91mFail\x1b[0m: {}", msg);
+        println!(" \x1b[91m\x1b[0m {}", msg);
         exit(1);
     }
 }

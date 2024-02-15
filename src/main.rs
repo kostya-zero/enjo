@@ -88,7 +88,6 @@ fn main() {
         Some(("delete", sub)) => {
             let config: Config = Actions::get_config().unwrap();
             let dir_path: String = config.get_path();
-            println!("{:?}", dir_path);
 
             if dir_path.is_empty() {
                 Term::fail("Path is not set in the configuration file.")
