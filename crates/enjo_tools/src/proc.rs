@@ -1,5 +1,7 @@
 use std::process::{Command, Stdio};
 
+use crate::term::Term;
+
 #[derive(Default)]
 pub struct Proc {
     prog: String,
@@ -44,6 +46,13 @@ impl Proc {
         if !self.cwd.is_empty() {
             cmd.current_dir(self.cwd.as_str());
         }
+
+        // This is required because if user closes program
+        // on Windows through CTRL + C, Enjo will close and
+        // break the stdout/stdin.
+        #[cfg(windows)]
+        ctrlc::set_handler(|| {}).unwrap();
+
         match cmd.output() {
             Ok(_) => Ok(()),
             Err(e) => match e.kind() {
