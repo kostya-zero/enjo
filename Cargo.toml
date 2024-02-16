@@ -17,6 +17,7 @@ toml = "0.8.10"
 enjo_configs = { version = "0.1.0", path = "./crates/enjo_configs" }
 enjo_tools = { version = "0.1.0", path = "./crates/enjo_tools" }
 
+
 [profile.release]
 lto = "thin"
 opt-level = 3
