@@ -47,9 +47,6 @@ impl Proc {
             cmd.current_dir(self.cwd.as_str());
         }
 
-        // This is required because if user closes program
-        // on Windows through CTRL + C, Enjo will close and
-        // break the stdout/stdin.
         #[cfg(windows)]
         ctrlc::set_handler(|| {}).unwrap();
 
