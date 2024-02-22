@@ -17,11 +17,11 @@ pub enum ManagerWriteError {
 pub struct Manager;
 impl Manager {
     pub fn get_config_path() -> String {
-        home_dir().unwrap().display().to_string() + "/.enjo/config.toml"
+        home_dir().unwrap().join(".enjo").join("config.toml").display().to_string()
     }
 
     pub fn get_config_dir_path() -> String {
-        home_dir().unwrap().display().to_string() + "/.enjo"
+        home_dir().unwrap().join(".enjo").display().to_string()
     }
 
     pub fn get_home_path() -> String {
