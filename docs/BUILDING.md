@@ -58,3 +58,13 @@ $env:RUSTFLAGS = "-C link-arg=-fuse-ld=lld-link"
 ```
 
 #### Native compilation
+
+If you want to natively compile Enjo, use this in your prompt:
+
+```shell
+# Bash, zsh, fish, ...
+export RUSTFLAGS="-C target-cpu=native"
+
+# PowerShell
+$env:RUSTFLAGS = "-C target-cpu=native"
+```
