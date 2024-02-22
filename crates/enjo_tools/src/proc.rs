@@ -1,7 +1,5 @@
 use std::process::{Command, Stdio};
 
-use crate::term::Term;
-
 #[derive(Default)]
 pub struct Proc {
     prog: String,

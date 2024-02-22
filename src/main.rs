@@ -1,8 +1,8 @@
 use std::{fs, path::Path, process::exit};
 
 use actions::Actions;
-use enjo_configs::config::Config;
-use enjo_configs::manager::Manager;
+use enjo_config::config::Config;
+use enjo_config::manager::Manager;
 use enjo_tools::args::get_args;
 use enjo_tools::container::Container;
 use enjo_tools::term::Term;
@@ -19,7 +19,7 @@ fn main() {
     match args.subcommand() {
         Some(("new", sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let dir_path: String = config.get_path();
+            let dir_path: String = config.options.path;
             if dir_path.is_empty() {
                 Term::fail("Path is not set in the configuration file.")
             }
@@ -47,21 +47,21 @@ fn main() {
         }
         Some(("open", sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let dir_path: String = config.get_path();
+            let dir_path: String = config.options.path;
             if dir_path.is_empty() {
                 Term::fail("Path is not set in the configuration file.")
             }
 
             let projects = Container::new(&dir_path);
             let project_name = sub.get_one::<String>("name").unwrap();
-            let program = Actions::resolve_program(config.get_shell(), config.get_editor(), sub.get_flag("shell"));
+            let program = Actions::resolve_program(config.programs.shell, config.programs.editor, sub.get_flag("shell"));
             
             if let Some(project) = projects.get(project_name) {
                 Term::busy(format!("Launching program ({})...", program).as_str());
                 let append: &str = sub.get_one::<String>("append").unwrap();
                 let path = Path::new(&project.get_path_str()).join(append);
-                let proc_args = config.get_editor_args();
-                Actions::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
+                let proc_args = config.options.editor_args;
+                Actions::launch_program(program.as_str(), proc_args.iter().map(|f| f.as_str()).collect(), path.to_str().unwrap());
                 Term::done("Program has been closed.");
                 exit(0);
             } else {
@@ -70,7 +70,7 @@ fn main() {
         }
         Some(("list", _sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let dir_path: String = config.get_path();
+            let dir_path: String = config.options.path;
             if dir_path.is_empty() {
                 Term::fail("Path is not set in the configuration file.")
             }
@@ -82,7 +82,7 @@ fn main() {
             let projects = Container::new(&dir_path);
             Term::list_title("Your projects:");
             for project in projects.get_vec().iter() {
-                if project.name.starts_with('.') && config.get_hide_dots() {
+                if project.name.starts_with('.') && config.options.hide_dots {
                     continue;
                 } 
                 Term::item(project.name.as_str());
@@ -90,7 +90,7 @@ fn main() {
         }
         Some(("delete", sub)) => {
             let config: Config = Actions::get_config().unwrap();
-            let dir_path: String = config.get_path();
+            let dir_path: String = config.options.path;
 
             if dir_path.is_empty() {
                 Term::fail("Path is not set in the configuration file.")
@@ -122,16 +122,16 @@ fn main() {
                 }
                 Some(("edit", _sub)) => {
                     let config: Config = Actions::get_config().unwrap();
-                    let editor = config.get_editor();
+                    let editor = config.programs.editor;
                     
                     if editor.is_empty() {
                         Term::fail("Editor program name is not set in the configuration file.") 
                     }
 
                     let path = Manager::get_config_path();
-                    let mut editor_args = config.get_editor_args();
-                    editor_args.push(&path);
-                    Actions::launch_program(editor.as_str(), editor_args, "");
+                    let mut editor_args = config.options.editor_args;
+                    editor_args.push(path);
+                    Actions::launch_program(editor.as_str(), editor_args.iter().map(|f| f.as_str()).collect(), "");
                 }
                 Some(("reset", sub)) => {
                     let yes: bool = sub.get_flag("yes");

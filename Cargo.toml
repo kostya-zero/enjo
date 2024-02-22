@@ -14,7 +14,7 @@ clap = "4.4.18"
 home = "0.5.9"
 serde = { version = "1.0.196", features = ["derive"] }
 toml = "0.8.10"
-enjo_configs = { version = "0.1.0", path = "./crates/enjo_configs" }
+enjo_config = { version = "0.1.0", path = "./crates/enjo_config" }
 enjo_tools = { version = "0.1.0", path = "./crates/enjo_tools" }
 
 
@@ -24,7 +24,7 @@ opt-level = 3
 
 [workspace]
 members = [
-    "crates/enjo_configs", 
+    "crates/enjo_config", 
     "crates/enjo_tools"
 ]
 resolver = "2"

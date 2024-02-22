@@ -34,39 +34,40 @@ impl Manager {
 
     pub fn make_default() -> Config {
         let mut default_config: Config = Config::default();
-        default_config.set_path(Self::get_home_path().as_str());
+        default_config.options.path = Self::get_home_path();
 
         match env::consts::OS.to_string().as_str() {
             "windows" => {
-                default_config.set_editor("code");
-                default_config.set_shell("pwsh");
+                default_config.programs.editor = String::from("code");
+                default_config.programs.shell = String::from("pwsh");
             }
             "linux" => {
-                default_config.set_editor("nvim");
-                default_config.set_shell("bash");
+                default_config.programs.editor = String::from("nvim");
+                default_config.programs.shell = String::from("bash");
             }
             "freebsd" => {
-                default_config.set_editor("nvim");
-                default_config.set_shell("bash");
+                default_config.programs.editor = String::from("nvim");
+                default_config.programs.shell = String::from("bash");
             }
             "netbsd" => {
-                default_config.set_editor("nvim");
-                default_config.set_shell("bash");
+                default_config.programs.editor = String::from("nvim");
+                default_config.programs.shell = String::from("bash");
             }
             "macos" => {
-                default_config.set_editor("code");
-                default_config.set_shell("zsh");
+                default_config.programs.editor = String::from("code");
+                default_config.programs.shell = String::from("zsh");
             }
             _ => panic!("Unknown platform detected."),
         };
 
         if let Ok(editor) = env::var("EDITOR") {
-            default_config.set_editor(editor.as_str());
+            default_config.programs.editor = editor;
         }
         if let Ok(shell) = env::var("SHELL") {
-            default_config.set_shell(shell.as_str());
+            default_config.programs.shell = shell;
         }
-        default_config.set_hide_dots(true);
+
+        default_config.options.hide_dots = true;
         default_config
     }
 

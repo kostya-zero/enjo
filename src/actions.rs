@@ -1,5 +1,5 @@
-use enjo_configs::config::Config;
-use enjo_configs::manager::{Manager, ManagerLoadError, ManagerWriteError};
+use enjo_config::config::Config;
+use enjo_config::manager::{Manager, ManagerLoadError, ManagerWriteError};
 use enjo_tools::proc::Proc;
 use enjo_tools::term::Term;
 

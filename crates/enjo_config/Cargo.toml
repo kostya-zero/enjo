@@ -1,5 +1,5 @@
 [package]
-name = "enjo_configs"
+name = "enjo_config"
 description = "Configuration file manager for Enjo."
 version = "0.1.0"
 edition = "2021"
