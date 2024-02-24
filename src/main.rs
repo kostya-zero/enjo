@@ -37,7 +37,7 @@ fn main() {
             if projects.contains(name) {
                 Term::fail("Project with this name already exists.");
             }
-
+            
             let new_path = Path::new(&dir_path).join(name);
             match fs::create_dir(new_path) {
                 Ok(_) => Term::done("Project created."),
@@ -60,7 +60,11 @@ fn main() {
                 Term::busy(format!("Launching program ({})...", program).as_str());
                 let append: &str = sub.get_one::<String>("append").unwrap();
                 let path = Path::new(&project.get_path_str()).join(append);
-                let proc_args = config.options.editor_args;
+                let proc_args = if sub.get_flag("shell") {
+                    Vec::new()
+                } else {
+                    config.options.editor_args
+                };
                 Actions::launch_program(program.as_str(), proc_args.iter().map(|f| f.as_str()).collect(), path.to_str().unwrap());
                 Term::done("Program has been closed.");
                 exit(0);
