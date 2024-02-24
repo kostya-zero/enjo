@@ -1,5 +1,5 @@
 # Enjo
-Enjo is a minimalist workspace assistant tool that allows you to quickly manage your projects.
+Enjo is a minimalist workspace management tool that allows you to quickly manage your projects.
 It has functionality to manage and open projects in editor/shell.
 Enjo will be useful for those who use the terminal frequently and want to quickly jump to their projects.
 
