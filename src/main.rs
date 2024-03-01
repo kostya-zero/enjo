@@ -1,13 +1,18 @@
 use std::{fs, path::Path, process::exit};
 
 use actions::Actions;
-use enjo_config::config::Config;
-use enjo_config::manager::Manager;
-use enjo_tools::args::get_args;
-use enjo_tools::container::Container;
-use enjo_tools::term::Term;
+use crate::configs::config::Config;
+use crate::configs::manager::Manager;
+use crate::args::get_args;
+use crate::container::Container;
+use crate::term::Term;
 
 mod actions;
+mod args;
+mod container;
+mod proc;
+mod term;
+mod configs;
 
 fn main() {
     if !Manager::check_exists() {
@@ -67,9 +72,9 @@ fn main() {
                 };
                 Actions::launch_program(program.as_str(), proc_args.iter().map(|f| f.as_str()).collect(), path.to_str().unwrap());
                 Term::done("Program has been closed.");
-                exit(0);
             } else {
                 Term::fail("Project not found.");
+                exit(1);
             }
         }
         Some(("list", _sub)) => {
@@ -84,6 +89,11 @@ fn main() {
             }
 
             let projects = Container::new(&dir_path);
+            if projects.is_empty() {
+                Term::info("No projects found!");
+                exit(0)
+            }
+
             Term::list_title("Your projects:");
             for project in projects.get_vec().iter() {
                 if project.name.starts_with('.') && config.options.hide_dots {
@@ -155,4 +165,5 @@ fn main() {
         }
         _ => Term::error("Command not found or it's not implemented yet."),
     }
+    exit(0);
 }

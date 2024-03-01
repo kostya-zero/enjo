@@ -110,28 +110,10 @@ name = "enjo"
 version = "0.1.0"
 dependencies = [
  "clap",
- "enjo_config",
- "enjo_tools",
- "home",
- "serde",
- "toml",
-]
-
-[[package]]
-name = "enjo_config"
-version = "0.1.0"
-dependencies = [
- "home",
- "serde",
- "toml",
-]
-
-[[package]]
-name = "enjo_tools"
-version = "0.1.0"
-dependencies = [
- "clap",
  "ctrlc",
+ "home",
+ "serde",
+ "toml",
 ]
 
 [[package]]

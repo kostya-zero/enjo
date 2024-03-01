@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::configs::config::Config;
 use home::home_dir;
 use std::{env, fs, path::Path};
 

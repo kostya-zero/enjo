@@ -1,7 +1,7 @@
-use enjo_config::config::Config;
-use enjo_config::manager::{Manager, ManagerLoadError, ManagerWriteError};
-use enjo_tools::proc::Proc;
-use enjo_tools::term::Term;
+use crate::configs::config::Config;
+use crate::configs::manager::{Manager, ManagerLoadError, ManagerWriteError};
+use crate::proc::Proc;
+use crate::term::Term;
 
 pub struct Actions;
 impl Actions {
@@ -42,11 +42,11 @@ impl Actions {
         match proc.run() {
             Ok(_) => {}
             Err(e) => match e {
-                enjo_tools::proc::ProcError::ExecutableNotFound => {
+                crate::proc::ProcError::ExecutableNotFound => {
                     Term::fail("Failed to launch program because executable was not found.")
                 }
-                enjo_tools::proc::ProcError::Interrupted => Term::error("Program was interrupted"),
-                enjo_tools::proc::ProcError::Other(reason) => {
+                crate::proc::ProcError::Interrupted => Term::error("Program was interrupted"),
+                crate::proc::ProcError::Other(reason) => {
                     Term::fail(format!("Program failed to launch or failed: {}", reason).as_str())
                 }
             },
