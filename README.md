@@ -7,7 +7,8 @@ Main goal of this project is to provide fast and useful assistant for developers
 
 ### Installation
 
-At the moment of developing Enjo, only way to install Enjo is building from sources. For more information, please visit [Building Enjo](docs/BUILDING.md).
+You can install Enjo by downloading archive for your system from releases.
+If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
 
 > ⚠️ Before using Enjo, you need to configure it based on your workspace. All options are described in [configuration manual](docs/CONFIGURATION.md).
 
