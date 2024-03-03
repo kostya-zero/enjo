@@ -14,6 +14,18 @@ mod proc;
 mod term;
 mod configs;
 
+fn verify_path(path: String) {
+    if path.is_empty() {
+        Term::fail("Path is not set in the configuration file.");
+        exit(1);
+    }
+
+    if !Path::new(&path).exists() {
+        Term::fail("Directory with projects not found.");
+        exit(1);
+    }
+}
+
 fn main() {
     if !Manager::check_exists() {
         let default_config: Config = Manager::make_default();
@@ -25,9 +37,7 @@ fn main() {
         Some(("new", sub)) => {
             let config: Config = Actions::get_config().unwrap();
             let dir_path: String = config.options.path;
-            if dir_path.is_empty() {
-                Term::fail("Path is not set in the configuration file.")
-            }
+            verify_path(dir_path.clone());
 
             if !Path::new(&dir_path).exists() {
                 Term::fail("A directory with projects does not exist on the file system.");
@@ -53,9 +63,7 @@ fn main() {
         Some(("open", sub)) => {
             let config: Config = Actions::get_config().unwrap();
             let dir_path: String = config.options.path;
-            if dir_path.is_empty() {
-                Term::fail("Path is not set in the configuration file.")
-            }
+            verify_path(dir_path.clone());
 
             let projects = Container::new(&dir_path);
             let project_name = sub.get_one::<String>("name").unwrap();
@@ -80,9 +88,7 @@ fn main() {
         Some(("list", _sub)) => {
             let config: Config = Actions::get_config().unwrap();
             let dir_path: String = config.options.path;
-            if dir_path.is_empty() {
-                Term::fail("Path is not set in the configuration file.")
-            }
+            verify_path(dir_path.clone());
 
             if !Path::new(&dir_path).exists() {
                 Term::fail("A directory with projects does not exist on the file system.");
@@ -90,7 +96,7 @@ fn main() {
 
             let projects = Container::new(&dir_path);
             if projects.is_empty() {
-                Term::info("No projects found!");
+                Term::info("No projects found.");
                 exit(0)
             }
 
@@ -106,9 +112,7 @@ fn main() {
             let config: Config = Actions::get_config().unwrap();
             let dir_path: String = config.options.path;
 
-            if dir_path.is_empty() {
-                Term::fail("Path is not set in the configuration file.")
-            }
+            verify_path(dir_path.clone());
             let projects = Container::new(&dir_path);
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
@@ -151,7 +155,6 @@ fn main() {
                     let yes: bool = sub.get_flag("yes");
                     if !yes {
                         Term::error("You should give your agreement to reset your configuration by passing '--yes' argument.");
-                        Term::info("\x1b[4m\x1b[1mYou cant abort this action.\x1b[0m");
                         exit(1);
                     }
 
