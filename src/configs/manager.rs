@@ -17,7 +17,12 @@ pub enum ManagerWriteError {
 pub struct Manager;
 impl Manager {
     pub fn get_config_path() -> String {
-        home_dir().unwrap().join(".enjo").join("config.toml").display().to_string()
+        home_dir()
+            .unwrap()
+            .join(".enjo")
+            .join("config.toml")
+            .display()
+            .to_string()
     }
 
     pub fn get_config_dir_path() -> String {
@@ -65,6 +70,13 @@ impl Manager {
         }
         if let Ok(shell) = env::var("SHELL") {
             default_config.programs.shell = shell;
+        }
+
+        if env::consts::OS == "windows"
+            && (default_config.programs.editor == "code"
+                || default_config.programs.editor == "codium")
+        {
+            default_config.options.editor_args = vec![".".to_string()];
         }
 
         default_config.options.hide_dots = true;
