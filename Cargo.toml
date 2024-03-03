@@ -18,7 +18,6 @@ toml = "0.8.10"
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.4.2"
 
-
 [profile.release]
 lto = "thin"
 opt-level = 3
