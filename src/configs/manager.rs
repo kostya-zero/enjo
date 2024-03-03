@@ -72,6 +72,18 @@ impl Manager {
             default_config.programs.shell = shell;
         }
 
+        if env::consts::OS == "windows" {
+            if default_config.programs.editor == "code" {
+                default_config.programs.editor = "code.cmd".to_owned();
+                default_config.options.editor_args = vec![".".to_string()];
+            }
+
+            if default_config.programs.editor == "codium" {
+                default_config.programs.editor = "codium.cmd".to_owned();
+                default_config.options.editor_args = vec![".".to_string()];
+            }
+        }
+
         if env::consts::OS == "windows"
             && (default_config.programs.editor == "code"
                 || default_config.programs.editor == "codium")
