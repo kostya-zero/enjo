@@ -84,13 +84,6 @@ impl Manager {
             }
         }
 
-        if env::consts::OS == "windows"
-            && (default_config.programs.editor == "code"
-                || default_config.programs.editor == "codium")
-        {
-            default_config.options.editor_args = vec![".".to_string()];
-        }
-
         default_config.options.hide_dots = true;
         default_config
     }
