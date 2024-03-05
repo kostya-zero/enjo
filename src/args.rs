@@ -3,7 +3,7 @@ use clap::{value_parser, Arg, ArgAction, Command};
 pub fn get_args() -> Command {
     Command::new("enjo")
         .name("enjo")
-        .about("Minimalist workspace assistant tool.")
+        .about(env!("CARGO_PKG_DESCRIPTION"))
         .version(env!("CARGO_PKG_VERSION"))
         .subcommand_required(true)
         .arg_required_else_help(true)
