@@ -53,11 +53,7 @@ impl Actions {
         }
     }
 
-    pub fn resolve_program(
-        shell: String,
-        editor: String,
-        is_shell: bool,
-    ) -> String {
+    pub fn resolve_program(shell: String, editor: String, is_shell: bool) -> String {
         if is_shell {
             if shell.is_empty() {
                 Term::fail("Shell parameter in the configuration file is empty.");

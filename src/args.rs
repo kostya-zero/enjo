@@ -10,23 +10,19 @@ pub fn get_args() -> Command {
         .subcommands([
             Command::new("new")
                 .about("Create new project")
-                .args([Arg::new("name")
-                    .default_value("")
+                .arg(Arg::new("name")
+                    .help("Name for a new project.")
                     .value_parser(value_parser!(String))
                     .required(false)
-                    .num_args(1)]),
+                    .hide_default_value(true)
+                    .default_value("")
+                    .num_args(1)),
             Command::new("open").about("Open project in editor.").args([
                 Arg::new("name")
                     .help("Name of the project to open.")
                     .value_parser(value_parser!(String))
                     .required(false)
-                    .default_value("")
-                    .num_args(1),
-                Arg::new("append")
-                    .help("Append path to the project.")
-                    .long("append")
-                    .value_parser(value_parser!(String))
-                    .required(false)
+                    .hide_default_value(true)
                     .default_value("")
                     .num_args(1),
                 Arg::new("shell")
@@ -39,6 +35,7 @@ pub fn get_args() -> Command {
                 Arg::new("name")
                     .value_parser(value_parser!(String))
                     .default_value("")
+                    .hide_default_value(true)
                     .required(false)
                     .num_args(1),
             ),

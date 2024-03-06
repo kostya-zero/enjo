@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[serde(default)]
 pub struct Config {
     pub options: Options,
-    pub programs: Programs
+    pub programs: Programs,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -17,7 +17,11 @@ pub struct Options {
 
 impl Default for Options {
     fn default() -> Self {
-        Self { hide_dots: true, path: String::new(), editor_args: Vec::new() }
+        Self {
+            hide_dots: true,
+            path: String::new(),
+            editor_args: Vec::new(),
+        }
     }
 }
 

@@ -31,7 +31,9 @@ impl Container {
         if let Ok(entries) = fs::read_dir(path) {
             for entry in entries.flatten() {
                 if let Some(name) = entry.file_name().to_str() {
-                    if entry.metadata().map(|m| m.is_dir()).unwrap_or(false) && (name != "." || name != "..") {
+                    if entry.metadata().map(|m| m.is_dir()).unwrap_or(false)
+                        && (name != "." || name != "..")
+                    {
                         let project: Project = Project::new(name, Path::new(path).join(name));
                         projects.push(project);
                     }

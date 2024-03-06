@@ -1,18 +1,18 @@
 use std::{fs, path::Path, process::exit};
 
-use actions::Actions;
+use crate::args::get_args;
 use crate::configs::config::Config;
 use crate::configs::manager::Manager;
-use crate::args::get_args;
 use crate::container::Container;
 use crate::term::Term;
+use actions::Actions;
 
 mod actions;
 mod args;
+mod configs;
 mod container;
 mod proc;
 mod term;
-mod configs;
 
 fn verify_path(path: String) {
     if path.is_empty() {
@@ -52,13 +52,12 @@ fn main() {
             if projects.contains(name) {
                 Term::fail("Project with this name already exists.");
             }
-            
+
             let new_path = Path::new(&dir_path).join(name);
             match fs::create_dir(new_path) {
                 Ok(_) => Term::done("Project created."),
                 Err(_) => Term::fail("Failed to create project directory because of file system error."),
             }
-            
         }
         Some(("open", sub)) => {
             let config: Config = Actions::get_config().unwrap();
@@ -66,13 +65,17 @@ fn main() {
             verify_path(dir_path.clone());
 
             let projects = Container::new(&dir_path);
-            let project_name = sub.get_one::<String>("name").unwrap();
+            let project_name: &str = sub.get_one::<String>("name").unwrap();
+
+            if project_name.is_empty() {
+                Term::fail("Project name is not provided.");
+            }
+
             let program = Actions::resolve_program(config.programs.shell, config.programs.editor, sub.get_flag("shell"));
-            
             if let Some(project) = projects.get(project_name) {
                 Term::busy(format!("Launching program ({})...", program).as_str());
-                let append: &str = sub.get_one::<String>("append").unwrap();
-                let path = Path::new(&project.get_path_str()).join(append);
+                let project_path = project.get_path_str();
+                let path = Path::new(&project_path);
                 let proc_args = if sub.get_flag("shell") {
                     Vec::new()
                 } else {
@@ -104,7 +107,7 @@ fn main() {
             for project in projects.get_vec().iter() {
                 if project.name.starts_with('.') && config.options.hide_dots {
                     continue;
-                } 
+                }
                 Term::item(project.name.as_str());
             }
         }
@@ -141,7 +144,6 @@ fn main() {
                 Some(("edit", _sub)) => {
                     let config: Config = Actions::get_config().unwrap();
                     let editor = config.programs.editor;
-                    
                     if editor.is_empty() {
                         Term::fail("Editor program name is not set in the configuration file.") 
                     }
