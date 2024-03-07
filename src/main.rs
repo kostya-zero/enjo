@@ -1,5 +1,3 @@
-use std::fs::DirEntry;
-use std::os::windows::fs::MetadataExt;
 use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
