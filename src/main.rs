@@ -1,3 +1,5 @@
+use std::fs::DirEntry;
+use std::os::windows::fs::MetadataExt;
 use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
@@ -81,7 +83,7 @@ fn main() {
                 } else {
                     config.options.editor_args
                 };
-                Actions::launch_program(program.as_str(), proc_args.iter().map(|f| f.as_str()).collect(), path.to_str().unwrap());
+                Actions::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
                 Term::done("Program has been closed.");
             } else {
                 Term::fail("Project not found.");
@@ -151,7 +153,7 @@ fn main() {
                     let path = Manager::get_config_path();
                     let mut editor_args = config.options.editor_args;
                     editor_args.push(path);
-                    Actions::launch_program(editor.as_str(), editor_args.iter().map(|f| f.as_str()).collect(), "");
+                    Actions::launch_program(editor.as_str(), editor_args, "");
                 }
                 Some(("reset", sub)) => {
                     let yes: bool = sub.get_flag("yes");

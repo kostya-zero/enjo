@@ -33,12 +33,12 @@ impl Actions {
         }
     }
 
-    pub fn launch_program(program: &str, args: Vec<&str>, cwd: &str) {
+    pub fn launch_program(program: &str, args: Vec<String>, cwd: &str) {
         let mut proc = Proc::new(program);
         if !cwd.is_empty() {
             proc.set_cwd(cwd);
         }
-        proc.set_args(args);
+        proc.set_args(args.iter().map(|i| i.as_str()).collect());
         match proc.run() {
             Ok(_) => {}
             Err(e) => match e {
