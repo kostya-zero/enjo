@@ -30,6 +30,7 @@ fn main() {
     if !Manager::check_exists() {
         let default_config: Config = Manager::make_default();
         Actions::write_config(default_config);
+        Term::info("Enjo has generated the default configuration. We recommend you to check it.");
     }
 
     let args = get_args().get_matches();
