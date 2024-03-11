@@ -5,14 +5,14 @@ use crate::configs::config::Config;
 use crate::configs::manager::Manager;
 use crate::container::Container;
 use crate::term::Term;
-use actions::Actions;
+use utils::Utils;
 
-mod actions;
 mod args;
 mod configs;
 mod container;
 mod proc;
 mod term;
+mod utils;
 
 fn verify_path(path: String) {
     if path.is_empty() {
@@ -29,14 +29,14 @@ fn verify_path(path: String) {
 fn main() {
     if !Manager::check_exists() {
         let default_config: Config = Manager::make_default();
-        Actions::write_config(default_config);
+        Utils::write_config(default_config);
         Term::info("Enjo has generated the default configuration. We recommend you to check it.");
     }
 
     let args = get_args().get_matches();
     match args.subcommand() {
         Some(("new", sub)) => {
-            let config: Config = Actions::get_config().unwrap();
+            let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
             verify_path(dir_path.clone());
 
@@ -61,7 +61,7 @@ fn main() {
             }
         }
         Some(("open", sub)) => {
-            let config: Config = Actions::get_config().unwrap();
+            let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
             verify_path(dir_path.clone());
 
@@ -72,7 +72,7 @@ fn main() {
                 Term::fail("Project name is not provided.");
             }
 
-            let program = Actions::resolve_program(config.programs.shell, config.programs.editor, sub.get_flag("shell"));
+            let program = Utils::resolve_program(config.programs.shell, config.programs.editor, sub.get_flag("shell"));
             if let Some(project) = projects.get(project_name) {
                 Term::busy(format!("Launching program ({})...", program).as_str());
                 let project_path = project.get_path_str();
@@ -82,7 +82,7 @@ fn main() {
                 } else {
                     config.options.editor_args
                 };
-                Actions::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
+                Utils::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
                 Term::done("Program has been closed.");
             } else {
                 Term::fail("Project not found.");
@@ -90,7 +90,7 @@ fn main() {
             }
         }
         Some(("list", _sub)) => {
-            let config: Config = Actions::get_config().unwrap();
+            let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
             verify_path(dir_path.clone());
 
@@ -113,7 +113,7 @@ fn main() {
             }
         }
         Some(("delete", sub)) => {
-            let config: Config = Actions::get_config().unwrap();
+            let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
 
             verify_path(dir_path.clone());
@@ -143,7 +143,7 @@ fn main() {
                     Term::info(Manager::get_config_path().as_str());
                 }
                 Some(("edit", _sub)) => {
-                    let config: Config = Actions::get_config().unwrap();
+                    let config: Config = Utils::get_config().unwrap();
                     let editor = config.programs.editor;
                     if editor.is_empty() {
                         Term::fail("Editor program name is not set in the configuration file.") 
@@ -152,7 +152,7 @@ fn main() {
                     let path = Manager::get_config_path();
                     let mut editor_args = config.options.editor_args;
                     editor_args.push(path);
-                    Actions::launch_program(editor.as_str(), editor_args, "");
+                    Utils::launch_program(editor.as_str(), editor_args, "");
                 }
                 Some(("reset", sub)) => {
                     let yes: bool = sub.get_flag("yes");
@@ -162,7 +162,7 @@ fn main() {
                     }
 
                     let new_config: Config = Manager::make_default();
-                    Actions::write_config(new_config);
+                    Utils::write_config(new_config);
                 }
                 _ => Term::fail(
                     "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.",

@@ -3,8 +3,8 @@ use crate::configs::manager::{Manager, ManagerLoadError, ManagerWriteError};
 use crate::proc::Proc;
 use crate::term::Term;
 
-pub struct Actions;
-impl Actions {
+pub struct Utils;
+impl Utils {
     pub fn get_config() -> Option<Config> {
         match Manager::load_config() {
             Ok(i) => Some(i),
