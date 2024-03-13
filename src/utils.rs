@@ -1,7 +1,5 @@
-use std::env;
-
 use crate::configs::config::Config;
-use crate::configs::manager::{Manager, ManagerLoadError, ManagerWriteError};
+use crate::configs::manager::{Manager, ManagerError};
 use crate::proc::Proc;
 use crate::term::Term;
 
@@ -11,12 +9,16 @@ impl Utils {
         match Manager::load_config() {
             Ok(i) => Some(i),
             Err(e) => match e {
-                ManagerLoadError::FileNotFound => {
+                ManagerError::FileNotFound => {
                     Term::fail("Cannot load the configuration file because it does not exist on the file system.");
                     None
                 }
-                ManagerLoadError::BadStructure => {
+                ManagerError::BadStructure => {
                     Term::fail("Configuration file has a bad structure and cannot be serialized.");
+                    None
+                }
+                _ => {
+                    Term::fail(format!("Unexpected error occured: {:?}", e).as_str());
                     None
                 }
             },
@@ -27,9 +29,10 @@ impl Utils {
         match Manager::write_config(config) {
             Ok(_) => {}
             Err(e) => match e {
-                ManagerWriteError::WriteFailed => Term::fail("Failed to write configuration file."),
-                ManagerWriteError::FormatFailed => {
-                    Term::fail("Failed to format configuration to TOML.")
+                ManagerError::WriteFailed => Term::fail("Failed to write configuration file."),
+                ManagerError::FormatFailed => Term::fail("Failed to format configuration to TOML."),
+                _ => {
+                    Term::fail(format!("Unexpected error occured: {:?}", e).as_str());
                 }
             },
         }
@@ -52,22 +55,6 @@ impl Utils {
                     Term::fail(format!("Program failed to launch or failed: {}", reason).as_str())
                 }
             },
-        }
-    }
-
-    pub fn resolve_program(shell: String, editor: String, is_shell: bool) -> String {
-        if is_shell {
-            if shell.is_empty() {
-                Term::fail("Shell parameter in the configuration file is empty.");
-                String::new()
-            } else {
-                shell
-            }
-        } else if editor.is_empty() {
-            Term::fail("Editor parameter in the configuration file is empty.");
-            return String::new();
-        } else {
-            return editor;
         }
     }
 }

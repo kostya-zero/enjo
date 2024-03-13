@@ -1,4 +1,4 @@
-use crate::{configs::config::Config, utils::Utils};
+use crate::configs::config::Config;
 use home::home_dir;
 use std::{
     env, fs,
@@ -6,23 +6,11 @@ use std::{
 };
 
 #[derive(Debug)]
-pub enum ManagerLoadError {
-    FileNotFound,
-    BadStructure,
-}
-
-#[derive(Debug)]
 pub enum ManagerError {
     WriteFailed,
     FormatFailed,
     FileNotFound,
     BadStructure,
-}
-
-#[derive(Debug)]
-pub enum ManagerWriteError {
-    WriteFailed,
-    FormatFailed,
 }
 
 pub struct Manager;
@@ -100,17 +88,17 @@ impl Manager {
         default_config
     }
 
-    pub fn load_config() -> Result<Config, ManagerLoadError> {
+    pub fn load_config() -> Result<Config, ManagerError> {
         match fs::read_to_string(Self::get_config_path()) {
             Ok(content) => match toml::from_str::<Config>(&content) {
                 Ok(config) => Ok(config),
-                Err(_) => Err(ManagerLoadError::BadStructure),
+                Err(_) => Err(ManagerError::BadStructure),
             },
-            Err(_) => Err(ManagerLoadError::FileNotFound),
+            Err(_) => Err(ManagerError::FileNotFound),
         }
     }
 
-    pub fn write_config(config: Config) -> Result<(), ManagerWriteError> {
+    pub fn write_config(config: Config) -> Result<(), ManagerError> {
         let dir_path = Self::get_config_dir_path();
         if !Path::new(&dir_path).exists() {
             fs::create_dir(dir_path).unwrap();
@@ -118,9 +106,9 @@ impl Manager {
         match toml::to_string(&config) {
             Ok(content) => match fs::write(Self::get_config_path(), content) {
                 Ok(_) => Ok(()),
-                Err(_) => Err(ManagerWriteError::WriteFailed),
+                Err(_) => Err(ManagerError::WriteFailed),
             },
-            Err(_) => Err(ManagerWriteError::FormatFailed),
+            Err(_) => Err(ManagerError::FormatFailed),
         }
     }
 }
