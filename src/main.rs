@@ -72,9 +72,18 @@ fn main() {
                 Term::fail("Project name is not provided.");
             }
 
-            let program = Utils::resolve_program(config.programs.shell, config.programs.editor, sub.get_flag("shell"));
+            let program = if sub.get_flag("shell") {
+                config.programs.shell
+            } else {
+                config.programs.editor
+            };
+
+            if program.is_empty() {
+                Term::fail("Required program are not specified in configuration file.");
+                exit(1)
+            }
+
             if let Some(project) = projects.get(project_name) {
-                Term::busy(format!("Launching program ({})...", program).as_str());
                 let project_path = project.get_path_str();
                 let path = Path::new(&project_path);
                 let proc_args = if sub.get_flag("shell") {
@@ -82,6 +91,7 @@ fn main() {
                 } else {
                     config.options.editor_args
                 };
+                Term::busy(format!("Launching {}...", program).as_str());
                 Utils::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
                 Term::done("Program has been closed.");
             } else {

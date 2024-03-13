@@ -1,9 +1,20 @@
-use crate::configs::config::Config;
+use crate::{configs::config::Config, utils::Utils};
 use home::home_dir;
-use std::{env, fs, path::Path};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
 
 #[derive(Debug)]
 pub enum ManagerLoadError {
+    FileNotFound,
+    BadStructure,
+}
+
+#[derive(Debug)]
+pub enum ManagerError {
+    WriteFailed,
+    FormatFailed,
     FileNotFound,
     BadStructure,
 }
@@ -17,20 +28,21 @@ pub enum ManagerWriteError {
 pub struct Manager;
 impl Manager {
     pub fn get_config_path() -> String {
-        home_dir()
-            .unwrap()
-            .join(".enjo")
+        let path = Manager::get_user_home();
+        path.join(".enjo")
             .join("config.toml")
-            .display()
+            .to_str()
+            .unwrap()
             .to_string()
     }
 
     pub fn get_config_dir_path() -> String {
-        home_dir().unwrap().join(".enjo").display().to_string()
+        let path = Manager::get_user_home();
+        path.join(".enjo").to_str().unwrap().to_string()
     }
 
-    pub fn get_home_path() -> String {
-        home_dir().unwrap().display().to_string()
+    pub fn get_user_home() -> PathBuf {
+        home_dir().unwrap()
     }
 
     pub fn check_exists() -> bool {
@@ -39,7 +51,7 @@ impl Manager {
 
     pub fn make_default() -> Config {
         let mut default_config: Config = Config::default();
-        default_config.options.path = Self::get_home_path();
+        default_config.options.path = Self::get_user_home().to_str().unwrap().to_string();
 
         match env::consts::OS.to_string().as_str() {
             "windows" => {
