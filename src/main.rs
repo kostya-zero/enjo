@@ -142,6 +142,7 @@ fn main() {
             }
 
             let path = Path::new(&dir_path).join(name);
+            Term::info(format!("Removing {}...", name).as_str());
             match fs::remove_dir_all(path.to_str().unwrap()) {
                 Ok(_) => Term::done("The project has been deleted."),
                 Err(_) => Term::fail("Failed to remove project directory because of the file system error."),
