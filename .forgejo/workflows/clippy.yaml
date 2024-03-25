@@ -7,7 +7,7 @@ jobs:
   clippy:
     runs-on: docker
     container:
-      image: ubuntu:latest
+      image: node:21-bookworm
     steps:
       - uses: https://github.com/actions/checkout@v4
       - name: Setup Rust Toolchain
