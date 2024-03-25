@@ -5,8 +5,10 @@ on:
 
 jobs:
   clippy:
-    runs-on: ubuntu-latest
-    steps: 
+    runs-on: docker
+    container:
+      image: ubuntu:latest
+    steps:
       - uses: actions/checkout@2
       - name: Setup Rust Toolchain
         uses: actions-rs/toolchain@v1
@@ -16,3 +18,5 @@ jobs:
           components: clippy
       - name: Run Clippy
         run: cargo clippy -- -Dwarnings
+
+
