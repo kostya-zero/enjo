@@ -1,15 +1,16 @@
 use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
-use crate::configs::config::Config;
-use crate::configs::manager::Manager;
+use crate::config::Config;
 use crate::container::Container;
 use crate::term::Term;
+use platform::Platform;
 use utils::Utils;
 
 mod args;
-mod configs;
+mod config;
 mod container;
+mod platform;
 mod proc;
 mod term;
 mod utils;
@@ -27,8 +28,8 @@ fn verify_path(path: String) {
 }
 
 fn main() {
-    if !Manager::check_exists() {
-        let default_config: Config = Manager::make_default();
+    if !Platform::check_exists() {
+        let default_config: Config = Utils::make_default();
         Utils::write_config(default_config);
         Term::info("Enjo has generated the default configuration. We recommend you to check it.");
     }
@@ -151,7 +152,7 @@ fn main() {
         Some(("config", sub)) => {
             match sub.subcommand() {
                 Some(("path", _sub)) => {
-                    Term::info(Manager::get_config_path().as_str());
+                    Term::info(Platform::get_config_path().as_str());
                 }
                 Some(("edit", _sub)) => {
                     let config: Config = Utils::get_config().unwrap();
@@ -160,7 +161,7 @@ fn main() {
                         Term::fail("Editor program name is not set in the configuration file.") 
                     }
 
-                    let path = Manager::get_config_path();
+                    let path = Platform::get_config_path();
                     let mut editor_args = config.options.editor_args;
                     editor_args.push(path);
                     Utils::launch_program(editor.as_str(), editor_args, "");
@@ -172,7 +173,7 @@ fn main() {
                         exit(1);
                     }
 
-                    let new_config: Config = Manager::make_default();
+                    let new_config: Config = Utils::make_default();
                     Utils::write_config(new_config);
                 }
                 _ => Term::fail(
