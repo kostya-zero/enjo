@@ -1,3 +1,4 @@
+use std::process::Command;
 use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
@@ -5,6 +6,7 @@ use crate::config::Config;
 use crate::container::Container;
 use crate::term::Term;
 use platform::Platform;
+use proc::Proc;
 use utils::Utils;
 
 mod args;
@@ -60,6 +62,33 @@ fn main() {
                 Ok(_) => Term::done("Project created."),
                 Err(_) => Term::fail("Failed to create project directory because of file system error."),
             }
+        }
+        Some(("clone", sub)) => {
+            let config: Config = Utils::get_config().unwrap();
+            let dir_path: String = config.options.path;
+            verify_path(dir_path.clone());
+
+            let repo = sub.get_one::<String>("repo").unwrap().as_str();
+            if repo.is_empty() {
+                Term::fail("No repository URL provided.");
+            }
+
+            let mut git_args = vec!["clone", repo];
+            let branch = sub.get_one::<String>("branch").unwrap();
+            let name = sub.get_one::<String>("name").unwrap();
+
+            if !branch.is_empty() {
+                git_args.push("-b");
+                git_args.push(branch);
+            }
+
+            if !name.is_empty() {
+                git_args.push("-t");
+                git_args.push(name);
+            }
+
+            Utils::launch_program("git", git_args.iter_mut().map(|i| i.to_string()).collect(), &dir_path);
+            Term::done("Done.");
         }
         Some(("open", sub)) => {
             let config: Config = Utils::get_config().unwrap();

@@ -1,4 +1,5 @@
 use clap::{value_parser, Arg, ArgAction, Command};
+use toml::value;
 
 pub fn get_args() -> Command {
     Command::new("enjo")
@@ -17,6 +18,32 @@ pub fn get_args() -> Command {
                     .hide_default_value(true)
                     .default_value("")
                     .num_args(1)),
+            Command::new("clone").about("Clone Git repository (requires git to be installed).")
+                .args([
+                    Arg::new("repo")
+                        .help("Repository to be cloned.")
+                        .value_parser(value_parser!(String))
+                        .required(true)
+                        .hide_default_value(true)
+                        .num_args(1),
+                    Arg::new("name")
+                        .help("Name of directory for this repo.")
+                        .value_parser(value_parser!(String))
+                        .short('n')
+                        .long("name")
+                        .required(false)
+                        .hide_default_value(true)
+                        .default_value("")
+                        .num_args(1),
+                    Arg::new("branch")
+                        .help("Branch to use as default while cloning.")
+                        .value_parser(value_parser!(String))
+                        .short('b')
+                        .long("branch")
+                        .required(false)
+                        .hide_default_value(true)
+                        .default_value("")
+            ]),
             Command::new("open").about("Open project in editor.").args([
                 Arg::new("name")
                     .help("Name of the project to open.")
