@@ -1,5 +1,4 @@
 use clap::{value_parser, Arg, ArgAction, Command};
-use toml::value;
 
 pub fn get_args() -> Command {
     Command::new("enjo")

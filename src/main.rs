@@ -1,4 +1,3 @@
-use std::process::Command;
 use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
@@ -6,7 +5,6 @@ use crate::config::Config;
 use crate::container::Container;
 use crate::term::Term;
 use platform::Platform;
-use proc::Proc;
 use utils::Utils;
 
 mod args;
