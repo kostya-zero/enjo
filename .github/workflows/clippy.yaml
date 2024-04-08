@@ -5,13 +5,12 @@ on:
 
 jobs:
   clippy:
-    runs-on: docker
-    container:
-      image: node:21-bookworm
+    runs-on: ubuntu-latest
     steps:
-      - uses: https://github.com/actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Setup Rust Toolchain
-        uses: https://github.com/actions-rs/toolchain@v1.0.6
+        uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
           override: true
