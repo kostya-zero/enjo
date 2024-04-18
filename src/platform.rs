@@ -1,6 +1,7 @@
-use std::path::{Path, PathBuf};
-
-use home::home_dir;
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 pub struct Platform;
 impl Platform {
@@ -19,7 +20,10 @@ impl Platform {
     }
 
     pub fn get_user_home() -> PathBuf {
-        home_dir().unwrap()
+        match env::consts::OS {
+            "windows" => Path::new(&env::var("USERPROFILE").unwrap()).to_path_buf(),
+            _ => Path::new(&env::var("HOME").unwrap()).to_path_buf(),
+        }
     }
 
     pub fn check_exists() -> bool {
