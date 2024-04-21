@@ -6,7 +6,7 @@ homepage = "https://github.com/kostya-zero/enjo"
 keywords = ["workspace"]
 readme = "README.md"
 license = "MIT"
-version = "0.1.1"
+version = "0.2.0-dev"
 edition = "2021"
 
 [dependencies]
