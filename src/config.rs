@@ -37,7 +37,7 @@ pub struct Programs {
 }
 
 #[derive(Debug)]
-pub enum ManagerError {
+pub enum ConfigError {
     WriteFailed,
     FormatFailed,
     FileNotFound,
@@ -45,17 +45,17 @@ pub enum ManagerError {
 }
 
 impl Config {
-    pub fn load() -> Result<Self, ManagerError> {
+    pub fn load() -> Result<Self, ConfigError> {
         match fs::read_to_string(Platform::get_config_path()) {
             Ok(content) => match toml::from_str::<Self>(&content) {
                 Ok(config) => Ok(config),
-                Err(_) => Err(ManagerError::BadStructure),
+                Err(_) => Err(ConfigError::BadStructure),
             },
-            Err(_) => Err(ManagerError::FileNotFound),
+            Err(_) => Err(ConfigError::FileNotFound),
         }
     }
 
-    pub fn write(config: Self) -> Result<(), ManagerError> {
+    pub fn write(config: Self) -> Result<(), ConfigError> {
         let dir_path = Platform::get_config_dir_path();
         if !Path::new(&dir_path).exists() {
             fs::create_dir(dir_path).unwrap();
@@ -63,9 +63,9 @@ impl Config {
         match toml::to_string(&config) {
             Ok(content) => match fs::write(Platform::get_config_path(), content) {
                 Ok(_) => Ok(()),
-                Err(_) => Err(ManagerError::WriteFailed),
+                Err(_) => Err(ConfigError::WriteFailed),
             },
-            Err(_) => Err(ManagerError::FormatFailed),
+            Err(_) => Err(ConfigError::FormatFailed),
         }
     }
 }

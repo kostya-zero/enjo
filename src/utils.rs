@@ -1,6 +1,6 @@
 use std::env;
 
-use crate::config::{Config, ManagerError};
+use crate::config::{Config, ConfigError};
 use crate::platform::Platform;
 use crate::proc::Proc;
 use crate::term::Term;
@@ -11,11 +11,11 @@ impl Utils {
         match Config::load() {
             Ok(i) => Some(i),
             Err(e) => match e {
-                ManagerError::FileNotFound => {
+                ConfigError::FileNotFound => {
                     Term::fail("Cannot load the configuration file because it does not exist on the file system.");
                     None
                 }
-                ManagerError::BadStructure => {
+                ConfigError::BadStructure => {
                     Term::fail("Configuration file has a bad structure and cannot be serialized.");
                     None
                 }
@@ -31,8 +31,8 @@ impl Utils {
         match Config::write(config) {
             Ok(_) => {}
             Err(e) => match e {
-                ManagerError::WriteFailed => Term::fail("Failed to write configuration file."),
-                ManagerError::FormatFailed => Term::fail("Failed to format configuration to TOML."),
+                ConfigError::WriteFailed => Term::fail("Failed to write configuration file."),
+                ConfigError::FormatFailed => Term::fail("Failed to format configuration to TOML."),
                 _ => {
                     Term::fail(format!("Unexpected error occured: {:?}", e).as_str());
                 }

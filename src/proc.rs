@@ -15,19 +15,15 @@ pub enum ProcError {
 
 impl Proc {
     pub fn new(program: &str) -> Self {
-        let mut new_proc = Proc::default();
-        new_proc.set_prog(program);
-        new_proc
+        Self {
+            prog: program.to_string(),
+            ..Default::default()
+        }
     }
 
     pub fn set_args(&mut self, new_args: Vec<&str>) {
         let converted = new_args.into_iter().map(|i| i.to_string()).collect();
         self.args = converted;
-    }
-
-    pub fn set_prog(&mut self, new_prog: &str) {
-        self.prog.clear();
-        self.prog.push_str(new_prog);
     }
 
     pub fn set_cwd(&mut self, new_cwd: &str) {
