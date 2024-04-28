@@ -9,7 +9,8 @@ jobs:
     container:
       image: node:21-bookworm
     steps:
-      - uses: https://github.com/actions/checkout@v4
+      - name: Checkout
+        uses: https://github.com/actions/checkout@v4
       - name: Setup Rust Toolchain
         uses: https://github.com/actions-rs/toolchain@v1.0.6
         with:
