@@ -46,7 +46,7 @@ impl Container {
             for entry in entries.flatten() {
                 if let Some(name) = entry.file_name().to_str() {
                     if entry.metadata().map(|m| m.is_dir()).unwrap_or(false)
-                        && !excluded_entries.contains(&name)
+                        && (!excluded_entries.contains(&name) || name.starts_with('.'))
                     {
                         let project: Project = Project::new(name, Path::new(path).join(name));
                         projects.push(project);
