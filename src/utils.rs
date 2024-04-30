@@ -46,7 +46,7 @@ impl Utils {
             Ok(i) => Some(i),
             Err(e) => match e {
                 ContainerError::DirectoryNotFound => {
-                    Term::fail("Directory with projects not found.");
+                    Term::fail("A directory with projects does not exist on the file system.");
                     None
                 }
             },
