@@ -2,7 +2,6 @@ use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
 use crate::config::Config;
-use crate::container::Container;
 use crate::term::Term;
 use platform::Platform;
 use utils::Utils;
@@ -14,18 +13,6 @@ mod platform;
 mod proc;
 mod term;
 mod utils;
-
-fn verify_path(path: String) {
-    if path.is_empty() {
-        Term::fail("Path is not set in the configuration file.");
-        exit(1);
-    }
-
-    if !Path::new(&path).exists() {
-        Term::fail("Directory with projects not found.");
-        exit(1);
-    }
-}
 
 fn main() {
     if !Platform::check_exists() {
@@ -39,13 +26,12 @@ fn main() {
         Some(("new", sub)) => {
             let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
-            verify_path(dir_path.clone());
 
             if !Path::new(&dir_path).exists() {
                 Term::fail("A directory with projects does not exist on the file system.");
             }
 
-            let projects = Container::new(&dir_path);
+            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("You need to provide a name for your new project.");
@@ -64,26 +50,33 @@ fn main() {
         Some(("clone", sub)) => {
             let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
-            verify_path(dir_path.clone());
 
             let repo = sub.get_one::<String>("repo").unwrap().as_str();
             if repo.is_empty() {
                 Term::fail("No repository URL provided.");
             }
 
+            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
             let mut git_args = vec!["clone", repo];
             let branch = sub.get_one::<String>("branch").unwrap();
-            let name = sub.get_one::<String>("name").unwrap();
+            let mut name: &str = sub.get_one::<String>("name").unwrap();
+
+            if name.is_empty() {
+                name = repo.split(':').collect::<Vec<&str>>()[1];
+                name = Path::new(name).file_stem().unwrap().to_str().unwrap();
+            }
+
+            if projects.contains(name) {
+                Term::fail(format!("Project '{}' already exists.", name).as_str());
+            }
 
             if !branch.is_empty() {
                 git_args.push("-b");
                 git_args.push(branch);
             }
 
-            if !name.is_empty() {
-                git_args.push("-t");
-                git_args.push(name);
-            }
+            git_args.push(name);
+            Term::info(format!("Cloning '{}'...", name).as_str());
 
             Utils::launch_program("git", git_args.iter_mut().map(|i| i.to_string()).collect(), &dir_path);
             Term::done("Done.");
@@ -91,9 +84,8 @@ fn main() {
         Some(("open", sub)) => {
             let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
-            verify_path(dir_path.clone());
 
-            let projects = Container::new(&dir_path);
+            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
             let project_name: &str = sub.get_one::<String>("name").unwrap();
 
             if project_name.is_empty() {
@@ -130,13 +122,12 @@ fn main() {
         Some(("list", _sub)) => {
             let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
-            verify_path(dir_path.clone());
 
             if !Path::new(&dir_path).exists() {
                 Term::fail("A directory with projects does not exist on the file system.");
             }
 
-            let projects = Container::new(&dir_path);
+            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
             if projects.is_empty() {
                 Term::info("No projects found.");
                 exit(0)
@@ -154,8 +145,7 @@ fn main() {
             let config: Config = Utils::get_config().unwrap();
             let dir_path: String = config.options.path;
 
-            verify_path(dir_path.clone());
-            let projects = Container::new(&dir_path);
+            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("You need to provide a name of the project you want to delete.");
@@ -185,7 +175,7 @@ fn main() {
                     let config: Config = Utils::get_config().unwrap();
                     let editor = config.programs.editor;
                     if editor.is_empty() {
-                        Term::fail("Editor program name is not set in the configuration file.") 
+                        Term::fail("Editor program name is not set in the configuration file.")
                     }
 
                     let path = Platform::get_config_path();

@@ -1,6 +1,7 @@
 use std::env;
 
 use crate::config::{Config, ConfigError};
+use crate::container::{Container, ContainerError};
 use crate::platform::Platform;
 use crate::proc::Proc;
 use crate::term::Term;
@@ -35,6 +36,18 @@ impl Utils {
                 ConfigError::FormatFailed => Term::fail("Failed to format configuration to TOML."),
                 _ => {
                     Term::fail(format!("Unexpected error occured: {:?}", e).as_str());
+                }
+            },
+        }
+    }
+
+    pub fn load_projects(path: &str) -> Option<Container> {
+        match Container::new(path) {
+            Ok(i) => Some(i),
+            Err(e) => match e {
+                ContainerError::DirectoryNotFound => {
+                    Term::fail("Directory with projects not found.");
+                    None
                 }
             },
         }
@@ -100,9 +113,13 @@ impl Utils {
         match proc.run() {
             Ok(_) => {}
             Err(e) => match e {
-                crate::proc::ProcError::ExecutableNotFound => {
-                    Term::fail("Failed to launch program because executable was not found.")
-                }
+                crate::proc::ProcError::ExecutableNotFound => Term::fail(
+                    format!(
+                        "Failed to launch program because '{}' was not found.",
+                        program
+                    )
+                    .as_str(),
+                ),
                 crate::proc::ProcError::Interrupted => Term::error("Program was interrupted"),
                 crate::proc::ProcError::Other(reason) => {
                     Term::fail(format!("Program failed to launch or failed: {}", reason).as_str())

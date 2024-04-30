@@ -9,6 +9,10 @@ pub struct Project {
     pub path: PathBuf,
 }
 
+pub enum ContainerError {
+    DirectoryNotFound,
+}
+
 impl Project {
     pub fn new(new_name: &str, new_path: PathBuf) -> Self {
         Self {
@@ -26,8 +30,11 @@ impl Project {
 #[derive(Debug, Clone)]
 pub struct Container(Vec<Project>);
 impl Container {
-    pub fn new(path: &str) -> Self {
+    pub fn new(path: &str) -> Result<Self, ContainerError> {
         let mut projects: Vec<Project> = Vec::new();
+        if !Path::new(path).exists() {
+            return Err(ContainerError::DirectoryNotFound);
+        }
         let excluded_entries = [
             ".",
             "..",
@@ -54,7 +61,7 @@ impl Container {
                 }
             }
         }
-        Self(projects)
+        Ok(Self(projects))
     }
 
     pub fn contains(&self, name: &str) -> bool {

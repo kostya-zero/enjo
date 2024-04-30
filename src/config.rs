@@ -1,8 +1,6 @@
-use std::{fs, path::Path};
-
-use serde::{Deserialize, Serialize};
-
 use crate::platform::Platform;
+use serde::{Deserialize, Serialize};
+use std::{fs, path::Path};
 
 #[derive(Deserialize, Serialize, Default)]
 #[serde(default)]
