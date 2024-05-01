@@ -169,7 +169,7 @@ fn main() {
         Some(("config", sub)) => {
             match sub.subcommand() {
                 Some(("path", _sub)) => {
-                    Term::info(Platform::get_config_path().as_str());
+                    Term::info(Platform::get_config_path().to_str().unwrap());
                 }
                 Some(("edit", _sub)) => {
                     let config: Config = Utils::get_config().unwrap();
@@ -180,7 +180,7 @@ fn main() {
 
                     let path = Platform::get_config_path();
                     let mut editor_args = config.options.editor_args;
-                    editor_args.push(path);
+                    editor_args.push(path.to_str().unwrap().to_string());
                     Utils::launch_program(editor.as_str(), editor_args, "");
                 }
                 Some(("reset", sub)) => {
