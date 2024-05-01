@@ -1,12 +1,30 @@
-use crate::platform::Platform;
+use crate::platform::{Platform, PlatformName};
 use serde::{Deserialize, Serialize};
-use std::{fs, path::Path};
+use std::{env, fs, path::Path};
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct Config {
     pub options: Options,
     pub programs: Programs,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        let mut default_options = Options::default();
+        let mut default_programs = Programs::default();
+        if Platform::get_platform() == PlatformName::Windows
+            && (default_programs.editor == "code" || default_programs.editor == "codium")
+        {
+            default_programs.editor.push_str(".cmd");
+            default_options.editor_args.push(".".to_string());
+        }
+
+        Self {
+            options: default_options,
+            programs: default_programs,
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -27,11 +45,51 @@ impl Default for Options {
     }
 }
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct Programs {
     pub editor: String,
     pub shell: String,
+}
+
+impl Default for Programs {
+    #[allow(unused_assignments)]
+    fn default() -> Self {
+        let mut new_editor: String = String::new();
+        let mut new_shell: String = String::new();
+        let current_platform = Platform::get_platform();
+        match current_platform {
+            PlatformName::Windows => {
+                new_editor = String::from("code");
+                new_shell = String::from("pwsh");
+            }
+            PlatformName::Mac => {
+                new_editor = String::from("code");
+                new_shell = String::from("zsh");
+            }
+            _ => {
+                new_editor = String::from("nvim");
+                new_shell = String::from("bash");
+            }
+        }
+        if let Ok(env_editor) = env::var("EDITOR") {
+            new_editor = env_editor;
+        }
+        if let Ok(env_shell) = env::var("SHELL") {
+            new_shell = env_shell;
+        }
+
+        if PlatformName::Windows == current_platform
+            && (new_editor.contains("code") || new_editor.contains("codium"))
+        {
+            new_editor.push_str(".cmd");
+        }
+
+        Self {
+            editor: new_editor,
+            shell: new_shell,
+        }
+    }
 }
 
 #[derive(Debug)]

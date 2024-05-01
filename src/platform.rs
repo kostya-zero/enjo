@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+#[derive(PartialEq)]
 pub enum PlatformName {
     Windows,
     Linux,

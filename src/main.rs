@@ -16,7 +16,7 @@ mod utils;
 
 fn main() {
     if !Platform::check_exists() {
-        let default_config: Config = Utils::make_default();
+        let default_config: Config = Config::default();
         Utils::write_config(default_config);
         Term::info("Enjo has generated the default configuration. We recommend you to check it.");
     }
@@ -190,7 +190,7 @@ fn main() {
                         exit(1);
                     }
 
-                    let new_config: Config = Utils::make_default();
+                    let new_config: Config = Config::default();
                     Utils::write_config(new_config);
                 }
                 _ => Term::fail(
