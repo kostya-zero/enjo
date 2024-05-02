@@ -60,7 +60,7 @@ impl Default for Programs {
         let current_platform = Platform::get_platform();
         match current_platform {
             PlatformName::Windows => {
-                new_editor = String::from("code");
+                new_editor = String::from("code.cmd");
                 new_shell = String::from("pwsh");
             }
             PlatformName::Mac => {
