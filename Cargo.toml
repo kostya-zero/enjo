@@ -2,7 +2,7 @@
 name = "enjo"
 description = "Minimalist workspace assistant."
 authors = ["Konstantin Zhigaylo <zero@kostyazero.com>"]
-homepage = "https://github.com/kostya-zero/enjo"
+repository = "https://github.com/kostya-zero/enjo"
 keywords = ["workspace"]
 readme = "README.md"
 license = "MIT"
