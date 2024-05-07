@@ -24,14 +24,14 @@ fn main() {
     let args = get_args().get_matches();
     match args.subcommand() {
         Some(("new", sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
             if !Path::new(&dir_path).exists() {
                 Term::fail("A directory with projects does not exist on the file system.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
+            let projects = Utils::load_projects(dir_path.as_str());
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("You need to provide a name for your new project.");
@@ -48,7 +48,7 @@ fn main() {
             }
         }
         Some(("clone", sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
             let repo = sub.get_one::<String>("repo").unwrap().as_str();
@@ -56,7 +56,7 @@ fn main() {
                 Term::fail("No repository URL provided.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
+            let projects = Utils::load_projects(dir_path.as_str());
             let mut git_args = vec!["clone", repo];
             let branch = sub.get_one::<String>("branch").unwrap();
             let mut name: &str = sub.get_one::<String>("name").unwrap();
@@ -82,10 +82,10 @@ fn main() {
             Term::done("Done.");
         }
         Some(("open", sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
-            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
+            let projects = Utils::load_projects(dir_path.as_str());
             let project_name: &str = sub.get_one::<String>("name").unwrap();
 
             if project_name.is_empty() {
@@ -120,14 +120,14 @@ fn main() {
             }
         }
         Some(("list", _sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
             if !Path::new(&dir_path).exists() {
                 Term::fail("A directory with projects does not exist on the file system.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
+            let projects = Utils::load_projects(dir_path.as_str());
             if projects.is_empty() {
                 Term::info("No projects found.");
                 exit(0)
@@ -142,10 +142,10 @@ fn main() {
             }
         }
         Some(("delete", sub)) => {
-            let config: Config = Utils::get_config().unwrap();
+            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
-            let projects = Utils::load_projects(dir_path.as_str()).unwrap();
+            let projects = Utils::load_projects(dir_path.as_str());
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("You need to provide a name of the project you want to delete.");
@@ -172,7 +172,7 @@ fn main() {
                     Term::info(Platform::get_config_path().to_str().unwrap());
                 }
                 Some(("edit", _sub)) => {
-                    let config: Config = Utils::get_config().unwrap();
+                    let config: Config = Utils::get_config();
                     let editor = config.programs.editor;
                     if editor.is_empty() {
                         Term::fail("Editor program name is not set in the configuration file.")
