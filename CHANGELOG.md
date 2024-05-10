@@ -4,7 +4,7 @@
 
 - **WIP**: When you use the `list` command and have enabled the `hide_dots` option, Enjo will hide not only the directories that start with a dot symbol, but also system directories such as `.Trash-1000` or `System Volume Information`.
 - **NEW**: You can clone your Git repositories through Enjo into your directory with projects via the `clone` command. Just use `enjo clone yourgit.com/user/repo` to clone a repository. See more with `enjo clone --help`.
-- When Enjo generates a new configuration on Windows, instead of `code` it will use `code.cmd`.
+- When Enjo generates a new configuration on Windows, it will use `code.cmd` instead of `code`.
 - Some changes in messages.
 - Some internal improvments.
 
