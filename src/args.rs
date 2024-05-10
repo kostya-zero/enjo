@@ -22,7 +22,7 @@ pub fn get_args() -> Command {
                     Arg::new("repo")
                         .help("Repository to be cloned.")
                         .value_parser(value_parser!(String))
-                        .required(true)
+                        .required(false)
                         .hide_default_value(true)
                         .num_args(1),
                     Arg::new("name")
