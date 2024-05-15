@@ -36,6 +36,7 @@ fn main() {
             if name.is_empty() {
                 Term::fail("You need to provide a name for your new project.");
             }
+            
 
             if projects.contains(name) {
                 Term::fail("Project with this name already exists.");
