@@ -34,8 +34,8 @@ impl Utils {
         });
     }
 
-    pub fn load_projects(path: &str) -> Container {
-        Container::new(path).unwrap_or_else(|err| {
+    pub fn load_projects(path: &str, display_hidden: bool) -> Container {
+        Container::new(path, display_hidden).unwrap_or_else(|err| {
             match err {
                 ContainerError::DirectoryNotFound => {
                     Term::fail("A directory with projects does not exist on the file system.");

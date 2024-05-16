@@ -19,7 +19,7 @@ Enjo will generate configuration based on your environment settings like `EDITOR
 [options]
 path = '/home/user'
 editor_args = []
-hide_dots = true
+display_hidden = false
 
 [programs]
 editor = "nvim"
@@ -42,7 +42,7 @@ Enjo allows to manage configuration through `config` subcommand. This is a list 
 
 - `path` - Path to directory with your projects. But default it uses path to user's home directory.
 - `editor_args` - Arguments that will be passed to the editor. By default this field is empty, but for users of *VS Code* and *VS Codium* it will contain a single dot.
-- `hide_dots` - This options determines show directories that starts with dots. By default set to `true`.
+- `display_hidden` - This options determines the display of hidden directories. By default set to `false`.
 
 ### `programs`
 

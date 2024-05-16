@@ -27,23 +27,14 @@ impl Default for Config {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct Options {
     pub path: String,
     pub editor_args: Vec<String>,
-    pub hide_dots: bool,
+    pub display_hidden: bool,
 }
 
-impl Default for Options {
-    fn default() -> Self {
-        Self {
-            hide_dots: true,
-            path: String::new(),
-            editor_args: Vec::new(),
-        }
-    }
-}
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]

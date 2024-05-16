@@ -31,7 +31,7 @@ fn main() {
                 Term::fail("A directory with projects does not exist on the file system.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str());
+            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("You need to provide a name for your new project.");
@@ -57,7 +57,7 @@ fn main() {
                 Term::fail("No repository URL provided.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str());
+            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
             let mut git_args = vec!["clone", repo];
             let branch = sub.get_one::<String>("branch").unwrap();
             let mut name: &str = sub.get_one::<String>("name").unwrap();
@@ -86,7 +86,7 @@ fn main() {
             let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
-            let projects = Utils::load_projects(dir_path.as_str());
+            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
             let project_name: &str = sub.get_one::<String>("name").unwrap();
 
             if project_name.is_empty() {
@@ -128,7 +128,7 @@ fn main() {
                 Term::fail("A directory with projects does not exist on the file system.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str());
+            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
             if projects.is_empty() {
                 Term::info("No projects found.");
                 exit(0)
@@ -136,7 +136,7 @@ fn main() {
 
             Term::list_title("Your projects:");
             for project in projects.get_vec().iter() {
-                if project.name.starts_with('.') && config.options.hide_dots {
+                if project.name.starts_with('.') && config.options.display_hidden {
                     continue;
                 }
                 Term::item(project.name.as_str());
@@ -146,7 +146,7 @@ fn main() {
             let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
-            let projects = Utils::load_projects(dir_path.as_str());
+            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("You need to provide a name of the project you want to delete.");
