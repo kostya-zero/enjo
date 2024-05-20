@@ -42,6 +42,23 @@ impl Platform {
         }
     }
 
+    pub fn get_default_editor() -> String {
+        match Self::get_platform() {
+            PlatformName::Windows => String::from("code.cmd"),
+            PlatformName::Mac => String::from("code"),
+            PlatformName::Linux => String::from("nvim"),
+            PlatformName::Unknown => String::from("nvim"),
+        }
+    }
+
+    pub fn get_default_shell() -> String {
+        match Self::get_platform() {
+            PlatformName::Windows => String::from("pwsh.exe"),
+            PlatformName::Mac => String::from("zsh"),
+            _ => String::from("bash")
+        }
+    }
+
     pub fn check_exists() -> bool {
         Path::new(&Self::get_config_path()).exists()
     }

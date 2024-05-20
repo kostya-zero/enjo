@@ -46,23 +46,10 @@ pub struct Programs {
 impl Default for Programs {
     #[allow(unused_assignments)]
     fn default() -> Self {
-        let mut new_editor: String = String::new();
-        let mut new_shell: String = String::new();
+        let mut new_editor: String = Platform::get_default_editor();
+        let mut new_shell: String = Platform::get_default_shell();
         let current_platform = Platform::get_platform();
-        match current_platform {
-            PlatformName::Windows => {
-                new_editor = String::from("code.cmd");
-                new_shell = String::from("pwsh");
-            }
-            PlatformName::Mac => {
-                new_editor = String::from("code");
-                new_shell = String::from("zsh");
-            }
-            _ => {
-                new_editor = String::from("nvim");
-                new_shell = String::from("bash");
-            }
-        }
+
         if let Ok(env_editor) = env::var("EDITOR") {
             new_editor = env_editor;
         }

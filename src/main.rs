@@ -18,6 +18,7 @@ fn main() {
     if !Platform::check_exists() {
         let default_config: Config = Config::default();
         Utils::write_config(default_config);
+
         Term::info("Enjo has generated the default configuration. We recommend you to check it.");
     }
 
