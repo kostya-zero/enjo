@@ -1,4 +1,4 @@
-use std::process::exit;
+use std::process::{Command, exit};
 
 use crate::config::{Config, ConfigError};
 use crate::container::{Container, ContainerError};
@@ -14,7 +14,7 @@ impl Utils {
                     Term::fail("Cannot load the configuration file because it does not exist on the file system.");
                 }
                 ConfigError::BadStructure => {
-                    Term::fail("Configuration file has a bad structure and cannot be serialized.");
+                    Term::fail("Configuration file has a bad structure and cannot be deserialized.");
                 }
                 _ => {
                     Term::fail(format!("Unexpected error occured: {:?}", err).as_str());
@@ -43,6 +43,18 @@ impl Utils {
             };
             exit(1);
         })
+    }
+
+    pub fn display_version() {
+        let build_type = if cfg!(debug_assertions) {
+            "dev"
+        } else {
+            "release"
+        };
+
+        let version = env!("CARGO_PKG_VERSION");
+        Term::info(format!("v{} ({})", version, build_type).as_str());
+
     }
 
     pub fn launch_program(program: &str, args: Vec<String>, cwd: &str) {

@@ -15,6 +15,12 @@ mod term;
 mod utils;
 
 fn main() {
+    let args = get_args().get_matches();
+    if args.get_flag("version") {
+        Utils::display_version();
+        exit(0);
+    }
+
     if !Platform::check_exists() {
         let default_config: Config = Config::default();
         Utils::write_config(default_config);
@@ -22,7 +28,7 @@ fn main() {
         Term::info("Enjo has generated the default configuration. We recommend you to check it.");
     }
 
-    let args = get_args().get_matches();
+
     match args.subcommand() {
         Some(("new", sub)) => {
             let config: Config = Utils::get_config();

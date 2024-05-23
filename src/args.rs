@@ -1,12 +1,17 @@
 use clap::{value_parser, Arg, ArgAction, Command};
+use clap::ArgAction::SetTrue;
 
 pub fn get_args() -> Command {
     Command::new("enjo")
         .name("enjo")
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .version(env!("CARGO_PKG_VERSION"))
-        .subcommand_required(true)
         .arg_required_else_help(true)
+        .disable_version_flag(true)
+        .arg(Arg::new("version")
+            .long("version")
+            .help("Print version.")
+            .action(SetTrue))
         .subcommands([
             Command::new("new")
                 .about("Create new project")
