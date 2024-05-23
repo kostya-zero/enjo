@@ -29,7 +29,7 @@ If you have `git` installed you can use it to download the source code.
 git clone https://git.kostyazero.com/kostya-zero/enjo
 ```
 
-If not, you can download source code as ZIP. Extract it's contents to wherever you want.
+If not, you can download source code as ZIP. Extract its contents to wherever you want.
 
 ### Building
 
@@ -59,7 +59,7 @@ $env:RUSTFLAGS = "-C link-arg=-fuse-ld=lld-link"
 
 #### Native compilation
 
-If you want to natively compile Enjo, use this in your prompt:
+If you want to natively compile Enjo, use this in your command prompt:
 
 ```shell
 # Bash, zsh, fish, ...

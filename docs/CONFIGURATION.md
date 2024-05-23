@@ -41,11 +41,11 @@ Enjo allows to manage configuration through `config` subcommand. This is a list 
 ### `options`
 
 - `path` - Path to directory with your projects. But default it uses path to user's home directory.
-- `editor_args` - Arguments that will be passed to the editor. By default this field is empty, but for users of *VS Code* and *VS Codium* it will contain a single dot.
-- `display_hidden` - This options determines the display of hidden directories. By default set to `false`.
+- `editor_args` - Arguments that will be passed to the editor. By default, this field is empty, but for users of *VS Code* and *VS Codium* it will contain a single dot.
+- `display_hidden` - This options determines the display of hidden directories. By default, set to `false`.
 
 ### `programs`
 
-- `editor` - Name of executable that will be used as editor to open projects and configuration file. You set it like name of executable (e.g. `nvim`) or as full path to executable (e.g. `/usr/bin/nvim`).
-- `shell` - Name of executable that will be used as shell to open projects. You set it like name of executable (e.g. `bash`) or as full path to executable (e.g. `/usr/bin/bash`).
+- `editor` - Name of executable that will be used as editor to open projects and configuration file. You set it like name of executable (e.g. `nvim`) or as absolute path to executable (e.g. `/usr/bin/nvim`).
+- `shell` - Name of executable that will be used as shell to open projects. You set it like name of executable (e.g. `bash`) or as absolute path to executable (e.g. `/usr/bin/bash`).
 
