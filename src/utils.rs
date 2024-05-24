@@ -1,4 +1,4 @@
-use std::process::{Command, exit};
+use std::process::exit;
 
 use crate::config::{Config, ConfigError};
 use crate::container::{Container, ContainerError};

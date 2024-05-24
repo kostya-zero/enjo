@@ -1,12 +1,12 @@
 [package]
 name = "enjo"
-description = "Minimalist workspace assistant."
+description = "Projects management tool."
 authors = ["Konstantin Zhigaylo <zero@kostyazero.com>"]
 repository = "https://github.com/kostya-zero/enjo"
 keywords = ["workspace"]
 readme = "README.md"
 license = "MIT"
-version = "0.2.0-dev"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
