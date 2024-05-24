@@ -53,7 +53,7 @@ impl Utils {
         };
 
         let version = env!("CARGO_PKG_VERSION");
-        Term::info(format!("v{} ({})", version, build_type).as_str());
+        Term::info(format!("v{} ({})", version, build_type).as_str()    );
 
     }
 

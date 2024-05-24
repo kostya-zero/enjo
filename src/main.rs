@@ -28,7 +28,6 @@ fn main() {
         Term::info("Enjo has generated the default configuration. We recommend you to check it.");
     }
 
-
     match args.subcommand() {
         Some(("new", sub)) => {
             let config: Config = Utils::get_config();
@@ -43,7 +42,6 @@ fn main() {
             if name.is_empty() {
                 Term::fail("You need to provide a name for your new project.");
             }
-            
 
             if projects.contains(name) {
                 Term::fail("Project with this name already exists.");
