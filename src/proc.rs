@@ -1,4 +1,7 @@
-use std::process::{Command, Stdio};
+use std::{
+    fmt,
+    process::{Command, Stdio},
+};
 
 #[derive(Default)]
 pub struct Proc {
@@ -8,9 +11,23 @@ pub struct Proc {
 }
 
 pub enum ProcError {
-    ExecutableNotFound,
+    ExecutableNotFound(String),
     Interrupted,
     Other(String),
+}
+
+impl fmt::Display for ProcError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ProcError::ExecutableNotFound(prog) => write!(
+                f,
+                "Failed to launch program because '{}' was not found.",
+                prog
+            ),
+            ProcError::Interrupted => write!(f, "Program was interrupted."),
+            ProcError::Other(reason) => write!(f, "Program failed to launch or failed: {}", reason),
+        }
+    }
 }
 
 impl Proc {
@@ -47,7 +64,9 @@ impl Proc {
         match cmd.output() {
             Ok(_) => Ok(()),
             Err(e) => match e.kind() {
-                std::io::ErrorKind::NotFound => Err(ProcError::ExecutableNotFound),
+                std::io::ErrorKind::NotFound => {
+                    Err(ProcError::ExecutableNotFound(self.prog.clone()))
+                }
                 std::io::ErrorKind::Interrupted => Err(ProcError::Interrupted),
                 _ => Err(ProcError::Other(e.kind().to_string())),
             },

@@ -35,7 +35,6 @@ pub struct Options {
     pub display_hidden: bool,
 }
 
-
 #[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct Programs {
@@ -44,7 +43,6 @@ pub struct Programs {
 }
 
 impl Default for Programs {
-    #[allow(unused_assignments)]
     fn default() -> Self {
         let mut new_editor: String = Platform::get_default_editor();
         let mut new_shell: String = Platform::get_default_shell();

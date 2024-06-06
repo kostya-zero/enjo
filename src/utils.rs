@@ -2,7 +2,7 @@ use std::process::exit;
 
 use crate::config::{Config, ConfigError};
 use crate::container::{Container, ContainerError};
-use crate::proc::{Proc, ProcError};
+use crate::proc::Proc;
 use crate::term::Term;
 
 pub struct Utils;
@@ -53,8 +53,7 @@ impl Utils {
         };
 
         let version = env!("CARGO_PKG_VERSION");
-        Term::info(format!("v{} ({})", version, build_type).as_str()    );
-
+        Term::info(format!("v{} ({})", version, build_type).as_str());
     }
 
     pub fn launch_program(program: &str, args: Vec<String>, cwd: &str) {
@@ -64,23 +63,7 @@ impl Utils {
         }
         proc.set_args(args.iter().map(|i| i.as_str()).collect());
         if let Err(e) = proc.run() {
-            match e {
-                ProcError::ExecutableNotFound => {
-                    Term::fail(
-                        format!(
-                            "Failed to launch program because '{}' was not found.",
-                            program
-                        )
-                        .as_str(),
-                    );
-                }
-                ProcError::Interrupted => {
-                    Term::error("Program was interrupted");
-                }
-                ProcError::Other(reason) => {
-                    Term::fail(format!("Program failed to launch or failed: {}", reason).as_str());
-                }
-            }
+            Term::fail(e.to_string().as_str());
         }
     }
 }
