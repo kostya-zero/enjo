@@ -12,6 +12,7 @@ edition = "2021"
 [dependencies]
 clap = "4.5.1"
 serde = { version = "1.0.196", features = ["derive"] }
+thiserror = "1.0.61"
 toml = "0.8.10"
 
 [target.'cfg(windows)'.dependencies]
