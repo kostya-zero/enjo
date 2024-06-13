@@ -42,19 +42,12 @@ impl Container {
 
     fn collect_projects(path: &str, display_hidden: bool) -> Result<Vec<Project>, ContainerError> {
         let mut projects: Vec<Project> = Vec::new();
-        let system_dirs = [
-            ".",
-            "..",
-            "$RECYCLE.BIN",
-            "System Volume Information",
-            "msdownld.tmp",
-            ".Trash-1000",
-        ];
+
         if let Ok(entries) = fs::read_dir(path) {
             for entry in entries.flatten() {
                 if let Some(name) = entry.file_name().to_str() {
                     let path = entry.path();
-                    if Self::is_valid_project(&entry, name, display_hidden, &system_dirs) {
+                    if Self::is_valid_project(&entry, name, display_hidden) {
                         let project = Project::new(name, path);
                         projects.push(project);
                     }
@@ -67,12 +60,15 @@ impl Container {
         Ok(projects)
     }
 
-    fn is_valid_project(
-        entry: &fs::DirEntry,
-        name: &str,
-        display_hidden: bool,
-        system_dirs: &[&str],
-    ) -> bool {
+    fn is_valid_project(entry: &fs::DirEntry, name: &str, display_hidden: bool) -> bool {
+        let system_dirs = [
+            ".",
+            "..",
+            "$RECYCLE.BIN",
+            "System Volume Information",
+            "msdownld.tmp",
+            ".Trash-1000",
+        ];
         let is_dir = entry.metadata().map(|m| m.is_dir()).unwrap_or(false);
         let is_hidden = name.starts_with('.');
         let is_system_dir = system_dirs.contains(&name);
