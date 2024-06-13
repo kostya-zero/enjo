@@ -40,6 +40,9 @@ impl Utils {
                 ContainerError::DirectoryNotFound => {
                     Term::fail("A directory with projects does not exist on the file system.");
                 }
+                ContainerError::ReadFailed => {
+                    Term::fail("A directory with projects does not exist on the file system.");
+                }
             };
             exit(1);
         })

@@ -11,6 +11,7 @@ pub struct Project {
 
 pub enum ContainerError {
     DirectoryNotFound,
+    ReadFailed,
 }
 
 impl Project {
@@ -31,19 +32,19 @@ impl Project {
 pub struct Container(Vec<Project>);
 impl Container {
     pub fn new(path: &str, display_hidden: bool) -> Result<Self, ContainerError> {
-        let mut projects: Vec<Project> = Vec::new();
         if !Path::new(path).exists() {
             return Err(ContainerError::DirectoryNotFound);
         }
-        let excluded_entries = [
+
+        let projects = Self::collect_projects(path, display_hidden)?;
+        Ok(Self(projects))
+    }
+
+    fn collect_projects(path: &str, display_hidden: bool) -> Result<Vec<Project>, ContainerError> {
+        let mut projects: Vec<Project> = Vec::new();
+        let system_dirs = [
             ".",
             "..",
-            ".git",
-            ".vscode",
-            ".idea",
-            ".github",
-            ".gitea",
-            ".forgejo",
             "$RECYCLE.BIN",
             "System Volume Information",
             "msdownld.tmp",
@@ -52,16 +53,31 @@ impl Container {
         if let Ok(entries) = fs::read_dir(path) {
             for entry in entries.flatten() {
                 if let Some(name) = entry.file_name().to_str() {
-                    if entry.metadata().map(|m| m.is_dir()).unwrap_or(false)
-                        && !(!display_hidden && (excluded_entries.contains(&name) || name.starts_with('.')))
-                    {
-                        let project: Project = Project::new(name, Path::new(path).join(name));
+                    let path = entry.path();
+                    if Self::is_valid_project(&entry, name, display_hidden, &system_dirs) {
+                        let project = Project::new(name, path);
                         projects.push(project);
                     }
                 }
             }
+        } else {
+            return Err(ContainerError::ReadFailed);
         }
-        Ok(Self(projects))
+
+        Ok(projects)
+    }
+
+    fn is_valid_project(
+        entry: &fs::DirEntry,
+        name: &str,
+        display_hidden: bool,
+        system_dirs: &[&str],
+    ) -> bool {
+        let is_dir = entry.metadata().map(|m| m.is_dir()).unwrap_or(false);
+        let is_hidden = name.starts_with('.');
+        let is_system_dir = system_dirs.contains(&name);
+
+        is_dir && (!is_hidden || display_hidden) && !is_system_dir
     }
 
     pub fn contains(&self, name: &str) -> bool {
