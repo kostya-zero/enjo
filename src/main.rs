@@ -14,6 +14,9 @@ mod program;
 mod term;
 mod utils;
 
+#[cfg(test)]
+mod tests;
+
 fn main() {
     let args = get_args().get_matches();
     if args.get_flag("version") {
