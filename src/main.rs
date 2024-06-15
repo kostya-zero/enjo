@@ -211,7 +211,7 @@ fn main() {
                     if Term::ask("Do you really want to reset your current configuration?", false) {
                         let new_config: Config = Config::default();
                         Utils::write_config(new_config);
-                        Term::info("The configuration has been reset.");
+                        Term::done("The configuration has been reset.");
                     } else {
                         Term::info("Aborted.");
                     }
