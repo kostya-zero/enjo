@@ -112,13 +112,13 @@ mod tests {
         let temp_dir = tempdir().unwrap();
 
         let container = Container::new(temp_dir.path().to_str().unwrap(), false).unwrap();
-        temp_dir.close().unwrap();
         assert!(container.is_empty());
 
         let project_dir = temp_dir.path().join("project1");
         fs::create_dir(project_dir).unwrap();
 
         let container = Container::new(temp_dir.path().to_str().unwrap(), false).unwrap();
+        temp_dir.close().unwrap();
         assert!(!container.is_empty());
     }
 }
