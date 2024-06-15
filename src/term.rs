@@ -1,5 +1,7 @@
 use std::process::exit;
 
+use dialoguer::{theme::ColorfulTheme, Confirm};
+
 pub struct Term;
 impl Term {
     fn print_message(prefix: &str, color_code: &str, msg: &str) {
@@ -28,6 +30,15 @@ impl Term {
 
     pub fn item(msg: &str) {
         println!(" {}", msg);
+    }
+
+    pub fn ask(question: &str, default: bool) -> bool {
+        Confirm::with_theme(&ColorfulTheme::default())
+            .with_prompt(question)
+            .default(default)
+            .show_default(true)
+            .interact()
+            .unwrap()
     }
 
     pub fn fail(msg: &str) {

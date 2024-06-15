@@ -101,10 +101,11 @@ fn main() {
                 Term::fail("Project name is not provided.");
             }
 
-            let program = if sub.get_flag("shell") {
-                config.programs.shell
-            } else {
-                config.programs.editor
+            let is_shell = sub.get_flag("shell");
+
+            let program = match is_shell {
+                true => config.programs.shell,
+                false => config.programs.editor,
             };
 
             if program.is_empty() {
@@ -115,14 +116,28 @@ fn main() {
             if let Some(project) = projects.get(project_name) {
                 let project_path = project.get_path_str();
                 let path = Path::new(&project_path);
-                let proc_args = if sub.get_flag("shell") {
+                let proc_args = if is_shell {
                     Vec::new()
                 } else {
-                    config.options.editor_args
+                    config.options.editor_args.clone()
                 };
-                Term::busy(format!("Launching {}...", program).as_str());
-                Utils::launch_program(program.as_str(), proc_args, path.to_str().unwrap());
-                Term::done("Program has been closed.");
+
+                let action = if is_shell {
+                    "New shell session is starting..."
+                } else {
+                    "Launching editor..."
+                };
+                Term::busy(action);
+
+                Utils::launch_program(&program, proc_args, path.to_str().unwrap());
+
+                let end_message = if is_shell {
+                    "End of shell session."
+                } else {
+                    "Editor has been closed."
+                };
+                Term::info(end_message);
+
             } else {
                 Term::fail("Project not found.");
                 exit(1);
@@ -192,15 +207,14 @@ fn main() {
                     editor_args.push(path.to_str().unwrap().to_string());
                     Utils::launch_program(editor.as_str(), editor_args, "");
                 }
-                Some(("reset", sub)) => {
-                    let yes: bool = sub.get_flag("yes");
-                    if !yes {
-                        Term::error("You should give your agreement to reset your configuration by passing '--yes' argument.");
-                        exit(1);
+                Some(("reset", _sub)) => {
+                    if Term::ask("Do you really want to reset your current configuration?", false) {
+                        let new_config: Config = Config::default();
+                        Utils::write_config(new_config);
+                        Term::info("The configuration has been reset.");
+                    } else {
+                        Term::info("Aborted.");
                     }
-
-                    let new_config: Config = Config::default();
-                    Utils::write_config(new_config);
                 }
                 _ => Term::fail(
                     "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.",
