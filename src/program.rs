@@ -1,36 +1,26 @@
-use std::{
-    fmt,
-    process::{Command, Stdio},
-};
+use std::process::{Command, Stdio};
+use thiserror::Error;
 
 #[derive(Default)]
-pub struct Proc {
+pub struct Program {
     prog: String,
     args: Vec<String>,
     cwd: String,
 }
 
-pub enum ProcError {
+#[derive(Error, Debug)]
+pub enum ProgramError {
+    #[error("Failed to launch program because '{0}' was not found.")]
     ExecutableNotFound(String),
+
+    #[error("Program was interrupted.")]
     Interrupted,
+
+    #[error("Program failed to launch or failed: {0}")]
     Other(String),
 }
 
-impl fmt::Display for ProcError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ProcError::ExecutableNotFound(prog) => write!(
-                f,
-                "Failed to launch program because '{}' was not found.",
-                prog
-            ),
-            ProcError::Interrupted => write!(f, "Program was interrupted."),
-            ProcError::Other(reason) => write!(f, "Program failed to launch or failed: {}", reason),
-        }
-    }
-}
-
-impl Proc {
+impl Program {
     pub fn new(program: &str) -> Self {
         Self {
             prog: program.to_string(),
@@ -47,7 +37,7 @@ impl Proc {
         self.cwd = new_cwd.to_string();
     }
 
-    pub fn run(&self) -> Result<(), ProcError> {
+    pub fn run(&self) -> Result<(), ProgramError> {
         let mut cmd = Command::new(self.prog.clone());
         cmd.stdin(Stdio::inherit());
         cmd.stdout(Stdio::inherit());
@@ -65,10 +55,10 @@ impl Proc {
             Ok(_) => Ok(()),
             Err(e) => match e.kind() {
                 std::io::ErrorKind::NotFound => {
-                    Err(ProcError::ExecutableNotFound(self.prog.clone()))
+                    Err(ProgramError::ExecutableNotFound(self.prog.clone()))
                 }
-                std::io::ErrorKind::Interrupted => Err(ProcError::Interrupted),
-                _ => Err(ProcError::Other(e.kind().to_string())),
+                std::io::ErrorKind::Interrupted => Err(ProgramError::Interrupted),
+                _ => Err(ProgramError::Other(e.kind().to_string())),
             },
         }
     }

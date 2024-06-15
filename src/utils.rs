@@ -1,49 +1,28 @@
 use std::process::exit;
 
-use crate::config::{Config, ConfigError};
-use crate::container::{Container, ContainerError};
-use crate::proc::Proc;
+use crate::config::Config;
+use crate::container::Container;
+use crate::program::Program;
 use crate::term::Term;
 
 pub struct Utils;
 impl Utils {
     pub fn get_config() -> Config {
         Config::load().unwrap_or_else(|err| {
-            match err {
-                ConfigError::FileNotFound => {
-                    Term::fail("Cannot load the configuration file because it does not exist on the file system.");
-                }
-                ConfigError::BadStructure => {
-                    Term::fail("Configuration file has a bad structure and cannot be deserialized.");
-                }
-                _ => {
-                    Term::fail(format!("Unexpected error occured: {:?}", err).as_str());
-                }
-            };
+            Term::fail(&format!("{err}"));
             exit(1);
         })
     }
 
     pub fn write_config(config: Config) {
-        Config::write(config).unwrap_or_else(|err| match err {
-            ConfigError::WriteFailed => Term::fail("Failed to write configuration file."),
-            ConfigError::FormatFailed => Term::fail("Failed to format configuration to TOML."),
-            _ => {
-                Term::fail(format!("Unexpected error occured: {:?}", err).as_str());
-            }
-        });
+        Config::write(config).unwrap_or_else(|err| 
+            Term::fail(&format!("{err}"))
+        );
     }
 
     pub fn load_projects(path: &str, display_hidden: bool) -> Container {
         Container::new(path, display_hidden).unwrap_or_else(|err| {
-            match err {
-                ContainerError::DirectoryNotFound => {
-                    Term::fail("A directory with projects does not exist on the file system.");
-                }
-                ContainerError::ReadFailed => {
-                    Term::fail("A directory with projects does not exist on the file system.");
-                }
-            };
+            Term::fail(&format!("{err}"));
             exit(1);
         })
     }
@@ -60,7 +39,7 @@ impl Utils {
     }
 
     pub fn launch_program(program: &str, args: Vec<String>, cwd: &str) {
-        let mut proc = Proc::new(program);
+        let mut proc = Program::new(program);
         if !cwd.is_empty() {
             proc.set_cwd(cwd);
         }

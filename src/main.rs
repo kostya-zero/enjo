@@ -10,7 +10,7 @@ mod args;
 mod config;
 mod container;
 mod platform;
-mod proc;
+mod program;
 mod term;
 mod utils;
 

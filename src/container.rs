@@ -2,6 +2,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
+use thiserror::Error;
 
 #[derive(Debug, Clone)]
 pub struct Project {
@@ -9,8 +10,12 @@ pub struct Project {
     pub path: PathBuf,
 }
 
+#[derive(Debug, Error)]
 pub enum ContainerError {
+    #[error("A directory with projects does not exist on the file system.")]
     DirectoryNotFound,
+
+    #[error("Failed to read the contents of the directory.")]
     ReadFailed,
 }
 
