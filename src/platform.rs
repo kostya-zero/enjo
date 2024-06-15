@@ -46,7 +46,7 @@ impl Platform {
         match Self::get_platform() {
             PlatformName::Windows => String::from("code.cmd"),
             PlatformName::Mac => String::from("code"),
-            _ => String::from("nvim")
+            _ => String::from("nvim"),
         }
     }
 
@@ -54,7 +54,7 @@ impl Platform {
         match Self::get_platform() {
             PlatformName::Windows => String::from("pwsh.exe"),
             PlatformName::Mac => String::from("zsh"),
-            _ => String::from("bash")
+            _ => String::from("bash"),
         }
     }
 

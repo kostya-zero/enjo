@@ -1,7 +1,7 @@
 use crate::platform::{Platform, PlatformName};
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 use std::{env, fs, path::Path};
+use thiserror::Error;
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]

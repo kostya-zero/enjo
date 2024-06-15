@@ -1,5 +1,5 @@
-use clap::{value_parser, Arg, ArgAction, Command};
 use clap::ArgAction::SetTrue;
+use clap::{value_parser, Arg, ArgAction, Command};
 
 pub fn get_args() -> Command {
     Command::new("enjo")

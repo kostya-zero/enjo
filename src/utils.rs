@@ -15,9 +15,7 @@ impl Utils {
     }
 
     pub fn write_config(config: Config) {
-        Config::write(config).unwrap_or_else(|err| 
-            Term::fail(&format!("{err}"))
-        );
+        Config::write(config).unwrap_or_else(|err| Term::fail(&format!("{err}")));
     }
 
     pub fn load_projects(path: &str, display_hidden: bool) -> Container {
