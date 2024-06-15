@@ -2,32 +2,36 @@ use std::process::exit;
 
 pub struct Term;
 impl Term {
+    fn print_message(prefix: &str, color_code: &str, msg: &str) {
+        println!(" \x1b[{}m{}\x1b[0m {}", color_code, prefix, msg);
+    }
+
     pub fn error(msg: &str) {
-        println!(" \x1b[91m\x1b[0m {}", msg);
+        Self::print_message("", "91", msg);
     }
 
     pub fn done(msg: &str) {
-        println!(" \x1b[92m\x1b[0m {}", msg);
+        Self::print_message("", "92", msg);
     }
 
     pub fn busy(msg: &str) {
-        println!(" \x1b[97m󰦖\x1b[0m {}", msg);
+        Self::print_message("󰦖", "97", msg);
     }
 
     pub fn info(msg: &str) {
-        println!(" \x1b[97m󰍡\x1b[0m {msg}");
+        Self::print_message("󰍡", "97", msg);
     }
 
     pub fn list_title(msg: &str) {
-        println!(" \x1b[97m\x1b[0m {}", msg);
+        Self::print_message("", "97", msg);
     }
 
     pub fn item(msg: &str) {
-        println!(" {}", msg)
+        println!(" {}", msg);
     }
 
     pub fn fail(msg: &str) {
-        println!(" \x1b[91m\x1b[0m {}", msg);
+        Self::error(msg);
         exit(1);
     }
 }
