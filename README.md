@@ -1,11 +1,12 @@
 # Enjo
+
 Enjo is a minimalist workspace management tool that allows you to quickly manage your projects.
 It has functionality to manage and open projects in editor/shell.
 Enjo will be useful for those who use the terminal frequently and want to quickly jump to their projects.
 
 Main goal of this project is to provide fast and useful assistant for developers. We will be glad to hear your suggestions.
 
-### Installation
+## Installation
 
 If you have installed Rust toolchain, you can install Enjo via `cargo`:
 
@@ -18,7 +19,7 @@ If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
 
 > ⚠️ Before using Enjo, you need to configure it based on your workspace. All options are described in [configuration manual](docs/CONFIGURATION.md).
 
-### Usage
+## Usage
 
 Enjo allows you to manage your projects and work with it.
 You can get list of projects by using `list` subcommand.
@@ -26,6 +27,7 @@ You can get list of projects by using `list` subcommand.
 ```shell
 enjo list
 ```
+
 > ⚠️ By default Enjo will not display projects with name starting with dots. Please confgiure `hide_dots` parameter according to [configuration manual](docs/CONFIGURATION.md).
 
 You can create and delete your projects through Enjo.
