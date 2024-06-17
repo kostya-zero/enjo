@@ -31,6 +31,11 @@ impl Project {
         let path_str = self.path.to_str().unwrap();
         String::from(path_str)
     }
+
+    pub fn is_empty(&self) -> bool {
+        let mut entries = fs::read_dir(self.path.clone()).unwrap();
+        entries.next().is_none()
+    } 
 }
 
 #[derive(Debug, Clone)]

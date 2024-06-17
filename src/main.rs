@@ -183,6 +183,12 @@ fn main() {
                 Term::fail("Project not found.");
             }
 
+            let project = projects.get(name).unwrap();
+            if !project.is_empty() && !Term::ask("Do you want to delete this project?", false) {
+                Term::info("Aborting.");
+                exit(0);
+            }
+
             let path = Path::new(&dir_path).join(name);
             Term::info(format!("Removing {}...", name).as_str());
             match fs::remove_dir_all(path.to_str().unwrap()) {
