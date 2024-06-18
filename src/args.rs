@@ -8,21 +8,24 @@ pub fn get_args() -> Command {
         .version(env!("CARGO_PKG_VERSION"))
         .arg_required_else_help(true)
         .disable_version_flag(true)
-        .arg(Arg::new("version")
-            .long("version")
-            .help("Print version.")
-            .action(SetTrue))
+        .arg(
+            Arg::new("version")
+                .long("version")
+                .help("Print version.")
+                .action(SetTrue),
+        )
         .subcommands([
-            Command::new("new")
-                .about("Create new project")
-                .arg(Arg::new("name")
+            Command::new("new").about("Create new project").arg(
+                Arg::new("name")
                     .help("Name for a new project.")
                     .value_parser(value_parser!(String))
                     .required(false)
                     .hide_default_value(true)
                     .default_value("")
-                    .num_args(1)),
-            Command::new("clone").about("Clone Git repository (requires git to be installed).")
+                    .num_args(1),
+            ),
+            Command::new("clone")
+                .about("Clone Git repository (requires git to be installed).")
                 .args([
                     Arg::new("repo")
                         .help("Repository to be cloned.")
@@ -46,8 +49,8 @@ pub fn get_args() -> Command {
                         .long("branch")
                         .required(false)
                         .hide_default_value(true)
-                        .default_value("")
-            ]),
+                        .default_value(""),
+                ]),
             Command::new("open").about("Open project in editor.").args([
                 Arg::new("name")
                     .help("Name of the project to open.")
@@ -70,12 +73,13 @@ pub fn get_args() -> Command {
                     .required(false)
                     .num_args(1),
             ),
-            Command::new("config").about("Manage your config file.")
+            Command::new("config")
+                .about("Manage your config file.")
                 .arg_required_else_help(true)
                 .subcommands([
                     Command::new("edit").about("Edit configuration file."),
                     Command::new("path").about("Get path to the configuration file."),
-                    Command::new("reset").about("Reset your configuration.")
+                    Command::new("reset").about("Reset your configuration."),
                 ]),
         ])
 }

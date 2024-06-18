@@ -35,7 +35,7 @@ impl Project {
     pub fn is_empty(&self) -> bool {
         let mut entries = fs::read_dir(self.path.clone()).unwrap();
         entries.next().is_none()
-    } 
+    }
 }
 
 #[derive(Debug, Clone)]
