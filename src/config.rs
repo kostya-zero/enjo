@@ -14,10 +14,15 @@ impl Default for Config {
     fn default() -> Self {
         let mut default_options = Options::default();
         let mut default_programs = Programs::default();
-        if Platform::get_platform() == PlatformName::Windows
-            && (default_programs.editor == "code" || default_programs.editor == "codium")
+        if default_programs.editor == "code" || default_programs.editor == "codium"
         {
-            default_programs.editor.push_str(".cmd");
+            default_options.editor_args.push(".".to_string());
+            if PlatformName::Windows == Platform::get_platform() {
+                default_programs.editor.push_str(".cmd");
+            }
+        }
+
+        if default_programs.editor == "zed" {
             default_options.editor_args.push(".".to_string());
         }
 
