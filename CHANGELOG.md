@@ -1,10 +1,15 @@
 # Enjo changelog
 
-## Next
+## 0.2.1
 
-...
+- System directories will be hidden regardless of the value of the `display_hidden` parameter.
+- Confirmation to reset the configuration is now implemented through a dialog instead of an argument.
+- When deleting a project, Enjo will ask for confirmation if the project is not empty.
+- If `zed`, `code` or `codium` is used as the editor, Enjo will add a dot to the editor arguments.
+- Slight changes to the wording of the messages.
 
 ## 0.2.0
+
 - You can clone your projects from remote Git repository with `clone` command.
 - You can hide hidden and system directories from list of projects with `display_hidden` option in your configuration file.
 - When Enjo generates a new configuration on Windows, it will use `code.cmd` instead of `code`.
