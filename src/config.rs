@@ -3,72 +3,67 @@ use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
 use thiserror::Error;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct Config {
     pub options: Options,
-    pub programs: Programs,
+    pub editor: EditorOptions,
+    pub shell: ShellOptions,
 }
 
-impl Default for Config {
-    fn default() -> Self {
-        let mut default_options = Options::default();
-        let mut default_programs = Programs::default();
-        if default_programs.editor == "code" || default_programs.editor == "codium" {
-            default_options.editor_args.push(".".to_string());
-            if PlatformName::Windows == Platform::get_platform() {
-                default_programs.editor.push_str(".cmd");
-            }
-        }
-
-        if default_programs.editor == "zed" {
-            default_options.editor_args.push(".".to_string());
-        }
-
-        Self {
-            options: default_options,
-            programs: default_programs,
-        }
-    }
-}
 
 #[derive(Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct Options {
     pub path: String,
-    pub editor_args: Vec<String>,
     pub display_hidden: bool,
 }
 
 #[derive(Deserialize, Serialize)]
-#[serde(default)]
-pub struct Programs {
-    pub editor: String,
-    pub shell: String,
+pub struct EditorOptions {
+    pub program: String,
+    pub args: Vec<String>,
 }
 
-impl Default for Programs {
+impl Default for EditorOptions {
     fn default() -> Self {
         let mut new_editor: String = Platform::get_default_editor();
-        let mut new_shell: String = Platform::get_default_shell();
-        let current_platform = Platform::get_platform();
-
+        let mut new_args: Vec<String> = Vec::new();
         if let Ok(env_editor) = env::var("EDITOR") {
             new_editor = env_editor;
         }
-        if let Ok(env_shell) = env::var("SHELL") {
-            new_shell = env_shell;
+
+        if new_editor == "code" || new_editor == "codium" {
+            new_args.push(".".to_string());
+            if PlatformName::Windows == Platform::get_platform() {
+                new_editor.push_str(".cmd");
+            }
         }
 
-        if PlatformName::Windows == current_platform
-            && (new_editor.contains("code") || new_editor.contains("codium"))
-        {
-            new_editor.push_str(".cmd");
+        if new_editor == "zed" {
+            new_args.push(".".to_string());
         }
 
         Self {
-            editor: new_editor,
-            shell: new_shell,
+            program: new_editor,
+            args: new_args
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ShellOptions {
+    pub program: String,
+}
+
+impl Default for ShellOptions {
+    fn default() -> Self {
+        let mut new_shell: String = Platform::get_default_shell();
+        if let Ok(env_shell) = env::var("SHELL") {
+            new_shell = env_shell;
+        }
+        Self {
+            program: new_shell
         }
     }
 }

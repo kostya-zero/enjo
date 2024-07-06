@@ -104,8 +104,8 @@ fn main() {
             let is_shell = sub.get_flag("shell");
 
             let program = match is_shell {
-                true => config.programs.shell,
-                false => config.programs.editor,
+                true => config.shell.program,
+                false => config.editor.program,
             };
 
             if program.is_empty() {
@@ -119,7 +119,7 @@ fn main() {
                 let proc_args = if is_shell {
                     Vec::new()
                 } else {
-                    config.options.editor_args.clone()
+                    config.editor.args.clone()
                 };
 
                 let action = if is_shell {
@@ -203,13 +203,13 @@ fn main() {
                 }
                 Some(("edit", _sub)) => {
                     let config: Config = Utils::get_config();
-                    let editor = config.programs.editor;
+                    let editor = config.editor.program;
                     if editor.is_empty() {
                         Term::fail("Editor program name is not set in the configuration file.")
                     }
 
                     let path = Platform::get_config_path();
-                    let mut editor_args = config.options.editor_args;
+                    let mut editor_args = config.editor.args;
                     editor_args.push(path.to_str().unwrap().to_string());
                     Utils::launch_program(editor.as_str(), editor_args, "");
                 }
