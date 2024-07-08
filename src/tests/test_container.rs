@@ -6,8 +6,8 @@ use tempfile::tempdir;
 #[test]
 fn test_project_new() {
     let project = Project::new("test_project", PathBuf::from("/test/path"));
-    assert_eq!(project.name, "test_project");
-    assert_eq!(project.path, PathBuf::from("/test/path"));
+    assert_eq!(project.get_name(), "test_project");
+    assert_eq!(project.get_path(), PathBuf::from("/test/path"));
 }
 
 #[test]
@@ -86,7 +86,7 @@ fn test_container_get_vec() {
     let container = Container::new(temp_dir.path().to_str().unwrap(), false).unwrap();
     let projects = container.get_vec();
     assert_eq!(projects.len(), 1);
-    assert_eq!(projects[0].name, "project1");
+    assert_eq!(projects[0].get_name(), "project1");
 }
 
 #[test]
@@ -99,7 +99,7 @@ fn test_container_get() {
     temp_dir.close().unwrap();
     let project = container.get("project1");
     assert!(project.is_some());
-    assert_eq!(project.unwrap().name, "project1");
+    assert_eq!(project.unwrap().get_name(), "project1");
 
     let project = container.get("project2");
     assert!(project.is_none());

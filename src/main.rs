@@ -159,10 +159,11 @@ fn main() {
 
             Term::list_title("Your projects:");
             for project in projects.get_vec().iter() {
-                if project.name.starts_with('.') && config.options.display_hidden {
+                let name = project.get_name();
+                if name.starts_with('.') && config.options.display_hidden {
                     continue;
                 }
-                Term::item(project.name.as_str());
+                Term::item(name.as_str());
             }
         }
         Some(("rename", sub)) => {

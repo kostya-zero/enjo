@@ -6,8 +6,8 @@ use thiserror::Error;
 
 #[derive(Debug, Clone)]
 pub struct Project {
-    pub name: String,
-    pub path: PathBuf,
+    name: String,
+    path: PathBuf,
 }
 
 #[derive(Debug, Error)]
@@ -25,6 +25,10 @@ impl Project {
             name: String::from(new_name),
             path: new_path,
         }
+    }
+
+    pub fn get_name(&self) -> String {
+        self.name.clone()
     }
 
     pub fn get_path_str(&self) -> String {
