@@ -65,6 +65,22 @@ pub fn get_args() -> Command {
                     .action(ArgAction::SetTrue),
             ]),
             Command::new("list").about("List projects."),
+            Command::new("rename").about("Rename project.").args([
+                Arg::new("name")
+                    .help("Name of the project to rename")
+                    .value_parser(value_parser!(String))
+                    .default_value("")
+                    .hide_default_value(true)
+                    .required(false)
+                    .num_args(1),
+                Arg::new("newname")
+                    .help("New name.")
+                    .value_parser(value_parser!(String))
+                    .default_value("")
+                    .hide_default_value(true)
+                    .required(false)
+                    .num_args(1),
+            ]),
             Command::new("delete").about("Delete project.").arg(
                 Arg::new("name")
                     .value_parser(value_parser!(String))

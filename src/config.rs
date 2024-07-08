@@ -11,7 +11,6 @@ pub struct Config {
     pub shell: ShellOptions,
 }
 
-
 #[derive(Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct Options {
@@ -46,7 +45,7 @@ impl Default for EditorOptions {
 
         Self {
             program: new_editor,
-            args: new_args
+            args: new_args,
         }
     }
 }
@@ -62,9 +61,7 @@ impl Default for ShellOptions {
         if let Ok(env_shell) = env::var("SHELL") {
             new_shell = env_shell;
         }
-        Self {
-            program: new_shell
-        }
+        Self { program: new_shell }
     }
 }
 

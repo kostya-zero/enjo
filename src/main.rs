@@ -165,6 +165,41 @@ fn main() {
                 Term::item(project.name.as_str());
             }
         }
+        Some(("rename", sub)) => {
+            let config: Config = Utils::get_config();
+            let dir_path: String = config.options.path;
+
+            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
+            let name = sub.get_one::<String>("name").unwrap();
+            if name.is_empty() {
+                Term::fail("You need to provide a name of the project you want to rename.");
+            }
+
+            if !projects.contains(name) {
+                Term::fail("Project not found.");
+            }
+
+            let new_name = sub.get_one::<String>("newname").unwrap();
+            if new_name.is_empty() {
+                Term::fail("You need to provide a new name for the project you want to rename.");
+            }
+
+            if projects.contains(new_name) {
+                Term::fail("A project with the same name has been found.");
+            }
+
+            let full_old_path = Path::new(&dir_path).join(name);
+            let full_new_path = Path::new(&dir_path).join(new_name);
+
+            match fs::rename(full_old_path, full_new_path) {
+                Ok(_) => {
+                    Term::done(format!("The project was renamed to {new_name}").as_str());
+                }
+                Err(_) => {
+                    Term::fail("Failed to rename the project.");
+                }
+            }
+        }
         Some(("delete", sub)) => {
             let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
@@ -173,10 +208,6 @@ fn main() {
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Term::fail("You need to provide a name of the project you want to delete.");
-            }
-
-            if name.eq(".") || name.eq("..") {
-                Term::fail("Invalid argument value.");
             }
 
             if !projects.contains(name) {
