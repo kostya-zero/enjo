@@ -8,7 +8,7 @@ use utils::Utils;
 
 mod args;
 mod config;
-mod container;
+mod library;
 mod platform;
 mod program;
 mod term;
@@ -87,7 +87,7 @@ fn main() {
             git_args.push(name);
             Term::info(format!("Cloning '{}'...", name).as_str());
 
-            Utils::launch_program("git", git_args.iter_mut().map(|i| i.to_string()).collect(), &dir_path);
+            Utils::launch_program("git", git_args.iter_mut().map(|i| i.to_string()).collect(), &dir_path, false);
             Term::done("Done.");
         }
         Some(("open", sub)) => {
@@ -129,7 +129,18 @@ fn main() {
                 };
                 Term::busy(action);
 
-                Utils::launch_program(&program, proc_args, path.to_str().unwrap());
+                let fork_mode = if is_shell {
+                    false
+                } else {
+                    config.editor.fork_mode
+                };
+
+                Utils::launch_program(&program, proc_args, path.to_str().unwrap(), fork_mode);
+
+                if fork_mode {
+                    Term::done("Editor launched.");
+                    exit(0);
+                }
 
                 let end_message = if is_shell {
                     "End of shell session."
@@ -243,7 +254,7 @@ fn main() {
                     let path = Platform::get_config_path();
                     let mut editor_args = config.editor.args;
                     editor_args.push(path.to_str().unwrap().to_string());
-                    Utils::launch_program(editor.as_str(), editor_args, "");
+                    Utils::launch_program(editor.as_str(), editor_args, "", false);
                 }
                 Some(("reset", _sub)) => {
                     if Term::ask("Do you really want to reset your current configuration?", false) {

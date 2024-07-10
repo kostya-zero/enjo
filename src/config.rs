@@ -21,6 +21,7 @@ pub struct Options {
 #[derive(Deserialize, Serialize)]
 pub struct EditorOptions {
     pub program: String,
+    pub fork_mode: bool,
     pub args: Vec<String>,
 }
 
@@ -28,23 +29,30 @@ impl Default for EditorOptions {
     fn default() -> Self {
         let mut new_editor: String = Platform::get_default_editor();
         let mut new_args: Vec<String> = Vec::new();
+        let mut fork_mode = false;
+
         if let Ok(env_editor) = env::var("EDITOR") {
             new_editor = env_editor;
         }
 
-        if new_editor == "code" || new_editor == "codium" {
-            new_args.push(".".to_string());
-            if PlatformName::Windows == Platform::get_platform() {
-                new_editor.push_str(".cmd");
+        match new_editor.as_str() {
+            "code" | "codium" => {
+                new_args.push(".".to_string());
+                fork_mode = true;
+                if PlatformName::Windows == Platform::get_platform() {
+                    new_editor.push_str(".cmd");
+                }
             }
-        }
-
-        if new_editor == "zed" {
-            new_args.push(".".to_string());
+            "zed" => {
+                fork_mode = true;
+                new_args.push(".".to_string());
+            },
+            _ => {}
         }
 
         Self {
             program: new_editor,
+            fork_mode,
             args: new_args,
         }
     }
@@ -57,11 +65,8 @@ pub struct ShellOptions {
 
 impl Default for ShellOptions {
     fn default() -> Self {
-        let mut new_shell: String = Platform::get_default_shell();
-        if let Ok(env_shell) = env::var("SHELL") {
-            new_shell = env_shell;
-        }
-        Self { program: new_shell }
+        let shell_program = env::var("SHELL").unwrap_or_else(|_| Platform::get_default_shell());
+        Self { program: shell_program }
     }
 }
 
@@ -82,26 +87,17 @@ pub enum ConfigError {
 
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {
-        match fs::read_to_string(Platform::get_config_path()) {
-            Ok(content) => match toml::from_str::<Self>(&content) {
-                Ok(config) => Ok(config),
-                Err(_) => Err(ConfigError::BadStructure),
-            },
-            Err(_) => Err(ConfigError::FileNotFound),
-        }
+        let config_path = Platform::get_config_path();
+        let content = fs::read_to_string(config_path).map_err(|_| ConfigError::FileNotFound)?;
+        toml::from_str(&content).map_err(|_| ConfigError::BadStructure)
     }
 
     pub fn write(config: Self) -> Result<(), ConfigError> {
         let dir_path = Platform::get_config_dir_path();
         if !Path::new(&dir_path).exists() {
-            fs::create_dir(dir_path).unwrap();
+            fs::create_dir(&dir_path).map_err(|_| ConfigError::WriteFailed)?;
         }
-        match toml::to_string(&config) {
-            Ok(content) => match fs::write(Platform::get_config_path(), content) {
-                Ok(_) => Ok(()),
-                Err(_) => Err(ConfigError::WriteFailed),
-            },
-            Err(_) => Err(ConfigError::FormatFailed),
-        }
+        let content = toml::to_string(&config).map_err(|_| ConfigError::FormatFailed)?;
+        fs::write(Platform::get_config_path(), content).map_err(|_| ConfigError::WriteFailed)
     }
 }

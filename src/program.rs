@@ -6,6 +6,7 @@ pub struct Program {
     prog: String,
     args: Vec<String>,
     cwd: String,
+    fork_mode: bool,
 }
 
 #[derive(Error, Debug)]
@@ -33,6 +34,10 @@ impl Program {
         self.args = converted;
     }
 
+    pub fn set_fork_mode(&mut self, fork_mode: bool) {
+        self.fork_mode = fork_mode;
+    }
+
     pub fn set_cwd(&mut self, new_cwd: &str) {
         self.cwd = new_cwd.to_string();
     }
@@ -51,15 +56,22 @@ impl Program {
         #[cfg(windows)]
         ctrlc::set_handler(|| {}).unwrap();
 
-        match cmd.output() {
-            Ok(_) => Ok(()),
-            Err(e) => match e.kind() {
-                std::io::ErrorKind::NotFound => {
-                    Err(ProgramError::ExecutableNotFound(self.prog.clone()))
-                }
-                std::io::ErrorKind::Interrupted => Err(ProgramError::Interrupted),
-                _ => Err(ProgramError::Other(e.kind().to_string())),
-            },
+        if self.fork_mode {
+            match cmd.spawn() {
+                Ok(_) => Ok(()),
+                Err(e) => Err(ProgramError::Other(e.to_string()))
+            }
+        } else {
+            match cmd.output() {
+                Ok(_) => Ok(()),
+                Err(e) => match e.kind() {
+                    std::io::ErrorKind::NotFound => {
+                        Err(ProgramError::ExecutableNotFound(self.prog.clone()))
+                    }
+                    std::io::ErrorKind::Interrupted => Err(ProgramError::Interrupted),
+                    _ => Err(ProgramError::Other(e.kind().to_string())),
+                },
+            }
         }
     }
 }

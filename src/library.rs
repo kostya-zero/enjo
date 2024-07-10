@@ -11,7 +11,7 @@ pub struct Project {
 }
 
 #[derive(Debug, Error)]
-pub enum ContainerError {
+pub enum LibraryError {
     #[error("A directory with projects does not exist on the file system.")]
     DirectoryNotFound,
 
@@ -43,18 +43,18 @@ impl Project {
 }
 
 #[derive(Debug, Clone)]
-pub struct Container(Vec<Project>);
-impl Container {
-    pub fn new(path: &str, display_hidden: bool) -> Result<Self, ContainerError> {
+pub struct Library(Vec<Project>);
+impl Library {
+    pub fn new(path: &str, display_hidden: bool) -> Result<Self, LibraryError> {
         if !Path::new(path).exists() {
-            return Err(ContainerError::DirectoryNotFound);
+            return Err(LibraryError::DirectoryNotFound);
         }
 
         let projects = Self::collect_projects(path, display_hidden)?;
         Ok(Self(projects))
     }
 
-    fn collect_projects(path: &str, display_hidden: bool) -> Result<Vec<Project>, ContainerError> {
+    fn collect_projects(path: &str, display_hidden: bool) -> Result<Vec<Project>, LibraryError> {
         let mut projects: Vec<Project> = Vec::new();
 
         if let Ok(entries) = fs::read_dir(path) {
@@ -68,7 +68,7 @@ impl Container {
                 }
             }
         } else {
-            return Err(ContainerError::ReadFailed);
+            return Err(LibraryError::ReadFailed);
         }
 
         Ok(projects)
