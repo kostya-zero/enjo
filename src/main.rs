@@ -219,7 +219,7 @@ fn main() {
 
             match fs::rename(full_old_path, full_new_path) {
                 Ok(_) => {
-                    Term::done(format!("The project was renamed to {new_name}").as_str());
+                    Term::done(format!("The project was renamed to '{new_name}'.").as_str());
                 }
                 Err(_) => {
                     Term::fail("Failed to rename the project.");
