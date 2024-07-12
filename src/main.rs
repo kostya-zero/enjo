@@ -178,6 +178,7 @@ fn main() {
             }
         }
         Some(("rename", sub)) => {
+        // Will be refactored in the future.
             let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
@@ -196,8 +197,21 @@ fn main() {
                 Term::fail("You need to provide a new name for the project you want to rename.");
             }
 
+            let system_dirs = [
+                            ".",
+                            "..",
+                            "$RECYCLE.BIN",
+                            "System Volume Information",
+                            "msdownld.tmp",
+                            ".Trash-1000",
+                        ];
+
             if projects.contains(new_name) {
                 Term::fail("A project with the same name has been found.");
+            }
+
+            if system_dirs.contains(&new_name.as_str()) {
+                Term::fail("You cannot use the system directory name as the new name.");
             }
 
             let full_old_path = Path::new(&dir_path).join(name);

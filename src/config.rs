@@ -46,7 +46,7 @@ impl Default for EditorOptions {
             "zed" => {
                 fork_mode = true;
                 new_args.push(".".to_string());
-            },
+            }
             _ => {}
         }
 
@@ -66,7 +66,9 @@ pub struct ShellOptions {
 impl Default for ShellOptions {
     fn default() -> Self {
         let shell_program = env::var("SHELL").unwrap_or_else(|_| Platform::get_default_shell());
-        Self { program: shell_program }
+        Self {
+            program: shell_program,
+        }
     }
 }
 
