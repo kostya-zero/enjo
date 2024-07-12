@@ -59,7 +59,7 @@ impl Program {
         if self.fork_mode {
             match cmd.spawn() {
                 Ok(_) => Ok(()),
-                Err(e) => Err(ProgramError::Other(e.to_string()))
+                Err(e) => Err(ProgramError::Other(e.to_string())),
             }
         } else {
             match cmd.output() {

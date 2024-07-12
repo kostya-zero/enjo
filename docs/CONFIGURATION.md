@@ -11,19 +11,22 @@ If you don't have configuration file in your file system, Enjo will generate it 
 
 Enjo will generate configuration based on your environment settings like `EDITOR` and `SHELL` environment variables.
 
-> ⚠️ If you are using *VS Code* or *VS Codium* on Windows, Enjo will set `editor` field to `code.cmd` and `codium.cmd` in configuration, because for some reason Enjo cant find `code` and `codium`. Also, Enjo will add a single dot to `editor_args` to tell *VS Code* and *VS Codium* to open this directory.
+> ⚠️ If you are using *VS Code* or *VS Codium* on Windows, Enjo will set `editor` field to `code.cmd` and `codium.cmd` in configuration, because for some reason Enjo cant find `code` and `codium`. Also, Enjo will add a single dot to `editor_args` to tell *VS Code*, *VS Codium* and *Zed* to open this directory.
 
 ### Default configuration structure
 
 ```toml
 [options]
 path = '/home/user'
-editor_args = []
 display_hidden = false
 
-[programs]
-editor = "nvim"
-shell = "bash"
+[editor]
+program = "nvim"
+fork_mode = false
+args = []
+
+[editor]
+program = "fish"
 ```
 
 For more information about fields in configuration goto [parameters section](#parameters).
@@ -41,11 +44,15 @@ Enjo allows to manage configuration through `config` subcommand. This is a list 
 ### `options`
 
 - `path` - Path to directory with your projects. But default it uses path to user's home directory.
-- `editor_args` - Arguments that will be passed to the editor. By default, this field is empty, but for users of *VS Code* and *VS Codium* it will contain a single dot.
+
 - `display_hidden` - This options determines the display of hidden directories. By default, set to `false`.
 
-### `programs`
+### `editor`
 
-- `editor` - Name of executable that will be used as editor to open projects and configuration file. You set it like name of executable (e.g. `nvim`) or as absolute path to executable (e.g. `/usr/bin/nvim`).
-- `shell` - Name of executable that will be used as shell to open projects. You set it like name of executable (e.g. `bash`) or as absolute path to executable (e.g. `/usr/bin/bash`).
+- `program` - The name of the executable to be used as an editor to open projects and configuration file. You can specify it as the name of an executable (e.g., `nvim`) or as an absolute path to the executable (e.g., `/usr/bin/nvim`).
+- `fork_mode` - Determines whether the editor should run as a separate process.
+- `args` - Arguments to be passed to the editor. By default this field is empty, but for *VS Code* and *VS Codium* it will contain a dot.
 
+### `shell`
+
+- `program` - Name of executable that will be used as shell to open projects. You set it like name of executable (e.g. `bash`) or as absolute path to executable (e.g. `/usr/bin/bash`).

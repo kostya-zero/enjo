@@ -6,9 +6,9 @@ If you want to build Enjo manually, this guide will be useful.
 
 To build Enjo you need to follow the requirements:
 
-- Rust toolchain version 1.70 or higher.
+- The latest version of the Rust toolchain.
 - C/C++ compiler
-- - **Windows**: Latest version of *Visual Studio Build Tools 2022* and *Windows SDK*.
+- - **Windows**: The latest version of *Visual Studio Build Tools 2022* and *Windows SDK*.
 - - **Linux** and **macOS**: Latest version of *GCC* or *Clang*.
 
 If you already have installed Rust toolchain and C/C++ compiler, you can go to [Building](#building) section
@@ -51,7 +51,7 @@ Some tweaks that might be helpful.
 
 #### Use LLD as linker on Windows
 
-Using LLD can speed up compilation by 1.5 or 2 times. Make sure you install LLVM toolchain by running `lld-link` in terminal. Then pass this to the PowerShell prompt:
+Using LLD can speed up compilation by 1.5 or 2 times. Make sure you install the LLVM toolchain by running `lld-link` in terminal. Then pass this to the PowerShell prompt:
 
 ```pwsh
 $env:RUSTFLAGS = "-C link-arg=-fuse-ld=lld-link"
