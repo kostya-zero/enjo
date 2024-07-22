@@ -1,7 +1,6 @@
-use crate::platform::{Platform, PlatformName};
+use crate::{errors::ConfigError, platform::{Platform, PlatformName}};
 use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
-use thiserror::Error;
 
 #[derive(Deserialize, Serialize, Default)]
 #[serde(default)]
@@ -72,20 +71,7 @@ impl Default for ShellOptions {
     }
 }
 
-#[derive(Debug, Error)]
-pub enum ConfigError {
-    #[error("Failed to write configuration file.")]
-    WriteFailed,
 
-    #[error("Failed to format configuration to TOML.")]
-    FormatFailed,
-
-    #[error("Cannot load the configuration file because it does not exist on the file system.")]
-    FileNotFound,
-
-    #[error("Configuration file has a bad structure and cannot be deserialized.")]
-    BadStructure,
-}
 
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {

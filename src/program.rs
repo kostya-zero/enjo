@@ -1,5 +1,5 @@
 use std::process::{Command, Stdio};
-use thiserror::Error;
+use crate::errors::ProgramError;
 
 #[derive(Default)]
 pub struct Program {
@@ -7,18 +7,6 @@ pub struct Program {
     args: Vec<String>,
     cwd: String,
     fork_mode: bool,
-}
-
-#[derive(Error, Debug)]
-pub enum ProgramError {
-    #[error("Failed to launch program because '{0}' was not found.")]
-    ExecutableNotFound(String),
-
-    #[error("Program was interrupted.")]
-    Interrupted,
-
-    #[error("Program failed to launch or failed: {0}")]
-    Other(String),
 }
 
 impl Program {

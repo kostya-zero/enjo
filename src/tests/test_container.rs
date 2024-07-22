@@ -1,4 +1,5 @@
-use crate::library::{Library, LibraryError, Project};
+use crate::errors::LibraryError;
+use crate::library::{Library, Project};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::tempdir;

@@ -2,7 +2,8 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use thiserror::Error;
+
+use crate::errors::LibraryError;
 
 #[derive(Debug, Clone)]
 pub struct Project {
@@ -10,14 +11,7 @@ pub struct Project {
     path: PathBuf,
 }
 
-#[derive(Debug, Error)]
-pub enum LibraryError {
-    #[error("A directory with projects does not exist on the file system.")]
-    DirectoryNotFound,
 
-    #[error("Failed to read the contents of the directory.")]
-    ReadFailed,
-}
 
 impl Project {
     pub fn new(new_name: &str, new_path: PathBuf) -> Self {

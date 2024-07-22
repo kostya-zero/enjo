@@ -13,6 +13,7 @@ mod platform;
 mod program;
 mod term;
 mod utils;
+mod errors;
 
 #[cfg(test)]
 mod tests;
