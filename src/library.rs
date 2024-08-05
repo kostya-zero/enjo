@@ -12,7 +12,6 @@ pub struct Project {
 }
 
 
-
 impl Project {
     pub fn new(new_name: &str, new_path: PathBuf) -> Self {
         Self {

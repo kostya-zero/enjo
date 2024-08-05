@@ -8,12 +8,12 @@ use utils::Utils;
 
 mod args;
 mod config;
+mod errors;
 mod library;
 mod platform;
 mod program;
 mod term;
 mod utils;
-mod errors;
 
 #[cfg(test)]
 mod tests;
@@ -86,7 +86,6 @@ pub fn main() {
             }
 
             git_args.push(name);
-            Term::info(format!("Cloning '{}'...", name).as_str());
 
             Utils::launch_program("git", git_args.iter_mut().map(|i| i.to_string()).collect(), &dir_path, false);
             Term::done("Done.");
@@ -116,7 +115,6 @@ pub fn main() {
 
             if let Some(project) = projects.get(project_name) {
                 let project_path = project.get_path_str();
-                let path = Path::new(&project_path);
                 let proc_args = if is_shell {
                     Vec::new()
                 } else {
@@ -136,7 +134,7 @@ pub fn main() {
                     config.editor.fork_mode
                 };
 
-                Utils::launch_program(&program, proc_args, path.to_str().unwrap(), fork_mode);
+                Utils::launch_program(&program, proc_args, &project_path, fork_mode);
 
                 if fork_mode {
                     Term::done("Editor launched.");
