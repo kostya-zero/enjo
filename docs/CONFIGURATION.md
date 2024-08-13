@@ -25,7 +25,7 @@ program = "nvim"
 fork_mode = false
 args = []
 
-[editor]
+[shell]
 program = "fish"
 ```
 
