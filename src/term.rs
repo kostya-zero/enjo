@@ -6,19 +6,11 @@ use dialoguer::{
     Confirm,
 };
 
-pub struct Term;
-impl Term {
+pub struct Message;
+
+impl Message {
     fn print_message(prefix: &str, color_code: &str, msg: &str) {
         println!("\x1b[{}m{}\x1b[0m {}", color_code, prefix, msg);
-    }
-
-    fn get_theme() -> impl Theme {
-        ColorfulTheme {
-            prompt_prefix: style("󰍡 ".to_string()).for_stdout().white(),
-            success_prefix: style(" ".to_string()).for_stdout().green(),
-            error_prefix: style(" ".to_string()).for_stderr().red(),
-            ..Default::default()
-        }
     }
 
     pub fn error(msg: &str) {
@@ -45,6 +37,24 @@ impl Term {
         println!(" {}", msg);
     }
 
+    pub fn fail(msg: &str) {
+        Self::error(msg);
+        exit(1);
+    }
+}
+
+pub struct Dialog;
+
+impl Dialog {
+    fn get_theme() -> impl Theme {
+        ColorfulTheme {
+            prompt_prefix: style("󰍡 ".to_string()).for_stdout().white(),
+            success_prefix: style(" ".to_string()).for_stdout().green(),
+            error_prefix: style(" ".to_string()).for_stderr().red(),
+            ..Default::default()
+        }
+    }
+
     pub fn ask(question: &str, default: bool) -> bool {
         Confirm::with_theme(&Self::get_theme())
             .with_prompt(question)
@@ -52,10 +62,5 @@ impl Term {
             .show_default(true)
             .interact()
             .unwrap()
-    }
-
-    pub fn fail(msg: &str) {
-        Self::error(msg);
-        exit(1);
     }
 }
