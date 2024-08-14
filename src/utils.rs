@@ -25,17 +25,6 @@ impl Utils {
         })
     }
 
-    pub fn display_version() {
-        let build_type = if cfg!(debug_assertions) {
-            "dev"
-        } else {
-            "release"
-        };
-
-        let version = env!("CARGO_PKG_VERSION");
-        Term::info(format!("v{} ({})", version, build_type).as_str());
-    }
-
     pub fn launch_program(program: &str, args: Vec<String>, cwd: &str, fork_mode: bool) {
         let mut proc = Program::new(program);
         if !cwd.is_empty() {

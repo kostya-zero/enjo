@@ -1,5 +1,5 @@
-use std::process::{Command, Stdio};
 use crate::errors::ProgramError;
+use std::process::{Command, Stdio};
 
 #[derive(Default)]
 pub struct Program {

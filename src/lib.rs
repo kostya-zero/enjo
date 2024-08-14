@@ -20,11 +20,6 @@ mod tests;
 
 pub fn main() {
     let args = get_args().get_matches();
-    if args.get_flag("version") {
-        Utils::display_version();
-        exit(0);
-    }
-
     if !Platform::check_exists() {
         let default_config: Config = Config::default();
         Utils::write_config(default_config);
@@ -42,19 +37,18 @@ pub fn main() {
             }
 
             let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
-            let name = sub.get_one::<String>("name").unwrap();
-            if name.is_empty() {
+            if let Some(name) = sub.get_one::<String>("name") {
+                if projects.contains(name) {
+                    Term::fail("Project with this name already exists.");
+                }
+
+                let new_path = Path::new(&dir_path).join(name);
+                match fs::create_dir(new_path) {
+                    Ok(_) => Term::done("Project created."),
+                    Err(_) => Term::fail("Failed to create project directory because of file system error."),
+                }
+            } else {
                 Term::fail("You need to provide a name for your new project.");
-            }
-
-            if projects.contains(name) {
-                Term::fail("Project with this name already exists.");
-            }
-
-            let new_path = Path::new(&dir_path).join(name);
-            match fs::create_dir(new_path) {
-                Ok(_) => Term::done("Project created."),
-                Err(_) => Term::fail("Failed to create project directory because of file system error."),
             }
         }
         Some(("clone", sub)) => {

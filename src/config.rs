@@ -1,4 +1,7 @@
-use crate::{errors::ConfigError, platform::{Platform, PlatformName}};
+use crate::{
+    errors::ConfigError,
+    platform::{Platform, PlatformName},
+};
 use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
 
@@ -70,8 +73,6 @@ impl Default for ShellOptions {
         }
     }
 }
-
-
 
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {
