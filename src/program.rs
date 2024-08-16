@@ -17,9 +17,8 @@ impl Program {
         }
     }
 
-    pub fn set_args(&mut self, new_args: Vec<&str>) {
-        let converted = new_args.into_iter().map(|i| i.to_string()).collect();
-        self.args = converted;
+    pub fn set_args(&mut self, new_args: Vec<String>) {
+        self.args = new_args;
     }
 
     pub fn set_fork_mode(&mut self, fork_mode: bool) {

@@ -31,7 +31,7 @@ impl Utils {
             proc.set_cwd(cwd);
         }
         proc.set_fork_mode(fork_mode);
-        proc.set_args(args.iter().map(|i| i.as_str()).collect());
+        proc.set_args(args);
         if let Err(e) = proc.run() {
             Message::fail(e.to_string().as_str());
         }

@@ -1,4 +1,3 @@
-use clap::ArgAction::SetTrue;
 use clap::{value_parser, Arg, ArgAction, Command};
 
 pub fn get_args() -> Command {
@@ -22,7 +21,6 @@ pub fn get_args() -> Command {
                         .help("Repository to be cloned.")
                         .value_parser(value_parser!(String))
                         .required(false)
-                        .hide_default_value(true)
                         .num_args(1),
                     Arg::new("name")
                         .help("Name of directory for this repo.")
