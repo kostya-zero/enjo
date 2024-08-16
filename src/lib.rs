@@ -2,7 +2,7 @@ use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
 use crate::config::Config;
-use crate::term::{Message, Dialog};
+use crate::term::{Dialog, Message};
 use platform::Platform;
 use utils::Utils;
 
@@ -24,7 +24,9 @@ pub fn main() {
         let default_config: Config = Config::default();
         Utils::write_config(default_config);
 
-        Message::info("Enjo has generated the default configuration. Change it according to your needs.");
+        Message::info(
+            "Enjo has generated the default configuration. Change it according to your needs.",
+        );
     }
 
     match args.subcommand() {
@@ -32,20 +34,11 @@ pub fn main() {
             let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
-            if !Path::new(&dir_path).exists() {
-                Message::fail("A directory with projects does not exist on the file system.");
-            }
-
             let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
             if let Some(name) = sub.get_one::<String>("name") {
-                if projects.contains(name) {
-                    Message::fail("Project with this name already exists.");
-                }
-
-                let new_path = Path::new(&dir_path).join(name);
-                match fs::create_dir(new_path) {
-                    Ok(_) => Message::done("Project created."),
-                    Err(_) => Message::fail("Failed to create project directory because of file system error."),
+                match projects.create(name) {
+                    Ok(_) => Message::done("The project has been created."),
+                    Err(e) => Message::fail(e.to_string().as_str()),
                 }
             } else {
                 Message::fail("You need to provide a name for your new project.");
@@ -62,7 +55,7 @@ pub fn main() {
 
             let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
             let mut git_args = vec!["clone", repo];
-            let branch = sub.get_one::<String>("branch").unwrap();
+            let branch: &str = sub.get_one::<String>("branch").unwrap();
             let mut name: &str = sub.get_one::<String>("name").unwrap();
 
             if name.is_empty() {

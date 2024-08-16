@@ -22,6 +22,12 @@ pub enum LibraryError {
 
     #[error("Failed to read the contents of the directory.")]
     ReadFailed,
+
+    #[error("Project with the same name already exists.")]
+    AlreadyExists,
+
+    #[error("File system error occured.")]
+    FileSystemError,
 }
 
 #[derive(Error, Debug)]

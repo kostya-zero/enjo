@@ -35,7 +35,10 @@ impl Project {
 }
 
 #[derive(Debug, Clone)]
-pub struct Library(Vec<Project>);
+pub struct Library {
+    projects: Vec<Project>,
+    path: PathBuf,
+}
 impl Library {
     pub fn new(path: &str, display_hidden: bool) -> Result<Self, LibraryError> {
         if !Path::new(path).exists() {
@@ -43,7 +46,10 @@ impl Library {
         }
 
         let projects = Self::collect_projects(path, display_hidden)?;
-        Ok(Self(projects))
+        Ok(Self {
+            projects,
+            path: PathBuf::from(path),
+        })
     }
 
     fn collect_projects(path: &str, display_hidden: bool) -> Result<Vec<Project>, LibraryError> {
@@ -82,19 +88,30 @@ impl Library {
         is_dir && (!is_hidden || display_hidden) && !is_system_dir
     }
 
+    pub fn create(&self, name: &str) -> Result<(), LibraryError> {
+        if self.path.join(name).exists() {
+            return Err(LibraryError::AlreadyExists);
+        }
+
+        match fs::create_dir(self.path.join(name)) {
+            Ok(_) => Ok(()),
+            Err(_) => Err(LibraryError::FileSystemError),
+        }
+    }
+
     pub fn contains(&self, name: &str) -> bool {
-        self.0.iter().any(|x| x.name == *name)
+        self.projects.iter().any(|x| x.name == *name)
     }
 
     pub fn get_vec(&self) -> Vec<Project> {
-        self.0.clone()
+        self.projects.clone()
     }
 
     pub fn get(&self, name: &str) -> Option<Project> {
-        self.0.clone().into_iter().find(|x| x.name == *name)
+        self.projects.clone().into_iter().find(|x| x.name == *name)
     }
 
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.projects.is_empty()
     }
 }
