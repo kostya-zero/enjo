@@ -3,6 +3,7 @@ use std::{fs, path::Path, process::exit};
 use crate::args::get_args;
 use crate::config::Config;
 use crate::term::{Dialog, Message};
+use library::CloneOptions;
 use platform::Platform;
 use utils::Utils;
 
@@ -29,9 +30,10 @@ pub fn main() {
         );
     }
 
+    let config: Config = Utils::get_config();
+
     match args.subcommand() {
         Some(("new", sub)) => {
-            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
             let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
@@ -45,40 +47,31 @@ pub fn main() {
             }
         }
         Some(("clone", sub)) => {
-            let config: Config = Utils::get_config();
-            let dir_path: String = config.options.path;
+            let dir_path = config.options.path.clone();
+            let mut clone_options = CloneOptions::default();
 
-            let repo = sub.get_one::<String>("repo").unwrap().as_str();
-            if repo.is_empty() {
-                Message::fail("No repository URL provided.");
+            if let Some(remote) = sub.get_one::<String>("remote") {
+                clone_options.remote = String::from(remote);
+            } else {
+                Message::fail("You need to provide a remote.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
-            let mut git_args = vec!["clone", repo];
-            let branch: &str = sub.get_one::<String>("branch").unwrap();
-            let mut name: &str = sub.get_one::<String>("name").unwrap();
-
-            if name.is_empty() {
-                name = repo.split(':').collect::<Vec<&str>>()[1];
-                name = Path::new(name).file_stem().unwrap().to_str().unwrap();
+            if let Some(branch) = sub.get_one::<String>("branch") {
+                clone_options.branch = Some(String::from(branch));
             }
 
-            if projects.contains(name) {
-                Message::fail(format!("Project '{}' already exists.", name).as_str());
+            if let Some(name) = sub.get_one::<String>("name") {
+                clone_options.name = Some(String::from(name));
             }
 
-            if !branch.is_empty() {
-                git_args.push("-b");
-                git_args.push(branch);
+            let projects = Utils::load_projects(&dir_path, config.options.display_hidden);
+            let _ = projects.clone(&clone_options).map_err(|e| Message::fail(e.to_string().as_str()));
+            match projects.clone(&clone_options) {
+                Ok(_) => Message::done("The project has been cloned."),
+                Err(e) => Message::fail(e.to_string().as_str()),
             }
-
-            git_args.push(name);
-
-            Utils::launch_program("git", git_args.iter_mut().map(|i| i.to_string()).collect(), &dir_path, false);
-            Message::done("Done.");
         }
         Some(("open", sub)) => {
-            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
             let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
@@ -141,7 +134,6 @@ pub fn main() {
             }
         }
         Some(("list", _sub)) => {
-            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
             if !Path::new(&dir_path).exists() {
@@ -164,7 +156,6 @@ pub fn main() {
             }
         }
         Some(("rename", sub)) => {
-            let config = Utils::get_config();
             let dir_path = config.options.path;
             let projects = Utils::load_projects(&dir_path, config.options.display_hidden);
 
@@ -204,7 +195,6 @@ pub fn main() {
             }
         }
         Some(("delete", sub)) => {
-            let config: Config = Utils::get_config();
             let dir_path: String = config.options.path;
 
             let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
@@ -236,7 +226,6 @@ pub fn main() {
                     Message::info(Platform::get_config_path().to_str().unwrap());
                 }
                 Some(("edit", _sub)) => {
-                    let config: Config = Utils::get_config();
                     let editor = config.editor.program;
                     if editor.is_empty() {
                         Message::fail("Editor program name is not set in the configuration file.")

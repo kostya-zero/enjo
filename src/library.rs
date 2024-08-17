@@ -3,7 +3,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::errors::LibraryError;
+use crate::{errors::LibraryError, program::Program};
+
+#[derive(Debug, Clone, Default)]
+pub struct CloneOptions {
+    pub remote: String,
+    pub branch: Option<String>,
+    pub name: Option<String>,
+}
 
 #[derive(Debug, Clone)]
 pub struct Project {
@@ -86,6 +93,28 @@ impl Library {
         let is_system_dir = system_dirs.contains(&name);
 
         is_dir && (!is_hidden || display_hidden) && !is_system_dir
+    }
+
+    pub fn clone(&self, options: &CloneOptions) -> Result<(), LibraryError> {
+        let mut program = Program::new("git");
+        let mut args: Vec<String> = vec!["clone".to_string(), options.remote.clone()];
+
+        if let Some(branch) = options.branch.clone() {
+            args.push("-b".to_string());
+            args.push(branch);
+        }
+
+        if let Some(name) = options.name.clone() {
+            args.push("-t".to_string());
+            args.push(name);
+        }
+
+        program.set_args(args);
+        program.set_cwd(self.path.to_str().unwrap());
+        match program.run() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(LibraryError::CloneFailed(e)),
+        }
     }
 
     pub fn create(&self, name: &str) -> Result<(), LibraryError> {

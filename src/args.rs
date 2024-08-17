@@ -17,7 +17,7 @@ pub fn get_args() -> Command {
             Command::new("clone")
                 .about("Clone Git repository (requires git to be installed).")
                 .args([
-                    Arg::new("repo")
+                    Arg::new("remote")
                         .help("Repository to be cloned.")
                         .value_parser(value_parser!(String))
                         .required(false)

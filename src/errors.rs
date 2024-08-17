@@ -28,6 +28,9 @@ pub enum LibraryError {
 
     #[error("File system error occured.")]
     FileSystemError,
+
+    #[error("Failed to clone repository.")]
+    CloneFailed(ProgramError),
 }
 
 #[derive(Error, Debug)]
