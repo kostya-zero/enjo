@@ -65,8 +65,7 @@ pub fn main() {
             }
 
             let projects = Utils::load_projects(&dir_path, config.options.display_hidden);
-            let _ = projects.clone(&clone_options).map_err(|e| Message::fail(e.to_string().as_str()));
-            match projects.clone(&clone_options) {
+            match projects.clone(clone_options) {
                 Ok(_) => Message::done("The project has been cloned."),
                 Err(e) => Message::fail(e.to_string().as_str()),
             }
