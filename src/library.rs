@@ -95,7 +95,7 @@ impl Library {
         is_dir && (!is_hidden || display_hidden) && !is_system_dir
     }
 
-    pub fn clone(&self, options: &CloneOptions) -> Result<(), LibraryError> {
+    pub fn clone(&self, options: CloneOptions) -> Result<(), LibraryError> {
         let mut program = Program::new("git");
         let mut args: Vec<String> = vec!["clone".to_string(), options.remote.clone()];
 
