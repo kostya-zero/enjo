@@ -1,14 +1,4 @@
-use anyhow::Error;
 use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum AppError {
-    #[error("{0}")]
-    InternalError(Error),
-
-    #[error("{0}")]
-    TextError(String),
-}
 
 #[derive(Debug, Error)]
 pub enum ConfigError {

@@ -13,7 +13,6 @@ edition = "2021"
 name = "enjo"
 
 [dependencies]
-anyhow = "1.0.86"
 clap = "4.5.7"
 dialoguer = "0.11.0"
 serde = { version = "1.0.203", features = ["derive"] }
@@ -28,11 +27,10 @@ tempfile = "3.10.1"
 ctrlc = "3.4.4"
 
 [profile.dev]
-incremental = true
+incremental = false
 
 [profile.release]
 opt-level = 3
 codegen-units = 1
-incremental = false
 lto = true
 debug = false
