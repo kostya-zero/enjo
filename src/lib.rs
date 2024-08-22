@@ -3,6 +3,8 @@ use std::{fs, path::Path, process::exit};
 use crate::args::get_args;
 use crate::config::Config;
 use crate::term::{Dialog, Message};
+use anyhow::Result;
+use errors::AppError;
 use library::CloneOptions;
 use platform::Platform;
 use utils::Utils;
@@ -13,13 +15,13 @@ mod errors;
 mod library;
 mod platform;
 mod program;
-mod term;
+pub mod term;
 mod utils;
 
 #[cfg(test)]
 mod tests;
 
-pub fn main() {
+pub fn main() -> Result<(), AppError> {
     let args = get_args().get_matches();
     if !Platform::check_exists() {
         let default_config: Config = Config::default();
@@ -40,7 +42,7 @@ pub fn main() {
             if let Some(name) = sub.get_one::<String>("name") {
                 match projects.create(name) {
                     Ok(_) => Message::done("The project has been created."),
-                    Err(e) => Message::fail(e.to_string().as_str()),
+                    Err(e) => return Err(AppError::InternalError(e.into())),
                 }
             } else {
                 Message::fail("You need to provide a name for your new project.");
@@ -161,16 +163,16 @@ pub fn main() {
 
             let name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
-                _ => return Message::fail("You need to provide a name of the project you want to rename."),
+                _ => return Err(AppError::TextError("Project name is not provided.".to_string())),
             };
 
             if !projects.contains(name) {
-                return Message::fail("Project not found.");
+                return Err(AppError::TextError("Project not found.".to_string()));
             }
 
             let new_name = match sub.get_one::<String>("newname") {
                 Some(new_name) if !new_name.is_empty() => new_name,
-                _ => return Message::fail("You need to provide a new name for the project you want to rename."),
+                _ => return Err(AppError::TextError("New project name is not provided.".to_string())),
             };
 
             let system_dirs = [
@@ -179,11 +181,13 @@ pub fn main() {
             ];
 
             if projects.contains(new_name) {
-                return Message::fail("A project with the same name has been found.");
+                return Err(AppError::TextError("A project with the same name has been found.".to_string()));
             }
 
             if system_dirs.contains(&new_name.as_str()) {
-                return Message::fail("You cannot use the system directory name as the new name.");
+                return Err(AppError::TextError(
+                    "You cannot use the system directory name as the new name.".to_string(),
+                ));
             }
 
             let full_old_path = Path::new(&dir_path).join(name);
