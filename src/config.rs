@@ -5,7 +5,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 #[serde(default)]
 pub struct Config {
     pub options: Options,
@@ -13,14 +13,14 @@ pub struct Config {
     pub shell: ShellOptions,
 }
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 #[serde(default)]
 pub struct Options {
     pub path: String,
     pub display_hidden: bool,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct EditorOptions {
     pub program: String,
     pub fork_mode: bool,
@@ -60,7 +60,7 @@ impl Default for EditorOptions {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct ShellOptions {
     pub program: String,
 }
