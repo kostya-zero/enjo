@@ -9,9 +9,6 @@ license = "MIT"
 version = "0.3.0"
 edition = "2021"
 
-[[bin]]
-name = "enjo"
-
 [dependencies]
 clap = "4.5.7"
 dialoguer = "0.11.0"
