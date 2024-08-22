@@ -7,13 +7,6 @@ use crate::term::Message;
 
 pub struct Utils;
 impl Utils {
-    pub fn get_config() -> Config {
-        Config::load().unwrap_or_else(|err| {
-            Message::fail(&format!("{err}"));
-            exit(1);
-        })
-    }
-
     pub fn write_config(config: Config) {
         Config::write(config).unwrap_or_else(|err| Message::fail(&format!("{err}")));
     }

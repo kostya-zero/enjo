@@ -30,7 +30,13 @@ pub fn main() {
         );
     }
 
-    let config: Config = Utils::get_config();
+    let config: Config = match Config::load() {
+        Ok(config) => config,
+        Err(e) => {
+            Message::fail(e.to_string().as_str());
+            exit(1)
+        }
+    };
 
     match args.subcommand() {
         Some(("new", sub)) => {
