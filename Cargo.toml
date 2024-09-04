@@ -1,6 +1,6 @@
 [package]
 name = "enjo"
-description = "Projects management tool."
+description = "Fast project manager."
 authors = ["Konstantin Zhigaylo <zero@kostyazero.com>"]
 repository = "https://github.com/kostya-zero/enjo"
 keywords = ["workspace"]
@@ -9,7 +9,11 @@ license = "MIT"
 version = "0.4.0-dev"
 edition = "2021"
 
+[[bin]]
+name = "enjo"
+
 [dependencies]
+bincode = "1.3.3"
 clap = "4.5.7"
 dialoguer = "0.11.0"
 serde = { version = "1.0.203", features = ["derive"] }
@@ -27,6 +31,7 @@ ctrlc = "3.4.4"
 incremental = false
 
 [profile.release]
+panic = "abort"
 opt-level = 3
 codegen-units = 1
 lto = true

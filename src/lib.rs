@@ -15,6 +15,7 @@ mod platform;
 mod program;
 mod term;
 mod utils;
+mod templates;
 
 #[cfg(test)]
 mod tests;
@@ -23,11 +24,12 @@ pub fn main() {
     let args = get_args().get_matches();
     if !Platform::check_exists() {
         let default_config: Config = Config::default();
-        Utils::write_config(default_config);
-
-        Message::info(
-            "Enjo has generated the default configuration. Change it according to your needs.",
-        );
+        match Config::write(default_config) {
+            Ok(_) => Message::info(
+                "Enjo has generated the default configuration. Change it according to your needs.",
+            ),
+            Err(e) => Message::fail(e.to_string().as_str()),
+        }
     }
 
     let config: Config = match Config::load() {
@@ -255,7 +257,7 @@ pub fn main() {
                 ),
             }
         }
-        _ => Message::error("Command not found or it's not implemented yet."),
+        _ => Message::error("This command is not implemented."),
     }
     exit(0);
 }
