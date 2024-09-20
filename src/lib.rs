@@ -13,9 +13,9 @@ mod errors;
 mod library;
 mod platform;
 mod program;
+mod templates;
 mod term;
 mod utils;
-mod templates;
 
 #[cfg(test)]
 mod tests;

@@ -17,6 +17,10 @@ impl Platform {
         Self::get_config_dir_path().join("config.toml")
     }
 
+    pub fn get_templates_path() -> PathBuf {
+        Self::get_config_dir_path().join("templates.dat")
+    }
+
     pub fn get_config_dir_path() -> PathBuf {
         let platform_id = Self::get_platform();
         let user_home = Self::get_user_home();
@@ -52,7 +56,7 @@ impl Platform {
 
     pub fn get_default_shell() -> String {
         match Self::get_platform() {
-            PlatformName::Windows => String::from("pwsh.exe"),
+            PlatformName::Windows => String::from("powershell.exe"),
             PlatformName::Mac => String::from("zsh"),
             _ => String::from("bash"),
         }
