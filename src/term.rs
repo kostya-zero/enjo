@@ -3,7 +3,7 @@ use std::process::exit;
 use dialoguer::{
     console::style,
     theme::{ColorfulTheme, Theme},
-    Confirm,
+    Confirm, Input,
 };
 
 pub struct Message;
@@ -61,6 +61,14 @@ impl Dialog {
             .default(default)
             .show_default(true)
             .interact()
+            .unwrap()
+    }
+
+    pub fn ask_string(question: &str) -> String {
+        Input::<String>::with_theme(&Self::get_theme())
+            .with_prompt(question)
+            .default(String::new())
+            .interact_text()
             .unwrap()
     }
 }

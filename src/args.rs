@@ -7,13 +7,22 @@ pub fn get_args() -> Command {
         .version(env!("CARGO_PKG_VERSION"))
         .arg_required_else_help(true)
         .subcommands([
-            Command::new("new").about("Create new project").arg(
+            Command::new("new").about("Create new project").args([
                 Arg::new("name")
                     .help("Name for a new project.")
                     .value_parser(value_parser!(String))
                     .required(false)
                     .num_args(1),
-            ),
+                Arg::new("template")
+                    .help("Template to use.")
+                    .value_parser(value_parser!(String))
+                    .short('t')
+                    .long("template")
+                    .required(false)
+                    .hide_default_value(true)
+                    .default_value("")
+                    .num_args(1),
+            ]),
             Command::new("clone")
                 .about("Clone Git repository (requires git to be installed).")
                 .args([
@@ -72,12 +81,40 @@ pub fn get_args() -> Command {
             ]),
             Command::new("delete").about("Delete project.").arg(
                 Arg::new("name")
+                    .help("Name of the project to delete.")
                     .value_parser(value_parser!(String))
                     .default_value("")
                     .hide_default_value(true)
                     .required(false)
                     .num_args(1),
             ),
+            Command::new("templates")
+                .about("Manage your templates.")
+                .arg_required_else_help(true)
+                .subcommands([
+                    Command::new("new").about("Create new template."),
+                    Command::new("list").about("List available templates."),
+                    Command::new("info")
+                        .about("View information about template.")
+                        .arg(
+                            Arg::new("name")
+                                .help("Name of the template.")
+                                .value_parser(value_parser!(String))
+                                .default_value("")
+                                .hide_default_value(true)
+                                .required(false)
+                                .num_args(1),
+                        ),
+                    Command::new("remove").about("Remove template.").arg(
+                        Arg::new("name")
+                            .help("Name of the template to remove.")
+                            .value_parser(value_parser!(String))
+                            .default_value("")
+                            .hide_default_value(true)
+                            .required(false)
+                            .num_args(1),
+                    ),
+                ]),
             Command::new("config")
                 .about("Manage your config file.")
                 .arg_required_else_help(true)

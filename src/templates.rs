@@ -15,9 +15,6 @@ pub enum TemplateStorageError {
 
     #[error("File system error occured while working with the file.")]
     FileSystemError,
-
-    #[error("Unknown error occured: {0}.")]
-    UnknownError(String),
 }
 
 #[derive(Default, Serialize, Deserialize, Clone)]
@@ -32,7 +29,7 @@ impl TemplateStorage {
         }
     }
 
-    pub fn load(&mut self) -> Result<Self, TemplateStorageError> {
+    pub fn load() -> Result<Self, TemplateStorageError> {
         if let Ok(content) = fs::read_to_string(Platform::get_templates_path()) {
             let templates: TemplateStorage = bincode::deserialize(content.as_bytes()).unwrap();
             Ok(templates)
@@ -54,6 +51,10 @@ impl TemplateStorage {
             self.templates.insert(name.to_string(), commands);
             Ok(())
         }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.templates.is_empty()
     }
 
     pub fn get(&self, name: &str) -> Result<&Vec<String>, TemplateStorageError> {

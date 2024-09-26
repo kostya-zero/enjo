@@ -5,6 +5,7 @@ use crate::config::Config;
 use crate::term::{Dialog, Message};
 use library::CloneOptions;
 use platform::Platform;
+use templates::TemplateStorage;
 use utils::Utils;
 
 mod args;
@@ -22,7 +23,7 @@ mod tests;
 
 pub fn main() {
     let args = get_args().get_matches();
-    if !Platform::check_exists() {
+    if !Platform::check_config_exists() {
         let default_config: Config = Config::default();
         match Config::write(default_config) {
             Ok(_) => Message::info(
@@ -30,6 +31,12 @@ pub fn main() {
             ),
             Err(e) => Message::fail(e.to_string().as_str()),
         }
+    }
+
+    if !Platform::check_templates_exists() {
+        Message::info("Generating template storage...");
+        let templates = TemplateStorage::new();
+        templates.save().unwrap();
     }
 
     let config: Config = match Config::load() {
@@ -225,6 +232,73 @@ pub fn main() {
             match fs::remove_dir_all(path.to_str().unwrap()) {
                 Ok(_) => Message::done("The project has been deleted."),
                 Err(_) => Message::fail("Failed to remove project directory because of the file system error."),
+            }
+        }
+        Some(("templates", sub)) => {
+            match sub.subcommand() {
+                Some(("new", _sub)) => {
+                    let mut templates = TemplateStorage::load().unwrap();
+
+                    let name = Dialog::ask_string("How do you want to name this template?");
+                    if name.is_empty() {
+                        Message::fail("Incorrect name for a template.");
+                    }
+
+                    let mut commands: Vec<String> = Vec::new();
+                    loop {
+                        let command = Dialog::ask_string("Enter a command (or just press enter to stop entering commands):");
+                        if command.trim().is_empty() {
+                            break;
+                        } else {
+                            commands.push(command.trim().to_string());
+                        }
+                    }
+
+                    if commands.is_empty() {
+                        Message::fail("No commands entered.");
+                    }
+
+                    Message::busy("Creating template...");
+                    templates.add(&name, commands).unwrap();
+                    templates.save().unwrap();
+                    Message::done("Template created.");
+                }
+                Some(("list", _sub)) => {
+                    let templates = TemplateStorage::load().unwrap_or_else(|e| {Message::fail(e.to_string().as_str()); exit(1);});
+                    if templates.is_empty() {
+                        Message::info("No templates found.");
+                        exit(0)
+                    }
+
+                    Message::list_title("Templates:");
+                    for template in templates.get_templates_names().iter() {
+                        Message::item(template);
+                    }
+                }
+                Some(("info", sub)) => {
+                    let templates = TemplateStorage::load().unwrap();
+                    if let Ok(template) = templates.get(sub.get_one::<String>("name").unwrap()) {
+                        Message::list_title("Commands of this template:");
+                        for command in template.iter() {
+                            Message::item(command);
+                        }
+                    } else {
+                        Message::fail("Template not found.");
+                    }
+                }
+                Some(("remove", sub)) => {
+                    let mut templates = TemplateStorage::load().unwrap();
+                    match templates.remove(sub.get_one::<String>("name").unwrap()) {
+                        Ok(_) => {
+                            Message::done("Template removed.");
+                            templates.save().unwrap();
+                        },
+                        Err(_) => Message::fail("Template not found."),
+                    }
+                }
+                _ => Message::fail(
+                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.",
+                ),
             }
         }
         Some(("config", sub)) => {

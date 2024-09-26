@@ -62,7 +62,11 @@ impl Platform {
         }
     }
 
-    pub fn check_exists() -> bool {
+    pub fn check_config_exists() -> bool {
         Path::new(&Self::get_config_path()).exists()
+    }
+
+    pub fn check_templates_exists() -> bool {
+        Path::new(&Self::get_templates_path()).exists()
     }
 }
