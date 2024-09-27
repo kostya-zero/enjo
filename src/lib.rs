@@ -1,3 +1,4 @@
+use std::process::Command;
 use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
@@ -50,13 +51,41 @@ pub fn main() {
     match args.subcommand() {
         Some(("new", sub)) => {
             let dir_path: String = config.options.path;
-
             let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
+
             if let Some(name) = sub.get_one::<String>("name") {
                 match projects.create(name) {
-                    Ok(_) => Message::done("The project has been created."),
+                    Ok(_) => {},
                     Err(e) => Message::fail(e.to_string().as_str()),
                 }
+
+                if let Some(template) = sub.get_one::<String>("template") {
+                    let templates = TemplateStorage::load().unwrap();
+                    if let Ok(template) = templates.get(template) {
+                        Message::info("Generating project...");
+                        // We will use a platform specific shell to prevent unexpected errors.
+                        let program = match Platform::get_platform() {
+                            platform::PlatformName::Windows => "powershell.exe",
+                            _ => "sh",
+                        };
+                        let cwd = Path::new(dir_path.as_str()).join(name);
+                        for command in template.iter() {
+                            Message::info(command);
+                            let output = Command::new(program)
+                                .args(["-c", command])
+                                .current_dir(&cwd)
+                                .output();
+
+                            if let Err(e) = output {
+                                Message::fail(&format!("Failed to execute template command {} with error: {}", command, e));
+                            }
+                        }
+                    } else {
+                        Message::fail("Template not found.");
+                    }
+                }
+
+                Message::done("The project has been created.")
             } else {
                 Message::fail("You need to provide a name for your new project.");
             }
