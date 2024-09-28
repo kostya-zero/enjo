@@ -1,3 +1,4 @@
+use std::hash::BuildHasherDefault;
 use std::process::Command;
 use std::{fs, path::Path, process::exit};
 
@@ -60,26 +61,28 @@ pub fn main() {
                 }
 
                 if let Some(template) = sub.get_one::<String>("template") {
-                    let templates = TemplateStorage::load().unwrap();
-                    if let Ok(template) = templates.get(template) {
-                        Message::info("Generating project...");
-                        let program = match Platform::get_platform() {
-                            platform::PlatformName::Windows => "powershell.exe",
-                            _ => "sh",
-                        };
-                        let cwd = Path::new(dir_path.as_str()).join(name);
-                        for command in template.iter() {
-                            let output = Command::new(program)
-                                .args(["-c", command])
-                                .current_dir(&cwd)
-                                .output();
+                    if !template.is_empty() {
+                        let templates = TemplateStorage::load().unwrap();
+                        if let Ok(template) = templates.get(template) {
+                            Message::info("Generating project...");
+                            let program = match Platform::get_platform() {
+                                platform::PlatformName::Windows => "powershell.exe",
+                                _ => "sh",
+                            };
+                            let cwd = Path::new(dir_path.as_str()).join(name);
+                            for command in template.iter() {
+                                let output = Command::new(program)
+                                    .args(["-c", command])
+                                    .current_dir(&cwd)
+                                    .output();
 
-                            if let Err(e) = output {
-                                Message::fail(&format!("Failed to execute template command {} with error: {}", command, e));
+                                if let Err(e) = output {
+                                    Message::fail(&format!("Failed to execute template command {} with error: {}", command, e));
+                                }
                             }
+                        } else {
+                            Message::fail("Template not found.");
                         }
-                    } else {
-                        Message::fail("Template not found.");
                     }
                 }
 
