@@ -63,14 +63,12 @@ pub fn main() {
                     let templates = TemplateStorage::load().unwrap();
                     if let Ok(template) = templates.get(template) {
                         Message::info("Generating project...");
-                        // We will use a platform specific shell to prevent unexpected errors.
                         let program = match Platform::get_platform() {
                             platform::PlatformName::Windows => "powershell.exe",
                             _ => "sh",
                         };
                         let cwd = Path::new(dir_path.as_str()).join(name);
                         for command in template.iter() {
-                            Message::info(command);
                             let output = Command::new(program)
                                 .args(["-c", command])
                                 .current_dir(&cwd)
