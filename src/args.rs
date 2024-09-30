@@ -22,6 +22,10 @@ pub fn get_args() -> Command {
                     .hide_default_value(true)
                     .default_value("")
                     .num_args(1),
+                Arg::new("quite")
+                    .help("Do not show the output of the running commands.")
+                    .long("quite")
+                    .action(ArgAction::SetTrue),
             ]),
             Command::new("clone")
                 .about("Clone Git repository (requires git to be installed).")

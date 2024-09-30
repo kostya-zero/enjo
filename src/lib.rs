@@ -1,5 +1,4 @@
-use std::hash::BuildHasherDefault;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::{fs, path::Path, process::exit};
 
 use crate::args::get_args;
@@ -64,6 +63,7 @@ pub fn main() {
                     if !template.is_empty() {
                         let templates = TemplateStorage::load().unwrap();
                         if let Ok(template) = templates.get(template) {
+                            let quite = sub.get_flag("quite");
                             Message::info("Generating project...");
                             let program = match Platform::get_platform() {
                                 platform::PlatformName::Windows => "powershell.exe",
@@ -71,11 +71,16 @@ pub fn main() {
                             };
                             let cwd = Path::new(dir_path.as_str()).join(name);
                             for command in template.iter() {
-                                let output = Command::new(program)
-                                    .args(["-c", command])
-                                    .current_dir(&cwd)
-                                    .output();
-
+                                let mut running_cmd = Command::new(program);
+                                running_cmd.args(["-c", command]);
+                                if !quite {
+                                    running_cmd.stdin(Stdio::inherit());
+                                    running_cmd.stdout(Stdio::inherit());
+                                    running_cmd.stderr(Stdio::inherit());
+                                }
+                                running_cmd.current_dir(cwd.clone());
+                                Message::busy(command);
+                                let output = running_cmd.output();
                                 if let Err(e) = output {
                                     Message::fail(&format!("Failed to execute template command {} with error: {}", command, e));
                                 }
