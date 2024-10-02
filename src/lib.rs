@@ -1,7 +1,7 @@
 use std::process::{Command, Stdio};
 use std::{fs, path::Path, process::exit};
 
-use crate::args::get_args;
+use crate::args::build_cli;
 use crate::config::Config;
 use crate::term::{Dialog, Message};
 use library::CloneOptions;
@@ -23,7 +23,7 @@ mod utils;
 mod tests;
 
 pub fn main() {
-    let args = get_args().get_matches();
+    let args = build_cli().get_matches();
     if !Platform::check_config_exists() {
         let default_config: Config = Config::default();
         match Config::write(default_config) {
@@ -37,7 +37,11 @@ pub fn main() {
     if !Platform::check_templates_exists() {
         Message::info("Generating template storage...");
         let templates = TemplateStorage::new();
-        templates.save().unwrap();
+        if let Ok(_) = templates.save() {
+            Message::done("Templates storage generated.");
+        } else {
+            Message::error("Failed to generate templates storage.");
+        }
     }
 
     let config: Config = match Config::load() {
@@ -270,10 +274,12 @@ pub fn main() {
             }
         }
         Some(("templates", sub)) => {
+            let mut templates = match TemplateStorage::load() {
+                Ok(templates) => templates,
+                Err(_) => return Message::fail("Failed to load templates."),
+            };
             match sub.subcommand() {
                 Some(("new", _sub)) => {
-                    let mut templates = TemplateStorage::load().unwrap();
-
                     let name = Dialog::ask_string("How do you want to name this template?");
                     if name.is_empty() {
                         Message::fail("Incorrect name for a template.");
@@ -295,11 +301,13 @@ pub fn main() {
 
                     Message::busy("Creating template...");
                     templates.add(&name, commands).unwrap();
-                    templates.save().unwrap();
-                    Message::done("Template created.");
+                    if templates.save().is_ok() {
+                        Message::done("Template created.");
+                    } else {
+                        Message::fail("Failed to save templates.");
+                    }
                 }
                 Some(("list", _sub)) => {
-                    let templates = TemplateStorage::load().unwrap_or_else(|e| {Message::fail(e.to_string().as_str()); exit(1);});
                     if templates.is_empty() {
                         Message::info("No templates found.");
                         exit(0)
@@ -311,7 +319,6 @@ pub fn main() {
                     }
                 }
                 Some(("info", sub)) => {
-                    let templates = TemplateStorage::load().unwrap();
                     if let Ok(template) = templates.get(sub.get_one::<String>("name").unwrap()) {
                         Message::list_title("Commands of this template:");
                         for command in template.iter() {
@@ -322,11 +329,14 @@ pub fn main() {
                     }
                 }
                 Some(("remove", sub)) => {
-                    let mut templates = TemplateStorage::load().unwrap();
                     match templates.remove(sub.get_one::<String>("name").unwrap()) {
                         Ok(_) => {
+                            if templates.save().is_ok() {
                             Message::done("Template removed.");
-                            templates.save().unwrap();
+
+                            } else {
+                                Message::fail("Failed to save changes to storage.");
+                            }
                         },
                         Err(_) => Message::fail("Template not found."),
                     }
