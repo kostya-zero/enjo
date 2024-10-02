@@ -37,7 +37,7 @@ pub fn main() {
     if !Platform::check_templates_exists() {
         Message::info("Generating template storage...");
         let templates = TemplateStorage::new();
-        if let Ok(_) = templates.save() {
+        if templates.save().is_ok() {
             Message::done("Templates storage generated.");
         } else {
             Message::error("Failed to generate templates storage.");
