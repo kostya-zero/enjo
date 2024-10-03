@@ -119,9 +119,16 @@ pub fn main() {
             }
 
             let projects = Utils::load_projects(&dir_path, config.options.display_hidden);
-            match projects.clone(clone_options) {
+            match projects.clone(clone_options.clone()) {
                 Ok(_) => Message::done("The project has been cloned."),
                 Err(e) => Message::fail(e.to_string().as_str()),
+            }
+
+            let repo_name = Utils::get_reposiotry_name_from_url(&clone_options.remote);
+            if let Some(repo) = repo_name {
+                if repo.to_string().starts_with('.') {
+                    Message::info("The name of your project have a dot at the start. If you have enabled hidden projects, it will be ignored.");
+                }
             }
         }
         Some(("open", sub)) => {

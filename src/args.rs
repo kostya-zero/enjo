@@ -41,8 +41,6 @@ pub fn build_cli() -> Command {
                         .short('n')
                         .long("name")
                         .required(false)
-                        .hide_default_value(true)
-                        .default_value("")
                         .num_args(1),
                     Arg::new("branch")
                         .help("Branch to use as default while cloning.")
@@ -50,8 +48,7 @@ pub fn build_cli() -> Command {
                         .short('b')
                         .long("branch")
                         .required(false)
-                        .hide_default_value(true)
-                        .default_value(""),
+                        .num_args(1),
                 ]),
             Command::new("open").about("Open project in editor.").args([
                 Arg::new("name")

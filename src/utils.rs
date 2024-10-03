@@ -29,4 +29,18 @@ impl Utils {
             Message::fail(e.to_string().as_str());
         }
     }
+
+    pub fn get_reposiotry_name_from_url(url: &str) -> Option<&str> {
+        if let Some(pos) = url.rfind('/') {
+            let mut filename = &url[pos + 1..];
+
+            if filename.ends_with(".git") {
+                filename = &filename[..filename.len() - 4];
+            }
+
+            Some(filename)
+        } else {
+            None
+        }
+    }
 }
