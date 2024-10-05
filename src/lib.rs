@@ -52,10 +52,16 @@ pub fn main() {
         }
     };
 
+    let display_hidden = if args.get_flag("hidden") {
+        true
+    } else {
+        config.options.display_hidden
+    };
+
     match args.subcommand() {
         Some(("new", sub)) => {
             let dir_path: String = config.options.path;
-            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
+            let projects = Utils::load_projects(dir_path.as_str(), display_hidden);
 
             if let Some(name) = sub.get_one::<String>("name") {
                 match projects.create(name) {
@@ -118,7 +124,7 @@ pub fn main() {
                 clone_options.name = Some(String::from(name));
             }
 
-            let projects = Utils::load_projects(&dir_path, config.options.display_hidden);
+            let projects = Utils::load_projects(&dir_path, display_hidden);
             match projects.clone(clone_options.clone()) {
                 Ok(_) => Message::done("The project has been cloned."),
                 Err(e) => Message::fail(e.to_string().as_str()),
@@ -134,7 +140,7 @@ pub fn main() {
         Some(("open", sub)) => {
             let dir_path: String = config.options.path;
 
-            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
+            let projects = Utils::load_projects(dir_path.as_str(), display_hidden);
             let project_name: &str = sub.get_one::<String>("name").unwrap();
 
             if project_name.is_empty() {
@@ -200,7 +206,7 @@ pub fn main() {
                 Message::fail("A directory with projects does not exist on the file system.");
             }
 
-            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
+            let projects = Utils::load_projects(dir_path.as_str(), display_hidden);
             if projects.is_empty() {
                 Message::info("No projects found.");
                 exit(0)
@@ -208,16 +214,12 @@ pub fn main() {
 
             Message::list_title("Your projects:");
             for project in projects.get_vec().iter() {
-                let name = project.get_name();
-                if name.starts_with('.') && config.options.display_hidden {
-                    continue;
-                }
-                Message::item(name.as_str());
+                Message::item(project.get_name().as_str());
             }
         }
         Some(("rename", sub)) => {
             let dir_path = config.options.path;
-            let projects = Utils::load_projects(&dir_path, config.options.display_hidden);
+            let projects = Utils::load_projects(&dir_path, display_hidden);
 
             let name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
@@ -257,7 +259,7 @@ pub fn main() {
         Some(("delete", sub)) => {
             let dir_path: String = config.options.path;
 
-            let projects = Utils::load_projects(dir_path.as_str(), config.options.display_hidden);
+            let projects = Utils::load_projects(dir_path.as_str(), display_hidden);
             let name = sub.get_one::<String>("name").unwrap();
             if name.is_empty() {
                 Message::fail("You need to provide a name of the project you want to delete.");

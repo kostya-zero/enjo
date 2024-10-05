@@ -6,6 +6,13 @@ pub fn build_cli() -> Command {
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .version(env!("CARGO_PKG_VERSION"))
         .arg_required_else_help(true)
+        .arg(
+            Arg::new("hidden")
+                .help("Show hidden projects despite the configuration.")
+                .long("hidden")
+                .global(true)
+                .action(ArgAction::SetTrue),
+        )
         .subcommands([
             Command::new("new").about("Create new project").args([
                 Arg::new("name")
