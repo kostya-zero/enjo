@@ -99,16 +99,16 @@ impl Library {
         let mut program = Program::new("git");
         let mut args: Vec<String> = vec!["clone".to_string(), options.remote.clone()];
 
+        if let Some(name) = options.name.clone() {
+            args.push(name);
+        }
+
         if let Some(branch) = options.branch.clone() {
             args.push("-b".to_string());
             args.push(branch);
         }
 
-        if let Some(name) = options.name.clone() {
-            args.push("-t".to_string());
-            args.push(name);
-        }
-
+        println!("{:?}", args);
         program.set_args(args);
         program.set_cwd(self.path.to_str().unwrap());
         match program.run() {
