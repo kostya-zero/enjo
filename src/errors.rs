@@ -44,3 +44,15 @@ pub enum ProgramError {
     #[error("Program failed to launch or failed: {0}")]
     Other(String),
 }
+
+#[derive(Debug, Error)]
+pub enum TemplateStorageError {
+    #[error("Template with the same name already exists.")]
+    AlreadyExists,
+
+    #[error("Template not found.")]
+    TemplateNotFound,
+
+    #[error("File system error occured while working with the file.")]
+    FileSystemError,
+}

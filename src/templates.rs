@@ -1,21 +1,8 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs};
-use thiserror::Error;
 
-use crate::platform::Platform;
-
-#[derive(Debug, Error)]
-pub enum TemplateStorageError {
-    #[error("Template with the same name already exists.")]
-    AlreadyExists,
-
-    #[error("Template not found.")]
-    TemplateNotFound,
-
-    #[error("File system error occured while working with the file.")]
-    FileSystemError,
-}
+use crate::{errors::TemplateStorageError, platform::Platform};
 
 #[derive(Default, Serialize, Deserialize, Clone)]
 pub struct TemplateStorage {
