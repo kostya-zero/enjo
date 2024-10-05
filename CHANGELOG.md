@@ -1,5 +1,12 @@
 # Enjo changelog
 
+## Next
+
+- **Templates**. Now you can create templates to generate projects from. Use `enjo templaets --help` for help.
+- Fixed `unknown t switch` message from Git.
+- Increased stability of `clone` command.
+- Enjo will warn you if you are cloning repository which name starts with dot.
+
 ## 0.3.0
 
 - **The configuration file has been restructured.** If you used Enjo before version `0.2.1`, you need to reset your configuration file. See [configuration manual](docs/CONFIGURATION.md) for more details.
