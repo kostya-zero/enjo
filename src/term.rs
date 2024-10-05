@@ -48,9 +48,9 @@ pub struct Dialog;
 impl Dialog {
     fn get_theme() -> impl Theme {
         ColorfulTheme {
-            prompt_prefix: style("󰍡 ".to_string()).for_stdout().white(),
-            success_prefix: style(" ".to_string()).for_stdout().green(),
-            error_prefix: style(" ".to_string()).for_stderr().red(),
+            prompt_prefix: style("󰍡".to_string()).for_stdout().white(),
+            success_prefix: style("".to_string()).for_stdout().green(),
+            error_prefix: style("".to_string()).for_stderr().red(),
             ..Default::default()
         }
     }

@@ -108,7 +108,6 @@ impl Library {
             args.push(branch);
         }
 
-        println!("{:?}", args);
         program.set_args(args);
         program.set_cwd(self.path.to_str().unwrap());
         match program.run() {
