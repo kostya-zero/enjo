@@ -22,7 +22,7 @@ If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
 Before using Enjo, you need to configure it based on your workspace. All options are described in [configuration manual](docs/CONFIGURATION.md).
 
 ### List Projects
- 
+
 Enjo allows you to manage your projects and work with it.
 You can get list of projects by using `list` subcommand.
 
@@ -30,6 +30,7 @@ You can get list of projects by using `list` subcommand.
 enjo list
 ```
 
+> [!NOTE]
 > By default Enjo will not display projects with name starting with dots. Please confgiure `hide_dots` parameter according to [configuration manual](docs/CONFIGURATION.md).
 
 ### Manage projects

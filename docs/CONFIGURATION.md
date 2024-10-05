@@ -11,7 +11,8 @@ If you don't have configuration file in your file system, Enjo will generate it 
 
 Enjo will generate configuration based on your environment settings like `EDITOR` and `SHELL` environment variables.
 
-> ⚠️ If you are using *VS Code* or *VS Codium* on Windows, Enjo will set `editor` field to `code.cmd` and `codium.cmd` in configuration, because for some reason Enjo cant find `code` and `codium`. Also, Enjo will add a single dot to `editor_args` to tell *VS Code*, *VS Codium* and *Zed* to open this directory.
+> [!WARNING]
+> If you are using _VS Code_ or _VS Codium_ on Windows, Enjo will set `editor` field to `code.cmd` and `codium.cmd` in configuration, because for some reason Enjo cant find `code` and `codium`. Also, Enjo will add a single dot to `editor_args` to tell _VS Code_, _VS Codium_ and _Zed_ to open this directory.
 
 ### Default configuration structure
 
@@ -51,7 +52,7 @@ Enjo allows to manage configuration through `config` subcommand. This is a list 
 
 - `program` - The name of the executable to be used as an editor to open projects and configuration file. You can specify it as the name of an executable (e.g., `nvim`) or as an absolute path to the executable (e.g., `/usr/bin/nvim`).
 - `fork_mode` - Determines whether the editor should run as a separate process.
-- `args` - Arguments to be passed to the editor. By default this field is empty, but for *VS Code* and *VS Codium* it will contain a dot.
+- `args` - Arguments to be passed to the editor. By default this field is empty, but for _VS Code_ and _VS Codium_ it will contain a dot.
 
 ### `shell`
 

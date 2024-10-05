@@ -8,18 +8,20 @@ To build Enjo you need to follow the requirements:
 
 - The latest version of the Rust toolchain.
 - C/C++ compiler
-- - **Windows**: The latest version of *Visual Studio Build Tools 2022* and *Windows SDK*.
-- - **Linux** and **macOS**: Latest version of *GCC* or *Clang*.
+- - **Windows**: The latest version of _Visual Studio Build Tools 2022_ and _Windows SDK_.
+- - **Linux** and **macOS**: Latest version of _GCC_ or _Clang_.
 
 If you already have installed Rust toolchain and C/C++ compiler, you can go to [Building](#building) section
 
-> ⚠️ On Windows we recommend to use LLD as linker to speed up compilation. Learn more at [Tweaks](#tweaks) section.
+> [!TIP]
+> On Windows we recommend to use LLD as linker to speed up compilation. Learn more at [Tweaks](#tweaks) section.
 
 ### Install tools
 
 You can go to [official Rust install page](https://www.rust-lang.org/tools/install) and follow the instructions on the website.
 
-> ⚠️ Make sure that Rust toolchain and C compiler are installed correctly by running them through terminal.
+> [!IMPORTANT]
+> Make sure that Rust toolchain and C compiler are installed correctly by running them through terminal.
 
 ### Downloading source code
 
@@ -39,7 +41,7 @@ You can run building by running `cargo` with `build` argument. Also add `--relea
 cargo build --release
 ```
 
-If you are using *Linux* or *macOS* and want to compile Enjo using `clang` as C compiler, you need to create a new environment variable called `RUSTFLAGS` and pass some value to it:
+If you are using _Linux_ or _macOS_ and want to compile Enjo using `clang` as C compiler, you need to create a new environment variable called `RUSTFLAGS` and pass some value to it:
 
 ```shell
 export RUSTFLAGS="-C linker=clang -C link-arg=-fuse-ld=lld"
