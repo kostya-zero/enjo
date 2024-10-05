@@ -28,7 +28,7 @@ You can go to [official Rust install page](https://www.rust-lang.org/tools/insta
 If you have `git` installed you can use it to download the source code.
 
 ```shell
-git clone https://git.kostyazero.com/kostya-zero/enjo
+git clone https://github.com/kostya-zero/enjo.git
 ```
 
 If not, you can download source code as ZIP. Extract its contents to wherever you want.
