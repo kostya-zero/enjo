@@ -2,7 +2,11 @@
 
 ## Next
 
-- **Templates**. Now you can create templates to generate projects from. Use `enjo templaets --help` for help.
+TBD
+
+## 0.4.0
+
+- **Templates**. Now you can create templates to generate projects from. Use `enjo templates --help` for help.
 - New global argument `--hidden` allows to display hidden even if `display_option` is set to `false`.
 - Fixed `unknown t switch` message from Git.
 - Increased stability of `clone` command.
