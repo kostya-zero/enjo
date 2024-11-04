@@ -14,11 +14,11 @@ impl Message {
     }
 
     pub fn error(msg: &str) {
-        Self::print_message("", "91", msg);
+        eprintln!("\x1b[91m\x1b[0m {}", msg)
     }
 
     pub fn done(msg: &str) {
-        Self::print_message("", "92", msg);
+        Self::print_message("󰸞", "92", msg);
     }
 
     pub fn busy(msg: &str) {
@@ -26,7 +26,7 @@ impl Message {
     }
 
     pub fn info(msg: &str) {
-        Self::print_message("󰍡", "97", msg);
+        Self::print_message("", "97", msg);
     }
 
     pub fn list_title(msg: &str) {
@@ -48,9 +48,9 @@ pub struct Dialog;
 impl Dialog {
     fn get_theme() -> impl Theme {
         ColorfulTheme {
-            prompt_prefix: style("󰍡".to_string()).for_stdout().white(),
-            success_prefix: style("".to_string()).for_stdout().green(),
-            error_prefix: style("".to_string()).for_stderr().red(),
+            prompt_prefix: style("?".to_string()).for_stdout().cyan(),
+            success_prefix: style("󰸞".to_string()).for_stdout().green(),
+            error_prefix: style("".to_string()).for_stderr().red(),
             ..Default::default()
         }
     }
