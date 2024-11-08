@@ -1,16 +1,16 @@
 # Enjo ![Crates.io Version](https://img.shields.io/crates/v/enjo) ![GitHub branch check runs](https://img.shields.io/github/check-runs/kostya-zero/enjo/main)
 
-Enjo is a projects manager that allows you to quickly manage your projects.
+Enjo is a powerful CLI application designed to streamline project management directly from your terminal.
 
 ## Getting Started
 
-If you have installed Rust toolchain, you can install Enjo via `cargo`:
+To install Enjo, ensure you have the Rust toolchain. Then, use `cargo` to install:
 
 ```shell
-# If you want to compile it.
-cargo install enjo --locked
+# Compile and install Enjo.
+cargo install enjo
 
-# If you want to use precompiled binaries and you have cargo-binstall.
+# For precompiled binaries (if you have cargo-binstall installed).
 cargo binstall enjo
 ```
 
@@ -19,54 +19,52 @@ If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
 
 ## Usage
 
-Before using Enjo, you need to configure it based on your workspace. All options are described in [configuration manual](docs/CONFIGURATION.md).
+Before using Enjo, configure it based on your workspace setup. Full configuration options are available in the [Configuration Manual](docs/CONFIGURATION.md).
 
 ### List Projects
 
-Enjo allows you to manage your projects and work with it.
-You can get list of projects by using `list` subcommand.
+Enjo allows easy management of your projects. To view a list of projects, use the `list` subcommand:
 
 ```shell
 enjo list
 ```
 
 > [!NOTE]
-> By default Enjo will not display projects with name starting with dots. Please confgiure `hide_dots` parameter according to [configuration manual](docs/CONFIGURATION.md).
+> By default, Enjo will hide projects that begin with a dot (e.g., .`hidden_project`). You can adjust this setting by configuring the `hide_dots` parameter as outlined in the [Configuration Manual](docs/CONFIGURATION.md).
 
-### Manage projects
+### Managing Projects
 
-You can create and delete your projects through Enjo.
+Creating and deleting projects in Enjo is straightforward:
 
 ```shell
-# Use `new` to create new project.
+# Create a new project.
 enjo new bookshelf
 
-# Use `delete` to delete project.
+# Delete an existing project.
 enjo delete bookshelf
 ```
 
 ### Working with Projects
 
-With Enjo you can open project directory with editor or shell.
-Use `open` subcommand and then specify name of project. If you need to open shell, add `--shell` argument
+Open project directories directly in your editor or shell using the `open` subcommand:
 
 ```shell
-# Open project in editor.
+# Open the project in your editor.
 enjo open bookshelf
 
-# Open project in shell.
+# Open the project in your shell.
 enjo open bookshelf --shell
 ```
 
-### Get Help Quickly
+### Quick Help
 
-If you want to get help about something, use `--help` argument.
+For help with commands, use the `--help` flag:
 
 ```shell
-# Show regular help
+# General help.
 enjo --help
 
-# It's also works with subcommands
+# Help for a specific subcommand.
 enjo config --help
 ```
 
