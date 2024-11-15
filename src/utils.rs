@@ -1,9 +1,11 @@
 use std::process::exit;
 
-use crate::config::Config;
 use crate::library::Library;
+use crate::platform::Platform;
 use crate::program::Program;
 use crate::term::Message;
+use crate::{config::Config, templates::TemplateStorage};
+use anyhow::{anyhow, Error, Result};
 
 pub struct Utils;
 impl Utils {
@@ -42,5 +44,24 @@ impl Utils {
         } else {
             None
         }
+    }
+
+    pub fn check_env() -> Result<(), Error> {
+        if !Platform::check_config_exists() {
+            let default_config: Config = Config::default();
+            match Config::write(default_config) {
+                Ok(_) => {}
+                Err(e) => return Err(anyhow!(e.to_string())),
+            }
+        }
+
+        if !Platform::check_templates_exists() {
+            let templates = TemplateStorage::new();
+            if templates.save().is_err() {
+                return Err(anyhow!("Failed to generate templates storage."));
+            }
+        }
+
+        Ok(())
     }
 }

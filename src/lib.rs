@@ -24,24 +24,9 @@ mod tests;
 
 pub fn main() {
     let args = build_cli().get_matches();
-    if !Platform::check_config_exists() {
-        let default_config: Config = Config::default();
-        match Config::write(default_config) {
-            Ok(_) => Message::info(
-                "Enjo has generated the default configuration. Change it according to your needs.",
-            ),
-            Err(e) => Message::fail(e.to_string().as_str()),
-        }
-    }
 
-    if !Platform::check_templates_exists() {
-        Message::info("Generating template storage...");
-        let templates = TemplateStorage::new();
-        if templates.save().is_ok() {
-            Message::done("Templates storage generated.");
-        } else {
-            Message::error("Failed to generate templates storage.");
-        }
+    if let Err(e) = Utils::check_env() {
+        Message::fail(e.to_string().as_str());
     }
 
     let config: Config = match Config::load() {
@@ -89,7 +74,7 @@ pub fn main() {
                                     running_cmd.stderr(Stdio::inherit());
                                 }
                                 running_cmd.current_dir(cwd.clone());
-                                Message::busy(command);
+                                Message::busy(format!("Running command: {}", command).as_str());
                                 let output = running_cmd.output();
                                 if let Err(e) = output {
                                     Message::fail(&format!("Failed to execute template command {} with error: {}", command, e));
@@ -127,7 +112,9 @@ pub fn main() {
             let projects = Utils::load_projects(&dir_path, display_hidden);
             match projects.clone(clone_options.clone()) {
                 Ok(_) => Message::done("The project has been cloned."),
-                Err(e) => Message::fail(e.to_string().as_str()),
+                Err(e) => {
+                    Message::fail(e.to_string().as_str());
+                }
             }
 
             let repo_name = Utils::get_reposiotry_name_from_url(&clone_options.remote);
