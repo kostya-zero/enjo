@@ -3,7 +3,7 @@ use std::{fs, path::Path, process::exit};
 
 use crate::args::build_cli;
 use crate::config::Config;
-use crate::term::{Dialog, Message};
+use crate::terminal::{Dialog, Message};
 use library::CloneOptions;
 use platform::Platform;
 use templates::TemplateStorage;
@@ -16,7 +16,7 @@ mod library;
 mod platform;
 mod program;
 mod templates;
-mod term;
+mod terminal;
 mod utils;
 
 #[cfg(test)]
@@ -199,7 +199,7 @@ pub fn main() {
                 exit(0)
             }
 
-            Message::list_title("Your projects:");
+            Message::list_title("Projects:");
             for project in projects.get_vec().iter() {
                 Message::item(project.get_name().as_str());
             }

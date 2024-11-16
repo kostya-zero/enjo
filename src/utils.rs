@@ -3,7 +3,7 @@ use std::process::exit;
 use crate::library::Library;
 use crate::platform::Platform;
 use crate::program::Program;
-use crate::term::Message;
+use crate::terminal::Message;
 use crate::{config::Config, templates::TemplateStorage};
 use anyhow::{anyhow, Error, Result};
 
