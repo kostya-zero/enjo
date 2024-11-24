@@ -1,5 +1,5 @@
-pub mod test_library;
-pub mod test_project;
+mod test_library;
+mod test_project;
 mod test_autocomplete;
 
 use super::*;
