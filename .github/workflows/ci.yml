@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - if: true == ${{ matrix.msys }}
+      - if: ${{ matrix.msys }}
         name: Setup MSYS (GNU target)
         uses: msys2/setup-msys2@v2.25.0
       - name: Setup Rust Toolchain
