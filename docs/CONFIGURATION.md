@@ -20,6 +20,7 @@ Enjo will generate configuration based on your environment settings like `EDITOR
 [options]
 path = '/home/user'
 display_hidden = false
+autocomplete = false
 
 [editor]
 program = "nvim"
@@ -45,7 +46,7 @@ Enjo allows to manage configuration through `config` subcommand. This is a list 
 ### `options`
 
 - `path` - Path to directory with your projects. But default it uses path to user's home directory.
-
+- `autocomplete` - Enables autocomplete functionality. Disabled by default.
 - `display_hidden` - This options determines the display of hidden directories. By default, set to `false`.
 
 ### `editor`

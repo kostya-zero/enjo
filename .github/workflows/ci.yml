@@ -14,19 +14,33 @@ jobs:
             target: aarch64-apple-darwin
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
           - os: windows-latest
             target: x86_64-pc-windows-msvc
+          - os: windows-latest
+            target: x86_64-pc-windows-gnu
+            msys: true
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - if: true == ${{ matrix.msys }}
+        name: Setup MSYS (GNU target)
+        uses: msys2/setup-msys2@v2.25.0
       - name: Setup Rust Toolchain
         uses: actions-rs/toolchain@v1.0.6
+        env:
+          RUSTUP_TOOLCHAIN: ${{ matrix.target }}
         with:
           toolchain: stable
           override: true
           components: clippy
+
       - name: Run Clippy
+        env:
+          CARGO_BUILD_TARGET: ${{ matrix.target }}
         run: cargo clippy --no-deps -- -D clippy::all
   test:
     runs-on: ubuntu-latest
