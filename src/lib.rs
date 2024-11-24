@@ -1,11 +1,10 @@
-use std::process::{Command, Stdio};
-use std::{fs, path::Path, process::exit};
-
 use crate::args::build_cli;
 use crate::config::Config;
 use crate::terminal::{Dialog, Message};
 use library::CloneOptions;
 use platform::Platform;
+use std::process::{Command, Stdio};
+use std::{fs, path::Path, process::exit};
 use templates::TemplateStorage;
 use utils::Utils;
 
@@ -29,13 +28,10 @@ pub fn main() {
         Message::fail(e.to_string().as_str());
     }
 
-    let config: Config = match Config::load() {
-        Ok(config) => config,
-        Err(e) => {
-            Message::fail(e.to_string().as_str());
-            exit(1)
-        }
-    };
+    let config: Config = Config::load().unwrap_or_else(|e| {
+        Message::fail(e.to_string().as_str());
+        exit(1)
+    });
 
     let display_hidden = if args.get_flag("hidden") {
         true
@@ -77,7 +73,7 @@ pub fn main() {
                                 Message::busy(format!("Running command: {}", command).as_str());
                                 let output = running_cmd.output();
                                 if let Err(e) = output {
-                                    Message::fail(&format!("Failed to execute template command {} with error: {}", command, e));
+                                    Message::fail(&format!("Failed to execute template command '{}' with error: {}", command, e));
                                 }
                             }
                         } else {
@@ -146,7 +142,13 @@ pub fn main() {
                 exit(1)
             }
 
-            if let Some(project) = projects.get(project_name) {
+            let project_final_name = if config.options.autocomplete {
+                Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default() 
+            } else { 
+                project_name.to_string()
+            };
+
+            if let Some(project) = projects.get(project_final_name.as_str()) {
                 let project_path = project.get_path_str();
                 let proc_args = if is_shell {
                     Vec::new()
@@ -208,9 +210,15 @@ pub fn main() {
             let dir_path = config.options.path;
             let projects = Utils::load_projects(&dir_path, display_hidden);
 
-            let name = match sub.get_one::<String>("name") {
+            let args_name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
                 _ => return Message::fail("You need to provide a name of the project you want to rename."),
+            };
+
+            let name = if config.options.autocomplete {
+                &Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
+            } else {
+                args_name
             };
 
             if !projects.contains(name) {
@@ -247,10 +255,16 @@ pub fn main() {
             let dir_path: String = config.options.path;
 
             let projects = Utils::load_projects(dir_path.as_str(), display_hidden);
-            let name = sub.get_one::<String>("name").unwrap();
-            if name.is_empty() {
+            let args_name = sub.get_one::<String>("name").unwrap();
+            if args_name.is_empty() {
                 Message::fail("You need to provide a name of the project you want to delete.");
             }
+
+            let name = if config.options.autocomplete {
+                &Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
+            } else {
+                args_name
+            };
 
             if !projects.contains(name) {
                 Message::fail("Project not found.");

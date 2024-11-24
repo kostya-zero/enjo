@@ -18,6 +18,7 @@ pub struct Config {
 pub struct Options {
     pub path: String,
     pub display_hidden: bool,
+    pub autocomplete: bool,
 }
 
 #[derive(Deserialize, Serialize, Clone)]

@@ -135,6 +135,10 @@ impl Library {
         self.projects.clone()
     }
 
+    pub fn get_names(&self) -> Vec<String> {
+        self.projects.clone().into_iter().map(|p| p.name).collect()
+    }
+
     pub fn get(&self, name: &str) -> Option<Project> {
         self.projects.clone().into_iter().find(|x| x.name == *name)
     }

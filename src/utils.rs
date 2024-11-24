@@ -3,19 +3,26 @@ use std::process::exit;
 use crate::library::Library;
 use crate::platform::Platform;
 use crate::program::Program;
-use crate::terminal::Message;
+use crate::terminal::{Dialog, Message};
 use crate::{config::Config, templates::TemplateStorage};
 use anyhow::{anyhow, Error, Result};
+
+#[derive(Debug, Eq, PartialEq)]
+pub enum CompletionResult {
+    Found,
+    FoundSimilar(String),
+    Nothing,
+}
 
 pub struct Utils;
 impl Utils {
     pub fn write_config(config: Config) {
-        Config::write(config).unwrap_or_else(|err| Message::fail(&format!("{err}")));
+        Config::write(config).unwrap_or_else(|err| Message::fail(&format!("{}", err)));
     }
 
     pub fn load_projects(path: &str, display_hidden: bool) -> Library {
         Library::new(path, display_hidden).unwrap_or_else(|err| {
-            Message::fail(&format!("{err}"));
+            Message::fail(&format!("{}", err));
             exit(1);
         })
     }
@@ -43,6 +50,62 @@ impl Utils {
             Some(filename)
         } else {
             None
+        }
+    }
+
+    pub fn autocomplete(word: &str, words_list: Vec<String>) -> Option<String> {
+        let suggested = Self::suggest_completion(word, words_list.clone());
+
+        match suggested {
+            CompletionResult::Found => Some(word.to_string()),
+            CompletionResult::FoundSimilar(name) => {
+                let answer = Dialog::ask(format!("Did you mean '{}'?", name).as_str(), true);
+                if answer {
+                    Some(name)
+                } else {
+                    None
+                }
+            }
+            CompletionResult::Nothing => None,
+        }
+    }
+
+    pub fn suggest_completion(word: &str, words_list: Vec<String>) -> CompletionResult {
+        let mut found = false;
+        let mut similar = false;
+        let mut similar_word = String::new();
+
+        // Searching if the same word exists in list.
+        for entry in words_list.iter() {
+            if found {
+                break;
+            }
+
+            if *entry == word {
+                found = true;
+            }
+        }
+
+        if !found {
+            // Searching for similar word.
+            for entry in words_list.iter() {
+                if similar {
+                    break;
+                }
+
+                if entry.starts_with(word) {
+                    similar = true;
+                    similar_word.push_str(entry);
+                }
+            }
+        }
+
+        if found {
+            CompletionResult::Found
+        } else if similar {
+            CompletionResult::FoundSimilar(similar_word)
+        } else {
+            CompletionResult::Nothing
         }
     }
 
