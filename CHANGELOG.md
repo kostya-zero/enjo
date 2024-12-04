@@ -2,7 +2,8 @@
 
 ## Next
 
-TBD
+- **Autocomplete**. Enjo will now complete project names in the `open` and `delete` commands. This option can be configured in the configuration file.
+- Added support for Windsurf editor when generating default configuration.
 
 ## 0.4.0
 

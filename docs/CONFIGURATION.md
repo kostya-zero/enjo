@@ -11,8 +11,8 @@ If you don't have configuration file in your file system, Enjo will generate it 
 
 Enjo will generate configuration based on your environment settings like `EDITOR` and `SHELL` environment variables.
 
-> [!WARNING]
-> If you are using _VS Code_ or _VS Codium_ on Windows, Enjo will set `editor` field to `code.cmd` and `codium.cmd` in configuration, because for some reason Enjo cant find `code` and `codium`. Also, Enjo will add a single dot to `editor_args` to tell _VS Code_, _VS Codium_ and _Zed_ to open this directory.
+> [!NOTE]
+> If you are using _VS Code_, _VS Codium_ or _Windsurf_ on Windows, Enjo will set `editor` field to `code.cmd`, `codium.cmd` and `windsurf.cmd` in configuration, because for some reason Enjo cant find `code` and `codium`. Also, Enjo will add a single dot to `editor_args` to tell _VS Code_, _VS Codium_, _Windsurf_ and _Zed_ to open this directory.
 
 ### Default configuration structure
 
