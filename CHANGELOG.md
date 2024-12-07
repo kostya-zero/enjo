@@ -3,6 +3,7 @@
 ## Next
 
 - **Autocomplete**. Enjo will now complete project names in the `open` and `delete` commands. This option can be configured in the configuration file.
+- You can open your recent project using dash symbol (`-`) in the `open` command. Example: `enjo open -` will open your recent project.
 - Added support for Windsurf editor when generating default configuration.
 
 ## 0.4.0
