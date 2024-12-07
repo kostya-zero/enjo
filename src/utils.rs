@@ -4,7 +4,7 @@ use crate::library::Library;
 use crate::platform::Platform;
 use crate::program::Program;
 use crate::terminal::{Dialog, Message};
-use crate::{config::Config, templates::TemplateStorage};
+use crate::{config::Config, storage::Storage};
 use anyhow::{anyhow, Error, Result};
 
 #[derive(Debug, Eq, PartialEq)]
@@ -119,9 +119,9 @@ impl Utils {
         }
 
         if !Platform::check_templates_exists() {
-            let templates = TemplateStorage::new();
-            if templates.save().is_err() {
-                return Err(anyhow!("Failed to generate templates storage."));
+            let templates = Storage::new();
+            if templates.save_storage().is_err() {
+                return Err(anyhow!("Failed to generate storage file."));
             }
         }
 

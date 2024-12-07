@@ -5,7 +5,7 @@ use library::CloneOptions;
 use platform::Platform;
 use std::process::{Command, Stdio};
 use std::{fs, path::Path, process::exit};
-use templates::TemplateStorage;
+use storage::Storage;
 use utils::Utils;
 
 mod args;
@@ -14,7 +14,7 @@ mod errors;
 mod library;
 mod platform;
 mod program;
-mod templates;
+mod storage;
 mod terminal;
 mod utils;
 
@@ -29,6 +29,11 @@ pub fn main() {
     }
 
     let config: Config = Config::load().unwrap_or_else(|e| {
+        Message::fail(e.to_string().as_str());
+        exit(1)
+    });
+
+    let mut storage: Storage = Storage::load_storage().unwrap_or_else(|e| {
         Message::fail(e.to_string().as_str());
         exit(1)
     });
@@ -52,8 +57,8 @@ pub fn main() {
 
                 if let Some(template) = sub.get_one::<String>("template") {
                     if !template.is_empty() {
-                        let templates = TemplateStorage::load().unwrap();
-                        if let Ok(template) = templates.get(template) {
+                        let templates = Storage::load_storage().unwrap();
+                        if let Ok(template) = templates.get_template(template) {
                             let quite = sub.get_flag("quite");
                             Message::info("Generating project...");
                             let program = match Platform::get_platform() {
@@ -142,13 +147,22 @@ pub fn main() {
                 exit(1)
             }
 
-            let project_final_name = if config.options.autocomplete {
-                Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default() 
-            } else { 
+            let project_final_name =  if project_name == "-" {
+                if storage.is_recent_empty() {
+                    Message::fail("You have not opened any project yet.");
+                    exit(1)
+                } else {
+                    storage.get_recent_project().unwrap()
+                }
+            } else if config.options.autocomplete {
+                Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default()
+            } else {
                 project_name.to_string()
             };
 
             if let Some(project) = projects.get(project_final_name.as_str()) {
+                storage.set_recent_project(&project_final_name);
+                storage.save_storage().unwrap();
                 let project_path = project.get_path_str();
                 let proc_args = if is_shell {
                     Vec::new()
@@ -284,10 +298,6 @@ pub fn main() {
             }
         }
         Some(("templates", sub)) => {
-            let mut templates = match TemplateStorage::load() {
-                Ok(templates) => templates,
-                Err(_) => return Message::fail("Failed to load templates."),
-            };
             match sub.subcommand() {
                 Some(("new", _sub)) => {
                     let name = Dialog::ask_string("How do you want to name this template?");
@@ -310,26 +320,26 @@ pub fn main() {
                     }
 
                     Message::busy("Creating template...");
-                    templates.add(&name, commands).unwrap();
-                    if templates.save().is_ok() {
+                    storage.add_template(&name, commands).unwrap();
+                    if storage.save_storage().is_ok() {
                         Message::done("Template created.");
                     } else {
                         Message::fail("Failed to save templates.");
                     }
                 }
                 Some(("list", _sub)) => {
-                    if templates.is_empty() {
+                    if storage.is_templates_empty() {
                         Message::info("No templates found.");
                         exit(0)
                     }
 
                     Message::list_title("Templates:");
-                    for template in templates.get_templates_names().iter() {
+                    for template in storage.get_templates_names().iter() {
                         Message::item(template);
                     }
                 }
                 Some(("info", sub)) => {
-                    if let Ok(template) = templates.get(sub.get_one::<String>("name").unwrap()) {
+                    if let Ok(template) = storage.get_template(sub.get_one::<String>("name").unwrap()) {
                         Message::list_title("Commands of this template:");
                         for command in template.iter() {
                             Message::item(command);
@@ -339,9 +349,9 @@ pub fn main() {
                     }
                 }
                 Some(("remove", sub)) => {
-                    match templates.remove(sub.get_one::<String>("name").unwrap()) {
+                    match storage.remove_template(sub.get_one::<String>("name").unwrap()) {
                         Ok(_) => {
-                            if templates.save().is_ok() {
+                            if storage.save_storage().is_ok() {
                             Message::done("Template removed.");
 
                             } else {

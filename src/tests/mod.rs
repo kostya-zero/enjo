@@ -1,6 +1,6 @@
+mod test_autocomplete;
 mod test_library;
 mod test_project;
-mod test_autocomplete;
 
 use super::*;
 use tempfile::TempDir;

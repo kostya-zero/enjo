@@ -46,7 +46,7 @@ pub enum ProgramError {
 }
 
 #[derive(Debug, Error)]
-pub enum TemplateStorageError {
+pub enum StorageError {
     #[error("Template with the same name already exists.")]
     AlreadyExists,
 
