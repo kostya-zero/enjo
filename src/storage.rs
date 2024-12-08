@@ -19,7 +19,7 @@ impl Storage {
     }
 
     pub fn load_storage() -> Result<Self, StorageError> {
-        if let Ok(content) = fs::read_to_string(Platform::get_templates_path()) {
+        if let Ok(content) = fs::read_to_string(Platform::get_storage_path()) {
             let templates: Storage = bincode::deserialize(content.as_bytes()).unwrap();
             Ok(templates)
         } else {
@@ -29,7 +29,7 @@ impl Storage {
 
     pub fn save_storage(&self) -> Result<(), StorageError> {
         let content = bincode::serialize(&self).unwrap();
-        fs::write(Platform::get_templates_path(), content)
+        fs::write(Platform::get_storage_path(), content)
             .map_err(|_| StorageError::FileSystemError)
     }
 

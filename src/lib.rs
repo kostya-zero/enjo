@@ -2,7 +2,7 @@ use crate::args::build_cli;
 use crate::config::Config;
 use crate::terminal::{Dialog, Message};
 use library::CloneOptions;
-use platform::Platform;
+use platform::{Platform, PlatformName};
 use std::process::{Command, Stdio};
 use std::{fs, path::Path, process::exit};
 use storage::Storage;
@@ -56,34 +56,33 @@ pub fn main() {
                 }
 
                 if let Some(template) = sub.get_one::<String>("template") {
-                    if !template.is_empty() {
-                        let templates = Storage::load_storage().unwrap();
-                        if let Ok(template) = templates.get_template(template) {
-                            let quite = sub.get_flag("quite");
-                            Message::info("Generating project...");
-                            let program = match Platform::get_platform() {
-                                platform::PlatformName::Windows => "powershell.exe",
-                                _ => "sh",
-                            };
-                            let cwd = Path::new(dir_path.as_str()).join(name);
-                            for command in template.iter() {
-                                let mut running_cmd = Command::new(program);
-                                running_cmd.args(["-c", command]);
-                                if !quite {
-                                    running_cmd.stdin(Stdio::inherit());
-                                    running_cmd.stdout(Stdio::inherit());
-                                    running_cmd.stderr(Stdio::inherit());
-                                }
-                                running_cmd.current_dir(cwd.clone());
-                                Message::busy(format!("Running command: {}", command).as_str());
-                                let output = running_cmd.output();
-                                if let Err(e) = output {
-                                    Message::fail(&format!("Failed to execute template command '{}' with error: {}", command, e));
-                                }
+                    let templates = Storage::load_storage().unwrap();
+                    if let Ok(template) = templates.get_template(template) {
+                        let quite = sub.get_flag("quite");
+                        Message::info("Generating project...");
+                        let program = match Platform::get_platform() {
+                            PlatformName::Windows => "powershell.exe",
+                            _ => "sh",
+                        };
+                        let cwd = Path::new(dir_path.as_str()).join(name);
+                        let count_commands = template.len();
+                        for command in template.iter() {
+                            let mut running_cmd = Command::new(program);
+                            running_cmd.args(["-c", command]);
+                            if !quite {
+                                running_cmd.stdin(Stdio::inherit());
+                                running_cmd.stdout(Stdio::inherit());
+                                running_cmd.stderr(Stdio::inherit());
                             }
-                        } else {
-                            Message::fail("Template not found.");
+                            running_cmd.current_dir(cwd.clone());
+                            Message::busy(format!("Running commands [{}/{}]", template.iter().position(|x| x == command).unwrap() + 1, count_commands).as_str());
+                            let output = running_cmd.output();
+                            if let Err(e) = output {
+                                Message::fail(&format!("Failed to execute template command '{}' with error: {}", command, e));
+                            }
                         }
+                    } else {
+                        Message::fail("Template not found.");
                     }
                 }
 
@@ -121,7 +120,7 @@ pub fn main() {
             let repo_name = Utils::get_reposiotry_name_from_url(&clone_options.remote);
             if let Some(repo) = repo_name {
                 if repo.to_string().starts_with('.') {
-                    Message::info("The name of your project have a dot at the start. If you have enabled hidden projects, it will be ignored.");
+                    Message::info("Your project name begins with a dot. It will not be listed unless hidden projects are enabled.");
                 }
             }
         }

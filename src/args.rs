@@ -57,7 +57,7 @@ pub fn build_cli() -> Command {
                         .required(false)
                         .num_args(1),
                 ]),
-            Command::new("open").about("Open project in editor.").args([
+            Command::new("open").about("Open project in editor or shell.").args([
                 Arg::new("name")
                     .help("Name of the project to open.")
                     .value_parser(value_parser!(String))
@@ -70,7 +70,7 @@ pub fn build_cli() -> Command {
                     .long("shell")
                     .action(ArgAction::SetTrue),
             ]),
-            Command::new("list").about("List projects."),
+            Command::new("list").about("List available projects."),
             Command::new("rename").about("Rename project.").args([
                 Arg::new("name")
                     .help("Name of the project to rename")
@@ -124,7 +124,7 @@ pub fn build_cli() -> Command {
                     ),
                 ]),
             Command::new("config")
-                .about("Manage your config file.")
+                .about("Manage your configuration.")
                 .arg_required_else_help(true)
                 .subcommands([
                     Command::new("edit").about("Edit configuration file."),
