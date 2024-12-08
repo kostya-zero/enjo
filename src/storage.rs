@@ -29,8 +29,7 @@ impl Storage {
 
     pub fn save_storage(&self) -> Result<(), StorageError> {
         let content = bincode::serialize(&self).unwrap();
-        fs::write(Platform::get_storage_path(), content)
-            .map_err(|_| StorageError::FileSystemError)
+        fs::write(Platform::get_storage_path(), content).map_err(|_| StorageError::FileSystemError)
     }
 
     pub fn add_template(&mut self, name: &str, commands: Vec<String>) -> Result<(), StorageError> {

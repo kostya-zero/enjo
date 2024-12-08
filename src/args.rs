@@ -57,19 +57,21 @@ pub fn build_cli() -> Command {
                         .required(false)
                         .num_args(1),
                 ]),
-            Command::new("open").about("Open project in editor or shell.").args([
-                Arg::new("name")
-                    .help("Name of the project to open.")
-                    .value_parser(value_parser!(String))
-                    .required(false)
-                    .hide_default_value(true)
-                    .default_value("")
-                    .num_args(1),
-                Arg::new("shell")
-                    .help("Open shell instead of editor.")
-                    .long("shell")
-                    .action(ArgAction::SetTrue),
-            ]),
+            Command::new("open")
+                .about("Open project in editor or shell.")
+                .args([
+                    Arg::new("name")
+                        .help("Name of the project to open.")
+                        .value_parser(value_parser!(String))
+                        .required(false)
+                        .hide_default_value(true)
+                        .default_value("")
+                        .num_args(1),
+                    Arg::new("shell")
+                        .help("Open shell instead of editor.")
+                        .long("shell")
+                        .action(ArgAction::SetTrue),
+                ]),
             Command::new("list").about("List available projects."),
             Command::new("rename").about("Rename project.").args([
                 Arg::new("name")

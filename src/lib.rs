@@ -291,7 +291,6 @@ pub fn main() {
             }
 
             let path = Path::new(&dir_path).join(name.clone());
-            // Message::info(format!("Removing {}...", name).as_str());
             let spinner = ProgressBar::new_spinner();
             spinner.set_style(ProgressStyle::default_spinner().template("{spinner} {msg}").unwrap());
             spinner.set_message(format!("Removing {}...", name));
