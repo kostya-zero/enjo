@@ -60,6 +60,7 @@ impl Dialog {
             .with_prompt(question)
             .default(default)
             .show_default(true)
+            .report(false)
             .interact()
             .unwrap()
     }
@@ -68,6 +69,7 @@ impl Dialog {
         Input::<String>::with_theme(&Self::get_theme())
             .with_prompt(question)
             .default(String::new())
+            .report(false)
             .interact_text()
             .unwrap()
     }

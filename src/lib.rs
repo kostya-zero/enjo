@@ -1,6 +1,7 @@
 use crate::args::build_cli;
 use crate::config::Config;
 use crate::terminal::{Dialog, Message};
+use indicatif::{ProgressBar, ProgressStyle};
 use library::CloneOptions;
 use platform::{Platform, PlatformName};
 use std::process::{Command, Stdio};
@@ -289,11 +290,20 @@ pub fn main() {
                 exit(0);
             }
 
-            let path = Path::new(&dir_path).join(name);
-            Message::info(format!("Removing {}...", name).as_str());
+            let path = Path::new(&dir_path).join(name.clone());
+            // Message::info(format!("Removing {}...", name).as_str());
+            let spinner = ProgressBar::new_spinner();
+            spinner.set_style(ProgressStyle::default_spinner().template("{spinner} {msg}").unwrap());
+            spinner.set_message(format!("Removing {}...", name));
             match fs::remove_dir_all(path.to_str().unwrap()) {
-                Ok(_) => Message::done("The project has been deleted."),
-                Err(_) => Message::fail("Failed to remove project directory because of the file system error."),
+                Ok(_) => {
+                    spinner.finish_and_clear();
+                    Message::done("The project has been deleted.");
+                },
+                Err(_) => {
+                    spinner.finish_and_clear();
+                    Message::fail("Failed to remove project directory because of the file system error.");
+                },
             }
         }
         Some(("templates", sub)) => {
