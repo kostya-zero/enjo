@@ -298,7 +298,7 @@ pub fn main() {
                 Ok(_) => {
                     Message::done("The project has been deleted.");
                 },
-                Err(e) => {
+                Err(_) => {
                     Message::fail("Failed to remove project directory because of the file system error.");
                 },
             }
