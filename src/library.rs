@@ -127,6 +127,13 @@ impl Library {
         }
     }
 
+    pub fn delete(&self, name: &str) -> Result<(), LibraryError> {
+        match fs::remove_dir_all(self.path.join(name)) {
+            Ok(_) => Ok(()),
+            Err(_) => Err(LibraryError::FileSystemError),
+        }
+    }
+
     pub fn contains(&self, name: &str) -> bool {
         self.projects.iter().any(|x| x.name == *name)
     }

@@ -82,7 +82,12 @@ pub fn main() {
                             }
                         }
                     } else {
-                        Message::fail("Template not found.");
+                        Message::error("Template not found.");
+                        match projects.delete(name) {
+                            Ok(_) => {},
+                            Err(e) => Message::fail(e.to_string().as_str()),
+                        };
+                        exit(1);
                     }
                 }
 
@@ -288,14 +293,12 @@ pub fn main() {
                 Message::info("Aborting.");
                 exit(0);
             }
-
-            let path = Path::new(&dir_path).join(name.clone());
             Message::busy("Deleting project...");
-            match fs::remove_dir_all(path.to_str().unwrap()) {
+            match projects.delete(name) {
                 Ok(_) => {
                     Message::done("The project has been deleted.");
                 },
-                Err(_) => {
+                Err(e) => {
                     Message::fail("Failed to remove project directory because of the file system error.");
                 },
             }
