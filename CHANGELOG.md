@@ -2,6 +2,12 @@
 
 ## Next
 
+- Remove spinner animation when removing project.
+- Project directory will be removed if template is not found.
+- Performance improvements.
+
+## 0.5.0
+
 - **Autocomplete**. Enjo will now complete project names in the `open` and `delete` commands. This option can be configured in the configuration file.
 - The templates file have been moved to a storage file. You need to add all of your templates again.
 - You can open your recent project using dash symbol (`-`) in the `open` command. Example: `enjo open -` will open your recent project.
