@@ -59,7 +59,7 @@ pub fn main() {
                     let templates = Storage::load_storage().unwrap();
                     if let Ok(template) = templates.get_template(template) {
                         let quite = sub.get_flag("quite");
-                        Message::info("Generating project...");
+                        Message::info("Generating project from template...");
                         let program = match Platform::get_platform() {
                             PlatformName::Windows => "powershell.exe",
                             _ => "sh",
@@ -77,8 +77,21 @@ pub fn main() {
                             running_cmd.current_dir(cwd.clone());
                             Message::busy(format!("Running commands [{}/{}]", template.iter().position(|x| x == command).unwrap() + 1, count_commands).as_str());
                             let output = running_cmd.output();
-                            if let Err(e) = output {
-                                Message::fail(&format!("Failed to execute template command '{}' with error: {}", command, e));
+
+                            let output_data = match output {
+                                Ok(o) => o,
+                                Err(e) => {
+                                    Message::fail(&format!("Failed to execute template command '{}' with error: {}", command, e));
+                                    continue;
+                                }
+                            };
+
+                            if !output_data.status.success() {
+                                Message::error(&format!("Template command '{}' failed with exit code: '{}'.", command, output_data.status));
+                                match projects.delete(name) {
+                                    Ok(_) => {},
+                                    Err(_) => Message::fail("Failed to clean up template's leftovers."),
+                                };
                             }
                         }
                     } else {
