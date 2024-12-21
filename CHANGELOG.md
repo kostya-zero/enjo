@@ -2,8 +2,13 @@
 
 ## Next
 
+TBD
+
+## 0.5.1
+
 - Remove spinner animation when removing project.
 - Project directory will be removed if template is not found.
+- Enjo will return an error if template command exited with non-zero code.
 - Performance improvements.
 
 ## 0.5.0
