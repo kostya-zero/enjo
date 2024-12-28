@@ -59,14 +59,6 @@ pub fn main() {
                     let templates = Storage::load_storage().unwrap();
                     if let Ok(template) = templates.get_template(template) {
                         let count_commands = template.len();
-                        if count_commands == 0 {
-                            Message::error("Template is empty.");
-                            match projects.delete(name) {
-                                Ok(_) => {},
-                                Err(e) => Message::fail(e.to_string().as_str()),
-                            };
-                            exit(1);
-                        }
                         let quite = sub.get_flag("quite");
                         Message::info("Generating project from template...");
                         let program = match Platform::get_platform() {

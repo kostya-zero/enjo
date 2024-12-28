@@ -4,6 +4,11 @@
 
 TBD
 
+## 0.5.2
+
+- Fixed bug when trying to create a new project without specified template Enjo was showing an `Template not found` message.
+- Some changes in output icons.
+
 ## 0.5.1
 
 - Remove spinner animation when removing project.
