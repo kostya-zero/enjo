@@ -4,7 +4,7 @@ Enjo is a powerful CLI application designed to streamline project management dir
 
 ## Requirements
 
-- **OS**: Windows, Linux, macOS __(only x86_64 available in precompiled binaries)__
+- **OS**: Windows, Linux, macOS (compaitability with *BSD systems is not guaranteed).
 - **Nerd Font** (for icons)
 
 ## Installation
@@ -20,6 +20,7 @@ cargo install enjo
 # For precompiled binaries (if you have cargo-binstall installed).
 cargo binstall enjo
 ```
+
 If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
 
 ## Getting Started
