@@ -25,6 +25,10 @@ impl Message {
         Self::print_message("󰦖", "97", msg);
     }
 
+    pub fn running(msg: &str) {
+        Self::print_message("", "97", msg);
+    }
+
     pub fn info(msg: &str) {
         Self::print_message("", "97", msg);
     }

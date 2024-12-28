@@ -25,9 +25,6 @@ pub fn build_cli() -> Command {
                     .value_parser(value_parser!(String))
                     .short('t')
                     .long("template")
-                    .required(false)
-                    .hide_default_value(true)
-                    .default_value("")
                     .num_args(1),
                 Arg::new("quite")
                     .help("Do not show the output of the running commands.")

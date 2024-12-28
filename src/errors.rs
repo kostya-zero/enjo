@@ -29,12 +29,6 @@ pub enum LibraryError {
     #[error("File system error occured.")]
     FileSystemError,
 
-    #[error("Project not found.")]
-    ProjectNotFound,
-
-    #[error("Project is not empty.")]
-    ProjectIsNotEmpty,
-
     #[error("Failed to clone repository.")]
     CloneFailed(ProgramError),
 }

@@ -58,6 +58,15 @@ pub fn main() {
                 if let Some(template) = sub.get_one::<String>("template") {
                     let templates = Storage::load_storage().unwrap();
                     if let Ok(template) = templates.get_template(template) {
+                        let count_commands = template.len();
+                        if count_commands == 0 {
+                            Message::error("Template is empty.");
+                            match projects.delete(name) {
+                                Ok(_) => {},
+                                Err(e) => Message::fail(e.to_string().as_str()),
+                            };
+                            exit(1);
+                        }
                         let quite = sub.get_flag("quite");
                         Message::info("Generating project from template...");
                         let program = match Platform::get_platform() {
@@ -65,7 +74,6 @@ pub fn main() {
                             _ => "sh",
                         };
                         let cwd = Path::new(dir_path.as_str()).join(name);
-                        let count_commands = template.len();
                         for command in template.iter() {
                             let mut running_cmd = Command::new(program);
                             running_cmd.args(["-c", command]);
@@ -75,7 +83,7 @@ pub fn main() {
                                 running_cmd.stderr(Stdio::inherit());
                             }
                             running_cmd.current_dir(cwd.clone());
-                            Message::busy(format!("Running commands [{}/{}]", template.iter().position(|x| x == command).unwrap() + 1, count_commands).as_str());
+                            Message::running(format!("Running commands [{}/{}]", template.iter().position(|x| x == command).unwrap() + 1, count_commands).as_str());
                             let output = running_cmd.output();
 
                             let output_data = match output {
