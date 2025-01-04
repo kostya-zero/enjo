@@ -13,12 +13,22 @@ pub struct Config {
     pub shell: ShellOptions,
 }
 
-#[derive(Deserialize, Serialize, Default, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(default)]
 pub struct Options {
     pub path: String,
     pub display_hidden: bool,
     pub autocomplete: bool,
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Self {
+            path: Platform::get_user_home().to_str().unwrap().to_string(),
+            display_hidden: false,
+            autocomplete: true,
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Clone)]
