@@ -2,6 +2,8 @@ mod test_autocomplete;
 mod test_library;
 mod test_project;
 
+use std::path::Path;
+
 use super::*;
 use tempfile::TempDir;
 
