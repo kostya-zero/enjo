@@ -46,7 +46,7 @@ pub fn run() -> Result<()> {
                                 running_cmd.stdout(Stdio::inherit());
                                 running_cmd.stderr(Stdio::inherit());
                             }
-                            running_cmd.current_dir(cwd.clone());
+                            running_cmd.current_dir(&cwd);
                             Message::running(format!("Running commands [{}/{}]", template.iter().position(|x| x == command).unwrap() + 1, count_commands).as_str());
                             let output = running_cmd.output();
 
@@ -156,6 +156,7 @@ pub fn run() -> Result<()> {
                 } else {
                     "Launching editor..."
                 };
+
                 Message::busy(action);
 
                 let fork_mode = if is_shell {
@@ -192,7 +193,7 @@ pub fn run() -> Result<()> {
                 exit(0)
             }
 
-            Message::list_title("Projects:");
+            Message::list_title("Available projects:");
             for project in projects.get_vec().iter() {
                 Message::item(project.get_name().as_str());
             }

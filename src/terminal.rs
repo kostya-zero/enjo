@@ -1,5 +1,3 @@
-use std::process::exit;
-
 use dialoguer::{
     console::style,
     theme::{ColorfulTheme, Theme},
@@ -39,11 +37,6 @@ impl Message {
 
     pub fn item(msg: &str) {
         println!(" {}", msg);
-    }
-
-    pub fn fail(msg: &str) {
-        Self::error(msg);
-        exit(1);
     }
 }
 
