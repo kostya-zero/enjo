@@ -1,6 +1,6 @@
 # Enjo ![Crates.io Version](https://img.shields.io/crates/v/enjo) ![GitHub branch check runs](https://img.shields.io/github/check-runs/kostya-zero/enjo/main)
 
-Enjo is a powerful CLI application designed to streamline project management directly from your terminal.
+Enjo is a command-line tool for managing your projects. It provides a simple and user-friendly interface for creating, opening, and deleting projects.
 
 ## Requirements
 
@@ -9,9 +9,7 @@ Enjo is a powerful CLI application designed to streamline project management dir
 
 ## Installation
 
-Download the latest version of Enjo from [Releases](https://github.com/kostya-zero/enjo/releases).
-
-If you wish to install Enjo via `cargo`, ensure you have the Rust toolchain. Then, use `cargo` to install:
+We recommend to use [Cargo](https://doc.rust-lang.org/cargo/) to install Enjo. You can install Enjo using the following commands:
 
 ```shell
 # Compile and install Enjo.
@@ -21,9 +19,9 @@ cargo install enjo
 cargo binstall enjo
 ```
 
-If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
+Also you can install Enjo from [GitHub Releases](https://github.com/kostya-zero/enjo/releases). If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
 
-## Getting Started
+## Usage
 
 Before using Enjo, configure it based on your workspace setup. Full configuration options are available in the [Configuration Manual](docs/CONFIGURATION.md).
 
