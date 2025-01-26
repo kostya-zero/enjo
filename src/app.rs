@@ -1,6 +1,6 @@
 use crate::args::build_cli;
 use crate::config::Config;
-use crate::library::CloneOptions;
+use crate::library::{CloneOptions, Library};
 use crate::platform::{Platform, PlatformName};
 use crate::storage::Storage;
 use crate::terminal::{Dialog, Message};
@@ -19,12 +19,12 @@ pub fn run() -> Result<()> {
 
     match args.subcommand() {
         Some(("new", sub)) => {
-            let projects = Utils::load_projects(&config.options.path, config.options.display_hidden);
+            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
 
             if let Some(name) = sub.get_one::<String>("name") {
                 match projects.create(name) {
                     Ok(_) => {},
-                    Err(e) => Message::fail(e.to_string().as_str()),
+                    Err(e) => return Err(anyhow!(e.to_string())),
                 }
 
                 if let Some(template) = sub.get_one::<String>("template") {
@@ -95,7 +95,7 @@ pub fn run() -> Result<()> {
                 clone_options.name = Some(String::from(name));
             }
 
-            let projects = Utils::load_projects(&config.options.path, config.options.display_hidden);
+            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             match projects.clone(clone_options.clone()) {
                 Ok(_) => Message::done("The project has been cloned."),
                 Err(e) => {
@@ -111,23 +111,8 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("open", sub)) => {
-            let projects = Utils::load_projects(&config.options.path, config.options.display_hidden);
+            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             let project_name: &str = sub.get_one::<String>("name").unwrap();
-
-            if project_name.is_empty() {
-                return Err(anyhow!("Project name is not provided."));
-            }
-
-            let is_shell = sub.get_flag("shell");
-
-            let program = match is_shell {
-                true => config.shell.program,
-                false => config.editor.program,
-            };
-
-            if program.is_empty() {
-                return Err(anyhow!("Required program is not specified in configuration file."));
-            }
 
             let project_final_name =  if project_name == "-" {
                 if storage.is_recent_empty() {
@@ -141,7 +126,16 @@ pub fn run() -> Result<()> {
                 project_name.to_string()
             };
 
-            if let Some(project) = projects.get(project_final_name.as_str()) {
+            if let Ok(project) = projects.get(project_final_name.as_str()) {
+                let is_shell = sub.get_flag("shell");
+                let program = match is_shell {
+                    true => config.shell.program,
+                    false => config.editor.program,
+                };
+
+                if program.is_empty() {
+                    return Err(anyhow!("Required program is not specified in configuration file."));
+                }
                 storage.set_recent_project(&project_final_name);
                 storage.save_storage().unwrap();
                 let project_path = project.get_path_str();
@@ -165,19 +159,24 @@ pub fn run() -> Result<()> {
                     config.editor.fork_mode
                 };
 
-                Utils::launch_program(&program, proc_args, &project_path, fork_mode);
+                match Utils::launch_program(&program, proc_args, project_path, fork_mode) {
+                    Ok(_) => {
+                        if fork_mode {
+                            Message::done("Editor launched.");
+                            exit(0);
+                        }
 
-                if fork_mode {
-                    Message::done("Editor launched.");
-                    exit(0);
+                        let end_message = if is_shell {
+                            "End of shell session."
+                        } else {
+                            "Editor has been closed."
+                        };
+
+                        Message::info(end_message);
+                        exit(0);
+                    },
+                    Err(e) => return Err(e),
                 }
-
-                let end_message = if is_shell {
-                    "End of shell session."
-                } else {
-                    "Editor has been closed."
-                };
-                Message::info(end_message);
             } else {
                 return Err(anyhow!("Project not found."));
             }
@@ -187,19 +186,19 @@ pub fn run() -> Result<()> {
                 return Err(anyhow!("A directory with projects does not exist on the file system."));
             }
 
-            let projects = Utils::load_projects(&config.options.path, config.options.display_hidden);
+            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             if projects.is_empty() {
                 Message::info("No projects found.");
                 exit(0)
             }
 
-            Message::list_title("Available projects:");
+            Message::list_title("Your projects:");
             for project in projects.get_vec().iter() {
-                Message::item(project.get_name().as_str());
+                Message::item(project.get_name());
             }
         }
         Some(("rename", sub)) => {
-            let projects = Utils::load_projects(&config.options.path, config.options.display_hidden);
+            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
 
             let args_name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
@@ -243,7 +242,7 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("delete", sub)) => {
-            let projects = Utils::load_projects(&config.options.path, config.options.display_hidden);
+            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             let args_name = sub.get_one::<String>("name").unwrap();
             if args_name.is_empty() {
                 return Err(anyhow!("You need to provide a name of the project you want to delete."));
@@ -354,12 +353,12 @@ pub fn run() -> Result<()> {
                     let path = Platform::get_config_path();
                     let mut editor_args = config.editor.args;
                     editor_args.push(path.to_str().unwrap().to_string());
-                    Utils::launch_program(editor.as_str(), editor_args, "", false);
+                    Utils::launch_program(editor.as_str(), editor_args, "", false)?
                 }
                 Some(("reset", _sub)) => {
                     if Dialog::ask("Do you really want to reset your current configuration?", false) {
                         let new_config: Config = Config::default();
-                        Utils::write_config(new_config);
+                        Config::write(new_config)?;
                         Message::done("The configuration has been reset.");
                     } else {
                         Message::info("Aborted.");

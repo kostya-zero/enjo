@@ -3,6 +3,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use anyhow::Result;
+
 use crate::{errors::LibraryError, program::Program};
 
 #[derive(Debug, Clone, Default)]
@@ -26,13 +28,12 @@ impl Project {
         }
     }
 
-    pub fn get_name(&self) -> String {
-        self.name.clone()
+    pub fn get_name(&self) -> &str {
+        &self.name
     }
 
-    pub fn get_path_str(&self) -> String {
-        let path_str = self.path.to_str().unwrap();
-        String::from(path_str)
+    pub fn get_path_str(&self) -> &str {
+        self.path.to_str().unwrap()
     }
 
     pub fn is_empty(&self) -> bool {
@@ -97,7 +98,7 @@ impl Library {
 
     pub fn clone(&self, options: CloneOptions) -> Result<(), LibraryError> {
         let mut program = Program::new("git");
-        let mut args: Vec<String> = vec!["clone".to_string(), options.remote.clone()];
+        let mut args = vec!["clone".to_string(), options.remote.clone()];
 
         if let Some(name) = options.name.clone() {
             args.push(name);
@@ -117,6 +118,10 @@ impl Library {
     }
 
     pub fn create(&self, name: &str) -> Result<(), LibraryError> {
+        if name.is_empty() {
+            return Err(LibraryError::EmptyArgument);
+        }
+
         if self.path.join(name).exists() {
             return Err(LibraryError::AlreadyExists);
         }
@@ -138,16 +143,19 @@ impl Library {
         self.projects.iter().any(|x| x.name == *name)
     }
 
-    pub fn get_vec(&self) -> Vec<Project> {
-        self.projects.clone()
+    pub fn get_vec(&self) -> &[Project] {
+        &self.projects
     }
 
-    pub fn get_names(&self) -> Vec<String> {
-        self.projects.clone().into_iter().map(|p| p.name).collect()
+    pub fn get_names(&self) -> Vec<&str> {
+        self.projects.iter().map(|p| p.get_name()).collect()
     }
 
-    pub fn get(&self, name: &str) -> Option<Project> {
-        self.projects.clone().into_iter().find(|x| x.name == *name)
+    pub fn get(&self, name: &str) -> Result<&Project, LibraryError> {
+        if name.is_empty() {
+            return Err(LibraryError::EmptyArgument);
+        }
+        self.projects.iter().find(|x| x.name == name).ok_or(LibraryError::ProjectNotFound)
     }
 
     pub fn is_empty(&self) -> bool {

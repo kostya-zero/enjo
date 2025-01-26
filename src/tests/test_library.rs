@@ -54,8 +54,8 @@ fn test_library_get() {
     fs::create_dir(context.path().join("test_project")).unwrap();
 
     let library = Library::new(context.path_str(), false).unwrap();
-    assert!(library.get("test_project").is_some());
-    assert!(library.get("non_existent_project").is_none());
+    assert!(library.get("test_project").is_ok());
+    assert!(library.get("non_existent_project").is_ok());
 }
 
 #[test]

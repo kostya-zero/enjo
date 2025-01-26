@@ -5,6 +5,7 @@ pub fn build_cli() -> Command {
         .name("enjo")
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .version(env!("CARGO_PKG_VERSION"))
+        .subcommand_required(true)
         .arg_required_else_help(true)
         .arg(
             Arg::new("hidden")
@@ -61,12 +62,11 @@ pub fn build_cli() -> Command {
                         .help("Name of the project to open.")
                         .value_parser(value_parser!(String))
                         .required(false)
-                        .hide_default_value(true)
-                        .default_value("")
                         .num_args(1),
                     Arg::new("shell")
                         .help("Open shell instead of editor.")
                         .long("shell")
+                        .short('s')
                         .action(ArgAction::SetTrue),
                 ]),
             Command::new("list").about("List available projects."),
@@ -74,15 +74,11 @@ pub fn build_cli() -> Command {
                 Arg::new("name")
                     .help("Name of the project to rename")
                     .value_parser(value_parser!(String))
-                    .default_value("")
-                    .hide_default_value(true)
                     .required(false)
                     .num_args(1),
                 Arg::new("newname")
                     .help("New name.")
                     .value_parser(value_parser!(String))
-                    .default_value("")
-                    .hide_default_value(true)
                     .required(false)
                     .num_args(1),
             ]),
@@ -90,8 +86,6 @@ pub fn build_cli() -> Command {
                 Arg::new("name")
                     .help("Name of the project to delete.")
                     .value_parser(value_parser!(String))
-                    .default_value("")
-                    .hide_default_value(true)
                     .required(false)
                     .num_args(1),
             ),
@@ -107,8 +101,6 @@ pub fn build_cli() -> Command {
                             Arg::new("name")
                                 .help("Name of the template.")
                                 .value_parser(value_parser!(String))
-                                .default_value("")
-                                .hide_default_value(true)
                                 .required(false)
                                 .num_args(1),
                         ),
@@ -116,8 +108,6 @@ pub fn build_cli() -> Command {
                         Arg::new("name")
                             .help("Name of the template to remove.")
                             .value_parser(value_parser!(String))
-                            .default_value("")
-                            .hide_default_value(true)
                             .required(false)
                             .num_args(1),
                     ),

@@ -1,3 +1,4 @@
+pub mod app;
 mod args;
 mod config;
 mod errors;
@@ -7,8 +8,6 @@ mod program;
 mod storage;
 pub mod terminal;
 mod utils;
-pub mod app;
 
 #[cfg(test)]
 mod tests;
-

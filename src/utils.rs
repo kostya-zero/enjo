@@ -1,9 +1,6 @@
-use std::process::exit;
-
-use crate::library::Library;
 use crate::platform::Platform;
 use crate::program::Program;
-use crate::terminal::{Dialog, Message};
+use crate::terminal::Dialog;
 use crate::{config::Config, storage::Storage};
 use anyhow::{anyhow, Error, Result};
 
@@ -16,18 +13,12 @@ pub enum CompletionResult {
 
 pub struct Utils;
 impl Utils {
-    pub fn write_config(config: Config) {
-        Config::write(config).unwrap_or_else(|err| Message::fail(&format!("{}", err)));
-    }
-
-    pub fn load_projects(path: &str, display_hidden: bool) -> Library {
-        Library::new(path, display_hidden).unwrap_or_else(|err| {
-            Message::fail(&format!("{}", err));
-            exit(1);
-        })
-    }
-
-    pub fn launch_program(program: &str, args: Vec<String>, cwd: &str, fork_mode: bool) {
+    pub fn launch_program(
+        program: &str,
+        args: Vec<String>,
+        cwd: &str,
+        fork_mode: bool,
+    ) -> Result<()> {
         let mut proc = Program::new(program);
         if !cwd.is_empty() {
             proc.set_cwd(cwd);
@@ -35,7 +26,9 @@ impl Utils {
         proc.set_fork_mode(fork_mode);
         proc.set_args(args);
         if let Err(e) = proc.run() {
-            Message::fail(e.to_string().as_str());
+            Err(anyhow!(e.to_string()))
+        } else {
+            Ok(())
         }
     }
 
@@ -53,7 +46,7 @@ impl Utils {
         }
     }
 
-    pub fn autocomplete(word: &str, words_list: Vec<String>) -> Option<String> {
+    pub fn autocomplete(word: &str, words_list: Vec<&str>) -> Option<String> {
         let suggested = Self::suggest_completion(word, words_list.clone());
 
         match suggested {
@@ -70,7 +63,7 @@ impl Utils {
         }
     }
 
-    pub fn suggest_completion(word: &str, words_list: Vec<String>) -> CompletionResult {
+    pub fn suggest_completion(word: &str, words_list: Vec<&str>) -> CompletionResult {
         let mut found = false;
         let mut similar = false;
         let mut similar_word = String::new();

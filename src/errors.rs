@@ -26,6 +26,12 @@ pub enum LibraryError {
     #[error("Project with the same name already exists.")]
     AlreadyExists,
 
+    #[error("Project not found.")]
+    ProjectNotFound,
+
+    #[error("Argument is empty.")]
+    EmptyArgument,
+
     #[error("File system error occured.")]
     FileSystemError,
 
