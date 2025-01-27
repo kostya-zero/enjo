@@ -1,6 +1,7 @@
 pub mod app;
 mod args;
 mod config;
+mod constants;
 mod errors;
 mod library;
 mod platform;

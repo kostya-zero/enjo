@@ -1,11 +1,12 @@
 use std::{
+    borrow::Cow,
     fs,
     path::{Path, PathBuf},
 };
 
 use anyhow::Result;
 
-use crate::{errors::LibraryError, program::Program};
+use crate::{constants::SYSTEM_DIRECTORIES, errors::LibraryError, program::Program};
 
 #[derive(Debug, Clone, Default)]
 pub struct CloneOptions {
@@ -14,16 +15,16 @@ pub struct CloneOptions {
     pub name: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Project {
-    name: String,
+    name: Cow<'static, str>,
     path: PathBuf,
 }
 
 impl Project {
     pub fn new(new_name: &str, new_path: PathBuf) -> Self {
         Self {
-            name: String::from(new_name),
+            name: Cow::Owned(new_name.to_string()),
             path: new_path,
         }
     }
@@ -33,67 +34,59 @@ impl Project {
     }
 
     pub fn get_path_str(&self) -> &str {
-        self.path.to_str().unwrap()
+        self.path.to_str().unwrap_or_default()
     }
 
-    pub fn is_empty(&self) -> bool {
-        let mut entries = fs::read_dir(self.path.clone()).unwrap();
-        entries.next().is_none()
+    pub fn is_empty(&self) -> Result<bool, LibraryError> {
+        let entries = fs::read_dir(&self.path).map_err(|e| LibraryError::IoError(e.to_string()))?;
+        Ok(entries.count() == 0)
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Library {
     projects: Vec<Project>,
-    path: PathBuf,
+    base_path: PathBuf,
 }
+
 impl Library {
     pub fn new(path: &str, display_hidden: bool) -> Result<Self, LibraryError> {
-        if !Path::new(path).exists() {
-            return Err(LibraryError::DirectoryNotFound);
-        }
-
+        let base_path = PathBuf::from(path);
         let projects = Self::collect_projects(path, display_hidden)?;
         Ok(Self {
             projects,
-            path: PathBuf::from(path),
+            base_path,
         })
     }
 
-    fn collect_projects(path: &str, display_hidden: bool) -> Result<Vec<Project>, LibraryError> {
-        let mut projects: Vec<Project> = Vec::new();
+    pub fn collect_projects(
+        path: &str,
+        display_hidden: bool,
+    ) -> Result<Vec<Project>, LibraryError> {
+        let dir_entries = fs::read_dir(path).map_err(|e| LibraryError::IoError(e.to_string()))?;
 
-        if let Ok(entries) = fs::read_dir(path) {
-            for entry in entries.flatten() {
-                if let Some(name) = entry.file_name().to_str() {
-                    let path = entry.path();
-                    if Self::is_valid_project(&entry, name, display_hidden) {
-                        let project = Project::new(name, path);
-                        projects.push(project);
-                    }
-                }
+        // Pre-allocate with estimated capacity
+        let mut projects = Vec::with_capacity(10);
+
+        for entry in dir_entries {
+            let entry = entry.map_err(|e| LibraryError::IoError(e.to_string()))?;
+            let name = entry.file_name().to_string_lossy().into_owned();
+
+            if Self::is_valid_project(&entry, &name, display_hidden) {
+                projects.push(Project::new(&name, entry.path()));
             }
-        } else {
-            return Err(LibraryError::ReadFailed);
         }
 
         Ok(projects)
     }
 
     fn is_valid_project(entry: &fs::DirEntry, name: &str, display_hidden: bool) -> bool {
-        let system_dirs = [
-            ".",
-            "..",
-            "$RECYCLE.BIN",
-            "System Volume Information",
-            "msdownld.tmp",
-            ".Trash-1000",
-        ];
-        let is_dir = entry.metadata().map(|m| m.is_dir()).unwrap_or(false);
-        let is_hidden = name.starts_with('.');
-        let is_system_dir = system_dirs.contains(&name);
+        if !display_hidden && name.starts_with('.') {
+            return false;
+        }
 
-        is_dir && (!is_hidden || display_hidden) && !is_system_dir
+        entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false)
+            && !SYSTEM_DIRECTORIES.contains(&name)
     }
 
     pub fn clone(&self, options: CloneOptions) -> Result<(), LibraryError> {
@@ -110,7 +103,7 @@ impl Library {
         }
 
         program.set_args(args);
-        program.set_cwd(self.path.to_str().unwrap());
+        program.set_cwd(self.base_path.to_str().unwrap());
         match program.run() {
             Ok(_) => Ok(()),
             Err(e) => Err(LibraryError::CloneFailed(e)),
@@ -122,18 +115,18 @@ impl Library {
             return Err(LibraryError::EmptyArgument);
         }
 
-        if self.path.join(name).exists() {
+        if self.base_path.join(name).exists() {
             return Err(LibraryError::AlreadyExists);
         }
 
-        match fs::create_dir(self.path.join(name)) {
+        match fs::create_dir(self.base_path.join(name)) {
             Ok(_) => Ok(()),
             Err(_) => Err(LibraryError::FileSystemError),
         }
     }
 
     pub fn delete(&self, name: &str) -> Result<(), LibraryError> {
-        match fs::remove_dir_all(self.path.join(name)) {
+        match fs::remove_dir_all(self.base_path.join(name)) {
             Ok(_) => Ok(()),
             Err(_) => Err(LibraryError::FileSystemError),
         }
@@ -155,10 +148,34 @@ impl Library {
         if name.is_empty() {
             return Err(LibraryError::EmptyArgument);
         }
-        self.projects.iter().find(|x| x.name == name).ok_or(LibraryError::ProjectNotFound)
+        self.projects
+            .iter()
+            .find(|x| x.name == name)
+            .ok_or(LibraryError::ProjectNotFound)
     }
 
     pub fn is_empty(&self) -> bool {
         self.projects.is_empty()
+    }
+
+    pub fn rename(&self, old_name: &str, new_name: &str) -> Result<(), LibraryError> {
+        if !self.contains(old_name) {
+            return Err(LibraryError::ProjectNotFound);
+        }
+
+        if self.contains(new_name) {
+            return Err(LibraryError::ProjectExists);
+        }
+
+        if SYSTEM_DIRECTORIES.contains(&new_name) {
+            return Err(LibraryError::InvalidProjectName);
+        }
+
+        let old_path = Path::new(&self.base_path).join(old_name);
+        let new_path = Path::new(&self.base_path).join(new_name);
+
+        fs::rename(old_path, new_path).map_err(|_| LibraryError::FailedToRename)?;
+
+        Ok(())
     }
 }

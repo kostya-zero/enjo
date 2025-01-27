@@ -1,8 +1,10 @@
-use crate::platform::Platform;
+use crate::platform::{Platform, PlatformName};
 use crate::program::Program;
-use crate::terminal::Dialog;
+use crate::terminal::{Dialog, Message};
 use crate::{config::Config, storage::Storage};
 use anyhow::{anyhow, Error, Result};
+use std::path::Path;
+use std::process::{Command, Stdio};
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum CompletionResult {
@@ -116,6 +118,68 @@ impl Utils {
             if templates.save_storage().is_err() {
                 return Err(anyhow!("Failed to generate storage file."));
             }
+        }
+
+        Ok(())
+    }
+
+    pub fn apply_template(
+        template_name: &str,
+        project_name: &str,
+        base_path: &str,
+        quite: bool,
+    ) -> Result<(), Error> {
+        let templates = Storage::load_storage()?;
+        let template = templates
+            .get_template(template_name)
+            .map_err(|_| anyhow!("Template not found"))?;
+
+        Message::info("Generating project from template...");
+
+        let program = match Platform::get_platform() {
+            PlatformName::Windows => "powershell.exe",
+            _ => "sh",
+        };
+
+        let cwd = Path::new(base_path).join(project_name);
+        let total_commands = template.len();
+
+        for (idx, command) in template.iter().enumerate() {
+            Message::busy(&format!(
+                "Running commands [{}/{}]",
+                idx + 1,
+                total_commands
+            ));
+
+            Self::execute_template_command(program, command, &cwd, quite)
+                .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;
+        }
+
+        Ok(())
+    }
+
+    fn execute_template_command(
+        program: &str,
+        command: &str,
+        cwd: &Path,
+        quite: bool,
+    ) -> Result<(), Error> {
+        let mut cmd = Command::new(program);
+        cmd.args(["-c", command]).current_dir(cwd);
+
+        if !quite {
+            cmd.stdin(Stdio::inherit())
+                .stdout(Stdio::inherit())
+                .stderr(Stdio::inherit());
+        }
+
+        let output = cmd.output()?;
+
+        if !output.status.success() {
+            return Err(anyhow!(
+                "Command failed with exit code: '{}'",
+                output.status
+            ));
         }
 
         Ok(())

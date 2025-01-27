@@ -1,13 +1,12 @@
 use crate::args::build_cli;
 use crate::config::Config;
 use crate::library::{CloneOptions, Library};
-use crate::platform::{Platform, PlatformName};
+use crate::platform::Platform;
 use crate::storage::Storage;
 use crate::terminal::{Dialog, Message};
 use crate::utils::Utils;
 use anyhow::{anyhow, Result};
-use std::process::{Command, Stdio};
-use std::{fs, path::Path, process::exit};
+use std::{borrow::Cow, path::Path, process::exit};
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
@@ -21,62 +20,27 @@ pub fn run() -> Result<()> {
         Some(("new", sub)) => {
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
 
-            if let Some(name) = sub.get_one::<String>("name") {
-                match projects.create(name) {
-                    Ok(_) => {},
-                    Err(e) => return Err(anyhow!(e.to_string())),
-                }
+            let name = sub.get_one::<String>("name")
+                .ok_or_else(|| anyhow!("You need to provide a name for your new project."))?;
 
-                if let Some(template) = sub.get_one::<String>("template") {
-                    let templates = Storage::load_storage().unwrap();
-                    if let Ok(template) = templates.get_template(template) {
-                        let count_commands = template.len();
-                        let quite = sub.get_flag("quite");
-                        Message::info("Generating project from template...");
-                        let program = match Platform::get_platform() {
-                            PlatformName::Windows => "powershell.exe",
-                            _ => "sh",
-                        };
-                        let cwd = Path::new(&config.options.path).join(name);
-                        for command in template.iter() {
-                            let mut running_cmd = Command::new(program);
-                            running_cmd.args(["-c", command]);
-                            if !quite {
-                                running_cmd.stdin(Stdio::inherit());
-                                running_cmd.stdout(Stdio::inherit());
-                                running_cmd.stderr(Stdio::inherit());
-                            }
-                            running_cmd.current_dir(&cwd);
-                            Message::running(format!("Running commands [{}/{}]", template.iter().position(|x| x == command).unwrap() + 1, count_commands).as_str());
-                            let output = running_cmd.output();
+            projects.create(name)?;
 
-                            let output_data = match output {
-                                Ok(o) => o,
-                                Err(e) => return Err(anyhow!(e.to_string())),
-                            };
-
-                            if !output_data.status.success() {
-                                Message::error(&format!("Template command '{}' failed with exit code: '{}'.", command, output_data.status));
-                                match projects.delete(name) {
-                                    Ok(_) => {},
-                                    Err(_) => return Err(anyhow!("Failed to remove project directory because of the file system error.")),
-                                };
-                            }
-                        }
-                    } else {
-                        Message::error("Template not found.");
-                        match projects.delete(name) {
-                            Ok(_) => {},
-                            Err(e) => return Err(anyhow!(e.to_string())),
-                        };
-                        exit(1);
+            if let Some(template_name) = sub.get_one::<String>("template") {
+                if let Err(e) = Utils::apply_template(
+                    template_name,
+                    name,
+                    &config.options.path,
+                    sub.get_flag("quite")
+                ) {
+                    Message::error("Failed to apply template. Cleaning up...");
+                    if let Err(cleanup_err) = projects.delete(name) {
+                        return Err(anyhow!("Template application failed: {}. Additionally, cleanup failed: {}", e, cleanup_err));
                     }
+                    return Err(e);
                 }
-
-                Message::done("The project has been created.")
-            } else {
-                return Err(anyhow!("You need to provide a name for your new project."));
             }
+
+            Message::done("The project has been created.")
         }
         Some(("clone", sub)) => {
             let mut clone_options = CloneOptions::default();
@@ -114,19 +78,19 @@ pub fn run() -> Result<()> {
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             let project_name: &str = sub.get_one::<String>("name").unwrap();
 
-            let project_final_name =  if project_name == "-" {
+            let project_final_name = if project_name.is_empty() {
                 if storage.is_recent_empty() {
-                    return Err(anyhow!("You have not opened any project yet."));
+                    return Err(anyhow!("No project name provided and no recent projects found."));
                 } else {
                     storage.get_recent_project().unwrap()
                 }
             } else if config.options.autocomplete {
-                Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default()
+                Cow::from(Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default())
             } else {
-                project_name.to_string()
+                Cow::from(project_name)
             };
 
-            if let Ok(project) = projects.get(project_final_name.as_str()) {
+            if let Ok(project) = projects.get(project_final_name.as_ref()) {
                 let is_shell = sub.get_flag("shell");
                 let program = match is_shell {
                     true => config.shell.program,
@@ -211,34 +175,14 @@ pub fn run() -> Result<()> {
                 args_name
             };
 
-            if !projects.contains(name) {
-                return Err(anyhow!("Project not found."));
-            }
-
             let new_name = match sub.get_one::<String>("newname") {
                 Some(new_name) if !new_name.is_empty() => new_name,
                 _ => return Err(anyhow!("You need to provide a new name for the project you want to rename.")),
             };
 
-            let system_dirs = [
-                ".", "..", "$RECYCLE.BIN", "System Volume Information",
-                "msdownld.tmp", ".Trash-1000",
-            ];
-
-            if projects.contains(new_name) {
-                return Err(anyhow!("A project with the same name has been found."));
-            }
-
-            if system_dirs.contains(&new_name.as_str()) {
-                return Err(anyhow!("You cannot use the system directory name as the new name."));
-            }
-
-            let full_old_path = Path::new(&config.options.path).join(name);
-            let full_new_path = Path::new(&config.options.path).join(new_name);
-
-            match fs::rename(full_old_path, full_new_path) {
+            match projects.rename(name, new_name) {
                 Ok(_) => Message::done(&format!("The project was renamed to '{}'.", new_name)),
-                Err(_) => return Err(anyhow!("Failed to rename the project.")),
+                Err(e) => return Err(anyhow!(e.to_string())),
             }
         }
         Some(("delete", sub)) => {
@@ -259,7 +203,7 @@ pub fn run() -> Result<()> {
             }
 
             let project = projects.get(name).unwrap();
-            if !project.is_empty() && !Dialog::ask("Do you want to delete this project?", false) {
+            if !project.is_empty()? && !Dialog::ask("Do you want to delete this project?", false) {
                 Message::info("Aborting.");
                 exit(0);
             }

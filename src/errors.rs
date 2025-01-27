@@ -17,12 +17,6 @@ pub enum ConfigError {
 
 #[derive(Debug, Error)]
 pub enum LibraryError {
-    #[error("A directory with projects does not exist on the file system.")]
-    DirectoryNotFound,
-
-    #[error("Failed to read the contents of the directory.")]
-    ReadFailed,
-
     #[error("Project with the same name already exists.")]
     AlreadyExists,
 
@@ -37,6 +31,18 @@ pub enum LibraryError {
 
     #[error("Failed to clone repository.")]
     CloneFailed(ProgramError),
+
+    #[error("Failed to rename.")]
+    FailedToRename,
+
+    #[error("A project with the same name already exists.")]
+    ProjectExists,
+
+    #[error("Invalid project name. System directory names cannot be used.")]
+    InvalidProjectName,
+
+    #[error("An unexpected I/O error occurred: {0}.")]
+    IoError(String),
 }
 
 #[derive(Error, Debug)]
@@ -59,6 +65,15 @@ pub enum StorageError {
     #[error("Template not found.")]
     TemplateNotFound,
 
-    #[error("File system error occured while working with the file.")]
+    #[error("File system error occurred while working with the file.")]
     FileSystemError,
+
+    #[error("Failed to serialize storage data.")]
+    SerializationError,
+
+    #[error("Failed to deserialize storage data.")]
+    DeserializationError,
+
+    #[error("Invalid command in template.")]
+    InvalidCommand,
 }
