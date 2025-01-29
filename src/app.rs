@@ -6,7 +6,7 @@ use crate::storage::Storage;
 use crate::terminal::{Dialog, Message};
 use crate::utils::Utils;
 use anyhow::{anyhow, Result};
-use std::{borrow::Cow, path::Path, process::exit};
+use std::{borrow::Cow, path::Path};
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
@@ -127,7 +127,7 @@ pub fn run() -> Result<()> {
                     Ok(_) => {
                         if fork_mode {
                             Message::done("Editor launched.");
-                            exit(0);
+                            return Ok(());
                         }
 
                         let end_message = if is_shell {
@@ -137,7 +137,7 @@ pub fn run() -> Result<()> {
                         };
 
                         Message::info(end_message);
-                        exit(0);
+                        return Ok(());
                     },
                     Err(e) => return Err(e),
                 }
@@ -153,7 +153,7 @@ pub fn run() -> Result<()> {
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             if projects.is_empty() {
                 Message::info("No projects found.");
-                exit(0)
+                return Ok(());
             }
 
             Message::list_title("Your projects:");
@@ -205,7 +205,7 @@ pub fn run() -> Result<()> {
             let project = projects.get(name).unwrap();
             if !project.is_empty()? && !Dialog::ask("Do you want to delete this project?", false) {
                 Message::info("Aborting.");
-                exit(0);
+                return Ok(());
             }
             Message::busy("Deleting project...");
             match projects.delete(name) {
@@ -250,7 +250,7 @@ pub fn run() -> Result<()> {
                 Some(("list", _sub)) => {
                     if storage.is_templates_empty() {
                         Message::info("No templates found.");
-                        exit(0)
+                        return Ok(());
                     }
 
                     Message::list_title("Templates:");
