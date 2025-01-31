@@ -5,20 +5,20 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
 
-#[derive(Deserialize, Serialize, Default, Clone)]
-#[serde(default)]
-pub struct Config {
-    pub options: Options,
-    pub editor: EditorOptions,
-    pub shell: ShellOptions,
-}
-
 #[derive(Deserialize, Serialize, Clone)]
 #[serde(default)]
 pub struct Options {
     pub path: String,
     pub display_hidden: bool,
     pub autocomplete: bool,
+}
+
+#[derive(Deserialize, Serialize, Default, Clone)]
+#[serde(default)]
+pub struct Config {
+    pub options: Options,
+    pub editor: EditorOptions,
+    pub shell: ShellOptions,
 }
 
 impl Default for Options {

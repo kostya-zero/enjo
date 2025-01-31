@@ -1,11 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    fs,
-    path::PathBuf,
-};
+use std::{borrow::Cow, collections::HashMap, fs, path::PathBuf};
 
 use crate::{errors::StorageError, platform::Platform};
 
@@ -35,27 +30,23 @@ impl Storage {
                 storage.storage_path = Some(path);
                 Ok(storage)
             }
-            Err(_) => Ok(Self::new()) // Return empty storage if file doesn't exist
+            Err(_) => Ok(Self::new()), // Return empty storage if file doesn't exist
         }
     }
 
     pub fn save_storage(&self) -> Result<(), StorageError> {
-        let content = bincode::serialize(&self)
-            .map_err(|_| StorageError::SerializationError)?;
-        
+        let content = bincode::serialize(&self).map_err(|_| StorageError::SerializationError)?;
+
         if let Some(path) = &self.storage_path {
             // Ensure parent directory exists
             if let Some(parent) = path.parent() {
-                fs::create_dir_all(parent)
-                    .map_err(|_| StorageError::FileSystemError)?;
+                fs::create_dir_all(parent).map_err(|_| StorageError::FileSystemError)?;
             }
-            
-            fs::write(path, content)
-                .map_err(|_| StorageError::FileSystemError)
+
+            fs::write(path, content).map_err(|_| StorageError::FileSystemError)
         } else {
             let path = Platform::get_storage_path();
-            fs::write(path, content)
-                .map_err(|_| StorageError::FileSystemError)
+            fs::write(path, content).map_err(|_| StorageError::FileSystemError)
         }
     }
 
@@ -63,12 +54,13 @@ impl Storage {
         if self.templates.contains_key(name) {
             return Err(StorageError::AlreadyExists);
         }
-        
+
         if commands.iter().any(|cmd| cmd.trim().is_empty()) {
             return Err(StorageError::InvalidCommand);
         }
 
-        self.templates.insert(name.to_string(), commands.into_iter().map(Cow::from).collect());
+        self.templates
+            .insert(name.to_string(), commands.into_iter().map(Cow::from).collect());
         Ok(())
     }
 
