@@ -156,7 +156,7 @@ pub fn run() -> Result<()> {
                 return Ok(());
             }
 
-            Message::title("Your projects:");
+            Message::plain_message("Your projects:");
             for project in projects.get_vec().iter() {
                 Message::item(project.get_name());
             }
@@ -253,14 +253,14 @@ pub fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    Message::title("Templates:");
+                    Message::plain_message("Templates:");
                     for template in storage.get_templates_names().iter() {
                         Message::item(template);
                     }
                 }
                 Some(("info", sub)) => {
                     if let Ok(template) = storage.get_template(sub.get_one::<String>("name").unwrap()) {
-                        Message::title("Commands of this template:");
+                        Message::plain_message("Commands of this template:");
                         for command in template.iter() {
                             Message::item(command);
                         }

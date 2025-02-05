@@ -1,39 +1,42 @@
 use dialoguer::{
-    console::style,
+    console::{style, Style},
     theme::{ColorfulTheme, Theme},
     Confirm, Input,
 };
+
+use crate::colors;
 
 pub struct Message;
 
 impl Message {
     fn print_message(prefix: &str, color_code: &str, msg: &str) {
-        println!("\x1b[{}m{}\x1b[0m {}", color_code, prefix, msg);
+        println!("{}{}{}\x1b[0m: {}", color_code, colors::BOLD, prefix, msg);
     }
 
     pub fn error(msg: &str) {
-        eprintln!("\x1b[91m✗\x1b[0m {}", msg)
+        eprintln!(
+            "{}{}error{}: {}",
+            colors::RED,
+            colors::BOLD,
+            colors::RESET,
+            msg
+        )
     }
 
     pub fn done(msg: &str) {
-        Self::print_message("✓", "92", msg);
+        Self::print_message("done", colors::GREEN, msg);
     }
 
     pub fn busy(msg: &str) {
-        Self::print_message("⌛", "97", msg);
-    }
-
-    pub fn running(msg: &str) {
-        Self::print_message("▶", "97", msg);
+        Self::print_message("busy", colors::WHITE, msg);
     }
 
     pub fn info(msg: &str) {
-        Self::print_message("ℹ", "97", msg);
+        Self::print_message("info", colors::WHITE, msg);
     }
 
-    pub fn title(msg: &str) {
-        // Self::print_message("", "97", msg);
-        println!("\x1b[97m{}\x1b[0m", msg);
+    pub fn plain_message(msg: &str) {
+        println!("{}", msg);
     }
 
     pub fn item(msg: &str) {
@@ -46,9 +49,10 @@ pub struct Dialog;
 impl Dialog {
     fn get_theme() -> impl Theme {
         ColorfulTheme {
-            prompt_prefix: style("?".to_string()).for_stdout().cyan(),
-            success_prefix: style("✓".to_string()).for_stdout().green(),
-            error_prefix: style("✗".to_string()).for_stderr().red(),
+            prompt_prefix: style("?".to_string()).for_stdout().yellow(),
+            success_prefix: style("✔".to_string()).for_stdout().green(),
+            error_prefix: style("✘".to_string()).for_stderr().red(),
+            defaults_style: Style::new().for_stdout().dim().white(),
             ..Default::default()
         }
     }
