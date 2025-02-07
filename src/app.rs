@@ -100,8 +100,11 @@ pub fn run() -> Result<()> {
                 if program.is_empty() {
                     return Err(anyhow!("Required program is not specified in configuration file."));
                 }
-                storage.set_recent_project(&project_final_name);
-                storage.save_storage().unwrap();
+                if project_final_name != storage.get_recent_project().unwrap_or(Cow::from("")) {
+                    storage.set_recent_project(&project_final_name);
+                    storage.save_storage().unwrap();
+                }
+                
                 let project_path = project.get_path_str();
                 let proc_args = if is_shell {
                     Vec::new()
@@ -156,7 +159,7 @@ pub fn run() -> Result<()> {
                 return Ok(());
             }
 
-            Message::plain_message("Your projects:");
+            Message::title("Your projects:");
             for project in projects.get_vec().iter() {
                 Message::item(project.get_name());
             }
@@ -253,14 +256,14 @@ pub fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    Message::plain_message("Templates:");
+                    Message::title("Templates:");
                     for template in storage.get_templates_names().iter() {
                         Message::item(template);
                     }
                 }
                 Some(("info", sub)) => {
                     if let Ok(template) = storage.get_template(sub.get_one::<String>("name").unwrap()) {
-                        Message::plain_message("Commands of this template:");
+                        Message::title("Commands of this template:");
                         for command in template.iter() {
                             Message::item(command);
                         }

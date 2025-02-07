@@ -35,8 +35,8 @@ impl Message {
         Self::print_message("info", colors::WHITE, msg);
     }
 
-    pub fn plain_message(msg: &str) {
-        println!("{}", msg);
+    pub fn title(msg: &str) {
+        println!("{}{}{}", colors::BOLD, msg, colors::RESET);
     }
 
     pub fn item(msg: &str) {
