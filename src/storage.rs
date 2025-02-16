@@ -59,9 +59,15 @@ impl Storage {
             return Err(StorageError::InvalidCommand);
         }
 
-        self.templates
-            .insert(name.to_string(), commands.into_iter().map(Cow::from).collect());
+        self.templates.insert(
+            name.to_string(),
+            commands.into_iter().map(Cow::from).collect(),
+        );
         Ok(())
+    }
+
+    pub fn clear_templates(&mut self) {
+        self.templates.clear();
     }
 
     pub fn is_templates_empty(&self) -> bool {

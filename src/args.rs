@@ -88,6 +88,7 @@ pub fn build_cli() -> Command {
                 .subcommands([
                     Command::new("new").about("Create new template."),
                     Command::new("list").about("List available templates."),
+                    Command::new("clear").about("Clear all templates."),
                     Command::new("info")
                         .about("View information about template.")
                         .arg(

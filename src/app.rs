@@ -76,21 +76,24 @@ pub fn run() -> Result<()> {
         }
         Some(("open", sub)) => {
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
-            let project_name: &str = sub.get_one::<String>("name").unwrap();
+            let project_name = sub
+            .get_one::<String>("name")
+            .ok_or_else(|| anyhow!("The project name is not provided."))?;
 
-            let project_final_name = if project_name.is_empty() {
+            let name = if project_name == "-" {
                 if storage.is_recent_empty() {
-                    return Err(anyhow!("No project name provided and no recent projects found."));
-                } else {
-                    storage.get_recent_project().unwrap()
+                    return Err(anyhow!("No project was opened recently."));
                 }
+                storage.get_recent_project().unwrap()
             } else if config.options.autocomplete {
-                Cow::from(Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default())
+                Cow::from(
+                    Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default(),
+                )
             } else {
                 Cow::from(project_name)
             };
 
-            if let Ok(project) = projects.get(project_final_name.as_ref()) {
+            if let Ok(project) = projects.get(name.as_ref()) {
                 let is_shell = sub.get_flag("shell");
                 let program = match is_shell {
                     true => config.shell.program,
@@ -100,11 +103,12 @@ pub fn run() -> Result<()> {
                 if program.is_empty() {
                     return Err(anyhow!("Required program is not specified in configuration file."));
                 }
-                if project_final_name != storage.get_recent_project().unwrap_or(Cow::from("")) {
-                    storage.set_recent_project(&project_final_name);
+
+                if name != storage.get_recent_project().unwrap_or(Cow::from("")) {
+                    storage.set_recent_project(&name);
                     storage.save_storage().unwrap();
                 }
-                
+
                 let project_path = project.get_path_str();
                 let proc_args = if is_shell {
                     Vec::new()
@@ -112,13 +116,11 @@ pub fn run() -> Result<()> {
                     config.editor.args.clone()
                 };
 
-                let action = if is_shell {
-                    "New shell session is starting..."
+                if is_shell {
+                    Message::busy("New shell session is starting...");
                 } else {
-                    "Launching editor..."
+                    Message::busy("Launching editor...");
                 };
-
-                Message::busy(action);
 
                 let fork_mode = if is_shell {
                     false
@@ -132,13 +134,11 @@ pub fn run() -> Result<()> {
                             Message::done("Editor launched.");
                             return Ok(());
                         }
-
                         let end_message = if is_shell {
                             "End of shell session."
                         } else {
                             "Editor has been closed."
                         };
-
                         Message::info(end_message);
                         return Ok(());
                     },
@@ -269,6 +269,18 @@ pub fn run() -> Result<()> {
                         }
                     } else {
                         return Err(anyhow!("Template not found."));
+                    }
+                }
+                Some(("clear", _sub)) => {
+                    if Dialog::ask("Do you really want to clear all templates?", false) {
+                        storage.clear_templates();
+                        if storage.save_storage().is_ok() {
+                            Message::done("All templates have been cleared.");
+                        } else {
+                            return Err(anyhow!("Failed to save templates."));
+                        }
+                    } else {
+                        Message::info("Aborted.");
                     }
                 }
                 Some(("remove", sub)) => {
