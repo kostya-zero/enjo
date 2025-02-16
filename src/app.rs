@@ -215,7 +215,7 @@ pub fn run() -> Result<()> {
                         .tick_strings(&["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"])
                         .template("{spinner:.green} Deleting project...").unwrap()
                 );
-                spinner.enable_steady_tick(Duration::from_millis(100));
+                spinner.enable_steady_tick(Duration::from_millis(250));
 
                 match projects.delete(name) {
                     Ok(_) => {
