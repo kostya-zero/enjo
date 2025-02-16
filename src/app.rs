@@ -6,6 +6,8 @@ use crate::storage::Storage;
 use crate::terminal::{Dialog, Message};
 use crate::utils::Utils;
 use anyhow::{anyhow, Result};
+use indicatif::{ProgressBar, ProgressStyle};
+use std::time::Duration;
 use std::{borrow::Cow, path::Path};
 
 pub fn run() -> Result<()> {
@@ -201,23 +203,32 @@ pub fn run() -> Result<()> {
                 args_name
             };
 
-            if !projects.contains(name) {
-                return Err(anyhow!("Project not found."));
-            }
+            if let Ok(project) = projects.get(name) {
+                if !project.is_empty()? && !Dialog::ask("Do you want to delete this project?", false) {
+                    Message::info("Aborting.");
+                    return Ok(());
+                }
+                
+                let spinner = ProgressBar::new_spinner();
+                spinner.set_style(
+                    ProgressStyle::default_spinner()
+                        .tick_strings(&["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"])
+                        .template("{spinner:.green} Deleting project...").unwrap()
+                );
+                spinner.enable_steady_tick(Duration::from_millis(100));
 
-            let project = projects.get(name).unwrap();
-            if !project.is_empty()? && !Dialog::ask("Do you want to delete this project?", false) {
-                Message::info("Aborting.");
-                return Ok(());
-            }
-            Message::busy("Deleting project...");
-            match projects.delete(name) {
-                Ok(_) => {
-                    Message::done("The project has been deleted.");
-                },
-                Err(_) => {
-                    return Err(anyhow!("Failed to remove project directory because of the file system error."));
-                },
+                match projects.delete(name) {
+                    Ok(_) => {
+                        spinner.finish_and_clear();
+                        Message::done("The project has been deleted.");
+                    },
+                    Err(_) => {
+                        spinner.finish_and_clear();
+                        return Err(anyhow!("Failed to remove project directory because of the file system error."));
+                    },
+                }
+            } else  {
+                 return Err(anyhow!("Project not found."));
             }
         }
         Some(("templates", sub)) => {
