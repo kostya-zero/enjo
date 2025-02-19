@@ -82,11 +82,11 @@ pub fn build_cli() -> Command {
                     .required(false)
                     .num_args(1),
                 Arg::new("force")
-                .short('f')
-                .long("force")
-                .help("Force delete without confirmation.")
-                .action(ArgAction::SetTrue),
-        ]),
+                    .short('f')
+                    .long("force")
+                    .help("Force delete without confirmation.")
+                    .action(ArgAction::SetTrue),
+            ]),
             Command::new("templates")
                 .about("Manage your templates.")
                 .arg_required_else_help(true)

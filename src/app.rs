@@ -204,11 +204,9 @@ pub fn run() -> Result<()> {
             };
 
             if let Ok(project) = projects.get(name) {
-                if !project.is_empty()? {
-                    if !sub.get_flag("force") && !Dialog::ask("Are you sure you want to delete this project?", false) {
-                        Message::info("Aborting.");
-                        return Ok(());
-                    }
+                if !project.is_empty()? && !sub.get_flag("force") && !Dialog::ask("Are you sure you want to delete this project?", false) {
+                    Message::info("Aborting.");
+                    return Ok(());
                 }
 
                 let spinner = ProgressBar::new_spinner();
