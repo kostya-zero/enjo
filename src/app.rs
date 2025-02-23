@@ -45,32 +45,32 @@ pub fn run() -> Result<()> {
             Message::done("The project has been created.")
         }
         Some(("clone", sub)) => {
-            let mut clone_options = CloneOptions::default();
+            let remote = sub.get_one::<String>("remote")
+                .filter(|s| !s.trim().is_empty())
+                .map(String::from)
+                .ok_or_else(|| anyhow!("You need to provide a remote URL."))?;
 
-            if let Some(remote) = sub.get_one::<String>("remote") {
-                clone_options.remote = String::from(remote);
-            } else {
-                return Err(anyhow!("You need to provide a remote."));
-            }
+            let branch = sub.get_one::<String>("branch")
+                .filter(|s| !s.trim().is_empty())
+                .map(String::from);
 
-            if let Some(branch) = sub.get_one::<String>("branch") {
-                clone_options.branch = Some(String::from(branch));
-            }
+            let name = sub.get_one::<String>("name")
+                .filter(|s| !s.trim().is_empty())
+                .map(String::from);
 
-            if let Some(name) = sub.get_one::<String>("name") {
-                clone_options.name = Some(String::from(name));
-            }
+            let clone_options = CloneOptions {
+                remote,
+                branch,
+                name,
+            };
 
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             match projects.clone(clone_options.clone()) {
                 Ok(_) => Message::done("The project has been cloned."),
-                Err(e) => {
-                    return Err(anyhow!(e.to_string()));
-                }
+                Err(e) => return Err(anyhow!(e.to_string())),
             }
 
-            let repo_name = Utils::get_reposiotry_name_from_url(&clone_options.remote);
-            if let Some(repo) = repo_name {
+            if let Some(repo) = Utils::get_reposiotry_name_from_url(&clone_options.remote) {
                 if repo.to_string().starts_with('.') {
                     Message::info("Your project name begins with a dot. It will not be listed unless hidden projects are enabled.");
                 }
@@ -273,14 +273,14 @@ pub fn run() -> Result<()> {
                     }
                 }
                 Some(("info", sub)) => {
-                    if let Ok(template) = storage.get_template(sub.get_one::<String>("name").unwrap()) {
+                    match storage.get_template(sub.get_one::<String>("name").unwrap()) { Ok(template) => {
                         Message::title("Commands of this template:");
                         for command in template.iter() {
                             Message::item(command);
                         }
-                    } else {
+                    } _ => {
                         return Err(anyhow!("Template not found."));
-                    }
+                    }}
                 }
                 Some(("clear", _sub)) => {
                     if Dialog::ask("Do you really want to clear all templates?", false) {

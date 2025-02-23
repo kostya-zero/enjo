@@ -8,7 +8,7 @@ keywords = ["workspace", "projects", "manager", "cli"]
 readme = "README.md"
 license = "MIT"
 version = "0.6.0-dev"
-edition = "2021"
+edition = "2024"
 
 [[bin]]
 name = "enjo"
