@@ -1,7 +1,7 @@
 use dialoguer::{
-    console::{style, Style},
-    theme::{ColorfulTheme, Theme},
     Confirm, Input,
+    console::{Style, style},
+    theme::{ColorfulTheme, Theme},
 };
 
 use crate::colors;

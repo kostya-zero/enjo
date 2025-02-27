@@ -2,7 +2,7 @@ use crate::platform::{Platform, PlatformName};
 use crate::program::Program;
 use crate::terminal::{Dialog, Message};
 use crate::{config::Config, storage::Storage};
-use anyhow::{anyhow, Error, Result};
+use anyhow::{Error, Result, anyhow};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -55,11 +55,7 @@ impl Utils {
             CompletionResult::Found => Some(word.to_string()),
             CompletionResult::FoundSimilar(name) => {
                 let answer = Dialog::ask(format!("Did you mean '{}'?", name).as_str(), true);
-                if answer {
-                    Some(name)
-                } else {
-                    None
-                }
+                if answer { Some(name) } else { None }
             }
             CompletionResult::Nothing => None,
         }
