@@ -101,3 +101,9 @@ impl Config {
         fs::write(Platform::get_config_path(), content).map_err(|_| ConfigError::WriteFailed)
     }
 }
+
+impl Drop for Config {
+    fn drop(&mut self) {
+        let _ = Config::write(self.clone());
+    }
+}

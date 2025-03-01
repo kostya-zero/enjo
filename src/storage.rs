@@ -106,7 +106,6 @@ impl Storage {
 
 impl Drop for Storage {
     fn drop(&mut self) {
-        // Attempt to save any pending changes when the storage is dropped
         let _ = self.save_storage();
     }
 }
