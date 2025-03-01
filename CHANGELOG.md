@@ -2,7 +2,11 @@
 
 ## Next
 
-TBD
+- The default value of `autocomplete` option are set to `true`.
+- Removed the icons from the output.
+- Added a spinner when deleteing a project.
+- Reduces storage writes.
+- You can use `--force` to force project deletion.
 
 ## 0.5.2
 
