@@ -15,7 +15,7 @@ pub fn run() -> Result<()> {
 
     Utils::check_env()?;
 
-    let config: Config = Config::load()?;
+    let mut config: Config = Config::load()?;
     let mut storage: Storage = Storage::load_storage()?;
 
     match args.subcommand() {
@@ -368,8 +368,8 @@ pub fn run() -> Result<()> {
                     "Do you really want to reset your current configuration?",
                     false,
                 ) {
-                    let new_config: Config = Config::default();
-                    Config::write(new_config)?;
+                    config.reset();
+                    config.save()?;
                     Message::done("The configuration has been reset.");
                 } else {
                     Message::info("Aborted.");

@@ -103,7 +103,7 @@ impl Utils {
     pub fn check_env() -> Result<(), Error> {
         if !Platform::check_config_exists() {
             let default_config: Config = Config::default();
-            match Config::write(default_config) {
+            match default_config.save() {
                 Ok(_) => {}
                 Err(e) => return Err(anyhow!(e.to_string())),
             }

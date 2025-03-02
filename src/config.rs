@@ -92,18 +92,16 @@ impl Config {
         toml::from_str(&content).map_err(|_| ConfigError::BadStructure)
     }
 
-    pub fn write(config: Self) -> Result<(), ConfigError> {
+    pub fn save(&self) -> Result<(), ConfigError> {
         let dir_path = Platform::get_config_dir_path();
         if !Path::new(&dir_path).exists() {
             fs::create_dir(&dir_path).map_err(|_| ConfigError::WriteFailed)?;
         }
-        let content = toml::to_string(&config).map_err(|_| ConfigError::FormatFailed)?;
+        let content = toml::to_string(self).map_err(|_| ConfigError::FormatFailed)?;
         fs::write(Platform::get_config_path(), content).map_err(|_| ConfigError::WriteFailed)
     }
-}
 
-impl Drop for Config {
-    fn drop(&mut self) {
-        let _ = Config::write(self.clone());
+    pub fn reset(&mut self) {
+        *self = Self::default();
     }
 }
