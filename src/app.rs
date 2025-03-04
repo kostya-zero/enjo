@@ -15,11 +15,9 @@ pub fn run() -> Result<()> {
 
     Utils::check_env()?;
 
-    let mut config: Config = Config::load()?;
-    let mut storage: Storage = Storage::load_storage()?;
-
     match args.subcommand() {
         Some(("new", sub)) => {
+            let config: Config = Config::load()?;
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
 
             let name = sub
@@ -50,6 +48,7 @@ pub fn run() -> Result<()> {
             Message::done("The project has been created.")
         }
         Some(("clone", sub)) => {
+            let config: Config = Config::load()?;
             let remote = sub
                 .get_one::<String>("remote")
                 .filter(|s| !s.trim().is_empty())
@@ -87,6 +86,8 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("open", sub)) => {
+            let config: Config = Config::load()?;
+            let mut storage: Storage = Storage::load_storage()?;
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             let project_name = sub
                 .get_one::<String>("name")
@@ -163,6 +164,7 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("list", _sub)) => {
+            let config: Config = Config::load()?;
             if !Path::new(&config.options.path).exists() {
                 return Err(anyhow!(
                     "A directory with projects does not exist on the file system."
@@ -181,6 +183,7 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("rename", sub)) => {
+            let config: Config = Config::load()?;
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
 
             let args_name = match sub.get_one::<String>("name") {
@@ -213,6 +216,7 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("delete", sub)) => {
+            let config: Config = Config::load()?;
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             let args_name = sub.get_one::<String>("name").unwrap();
             if args_name.is_empty() {
@@ -263,6 +267,7 @@ pub fn run() -> Result<()> {
         }
         Some(("templates", sub)) => match sub.subcommand() {
             Some(("new", _sub)) => {
+                let mut storage: Storage = Storage::load_storage()?;
                 let name = Dialog::ask_string("How do you want to name this template?");
                 if name.is_empty() {
                     return Err(anyhow!("Incorrect name for a template."));
@@ -293,6 +298,7 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("list", _sub)) => {
+                let storage: Storage = Storage::load_storage()?;
                 if storage.is_templates_empty() {
                     Message::info("No templates found.");
                     return Ok(());
@@ -304,6 +310,8 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("info", sub)) => {
+                let storage: Storage = Storage::load_storage()?;
+
                 match storage.get_template(sub.get_one::<String>("name").unwrap()) {
                     Ok(template) => {
                         Message::title("Commands of this template:");
@@ -318,6 +326,7 @@ pub fn run() -> Result<()> {
             }
             Some(("clear", _sub)) => {
                 if Dialog::ask("Do you really want to clear all templates?", false) {
+                    let mut storage: Storage = Storage::load_storage()?;
                     storage.clear_templates();
                     if storage.save_storage().is_ok() {
                         Message::done("All templates have been cleared.");
@@ -329,6 +338,7 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("remove", sub)) => {
+                let mut storage: Storage = Storage::load_storage()?;
                 match storage.remove_template(sub.get_one::<String>("name").unwrap()) {
                     Ok(_) => {
                         if storage.save_storage().is_ok() {
@@ -351,7 +361,8 @@ pub fn run() -> Result<()> {
                 Message::info(Platform::get_config_path().to_str().unwrap());
             }
             Some(("edit", _sub)) => {
-                let editor = config.editor.program;
+                let config: Config = Config::load()?;
+                let editor = &config.editor.program;
                 if editor.is_empty() {
                     return Err(anyhow!(
                         "Editor program name is not set in the configuration file."
@@ -364,6 +375,7 @@ pub fn run() -> Result<()> {
                 Utils::launch_program(editor.as_str(), editor_args, "", false)?
             }
             Some(("reset", _sub)) => {
+                let mut config: Config = Config::load()?;
                 if Dialog::ask(
                     "Do you really want to reset your current configuration?",
                     false,
