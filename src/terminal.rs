@@ -1,8 +1,11 @@
+use std::time::Duration;
+
 use dialoguer::{
     Confirm, Input,
     console::{Style, style},
     theme::{ColorfulTheme, Theme},
 };
+use indicatif::{ProgressBar, ProgressStyle};
 
 use crate::colors;
 
@@ -75,4 +78,16 @@ impl Dialog {
             .interact_text()
             .unwrap()
     }
+}
+
+pub fn create_spinner() -> ProgressBar {
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .tick_strings(&["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"])
+            .template("{spinner:.green} {msg}")
+            .unwrap(),
+    );
+    spinner.enable_steady_tick(Duration::from_millis(150));
+    spinner
 }

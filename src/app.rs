@@ -3,11 +3,9 @@ use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
 use crate::storage::Storage;
-use crate::terminal::{Dialog, Message};
+use crate::terminal::{create_spinner, Dialog, Message};
 use crate::utils::Utils;
 use anyhow::{Result, anyhow};
-use indicatif::{ProgressBar, ProgressStyle};
-use std::time::Duration;
 use std::{borrow::Cow, path::Path};
 
 pub fn run() -> Result<()> {
@@ -218,51 +216,47 @@ pub fn run() -> Result<()> {
         Some(("delete", sub)) => {
             let config: Config = Config::load()?;
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
-            let args_name = sub.get_one::<String>("name").unwrap();
-            if args_name.is_empty() {
-                return Err(anyhow!(
-                    "You need to provide a name of the project you want to delete."
-                ));
-            }
-
-            let name = if config.options.autocomplete {
-                &Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
-            } else {
-                args_name
+            
+            let args_name = match sub.get_one::<String>("name") {
+                Some(name) if !name.is_empty() => name,
+                _ => return Err(anyhow!("You need to provide a name of the project you want to delete.")),
             };
 
-            if let Ok(project) = projects.get(name) {
-                if !project.is_empty()?
-                    && !sub.get_flag("force")
-                    && !Dialog::ask("Are you sure you want to delete this project?", false)
-                {
-                    Message::info("Aborting.");
-                    return Ok(());
-                }
-
-                let spinner = ProgressBar::new_spinner();
-                spinner.set_style(
-                    ProgressStyle::default_spinner()
-                        .tick_strings(&["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧"])
-                        .template("{spinner:.green} Deleting project...")
-                        .unwrap(),
-                );
-                spinner.enable_steady_tick(Duration::from_millis(150));
-
-                match projects.delete(name) {
-                    Ok(_) => {
-                        spinner.finish_and_clear();
-                        Message::done("The project has been deleted.");
-                    }
-                    Err(_) => {
-                        spinner.finish_and_clear();
-                        return Err(anyhow!(
-                            "Failed to remove project directory because of the file system error."
-                        ));
-                    }
-                }
+            let project_name = if config.options.autocomplete {
+                Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
             } else {
-                return Err(anyhow!("Project not found."));
+                args_name.to_string()
+            };
+
+            let project = projects.get(&project_name)
+                .map_err(|_| anyhow!("Project not found."))?;
+
+            // Check if we need confirmation
+            let force_delete = sub.get_flag("force");
+            let is_empty = project.is_empty()?;
+            
+            if !is_empty && !force_delete && 
+               !Dialog::ask("Are you sure you want to delete this project?", false) {
+                Message::info("Aborting.");
+                return Ok(());
+            }
+
+            // Create and configure deletion progress spinner
+            let spinner = create_spinner();
+            spinner.set_message("Deleting project...");
+
+            // Perform deletion
+            match projects.delete(&project_name) {
+                Ok(_) => {
+                    spinner.finish_and_clear();
+                    Message::done("The project has been deleted.");
+                }
+                Err(_) => {
+                    spinner.finish_and_clear();
+                    return Err(anyhow!(
+                        "Failed to remove project directory because of the file system error."
+                    ));
+                }
             }
         }
         Some(("templates", sub)) => match sub.subcommand() {

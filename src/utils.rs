@@ -141,11 +141,7 @@ impl Utils {
         let total_commands = template.len();
 
         for (idx, command) in template.iter().enumerate() {
-            Message::busy(&format!(
-                "Running commands [{}/{}]",
-                idx + 1,
-                total_commands
-            ));
+            Message::busy(&format!("[{}/{}] {}", idx + 1, total_commands, command));
 
             Self::execute_template_command(program, command, &cwd, quite)
                 .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;
