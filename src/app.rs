@@ -70,12 +70,12 @@ pub fn run() -> Result<()> {
             };
 
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
-            match projects.clone(clone_options.clone()) {
+            match projects.clone(&clone_options) {
                 Ok(_) => Message::done("The project has been cloned."),
                 Err(e) => return Err(anyhow!(e.to_string())),
             }
 
-            if let Some(repo) = Utils::get_reposiotry_name_from_url(&clone_options.remote) {
+            if let Some(repo) = Utils::get_repository_name_from_url(&clone_options.remote) {
                 if repo.to_string().starts_with('.') {
                     Message::info(
                         "Your project name begins with a dot. It will not be listed unless hidden projects are enabled.",
@@ -231,7 +231,6 @@ pub fn run() -> Result<()> {
             let project = projects.get(&project_name)
                 .map_err(|_| anyhow!("Project not found."))?;
 
-            // Check if we need confirmation
             let force_delete = sub.get_flag("force");
             let is_empty = project.is_empty()?;
             
@@ -241,11 +240,9 @@ pub fn run() -> Result<()> {
                 return Ok(());
             }
 
-            // Create and configure deletion progress spinner
             let spinner = create_spinner();
             spinner.set_message("Deleting project...");
 
-            // Perform deletion
             match projects.delete(&project_name) {
                 Ok(_) => {
                     spinner.finish_and_clear();

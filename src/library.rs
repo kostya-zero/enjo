@@ -89,17 +89,17 @@ impl Library {
             && !SYSTEM_DIRECTORIES.contains(&name)
     }
 
-    pub fn clone(&self, options: CloneOptions) -> Result<(), LibraryError> {
+    pub fn clone(&self, options: &CloneOptions) -> Result<(), LibraryError> {
         let mut program = Program::new("git");
         let mut args = vec!["clone".to_string(), options.remote.clone()];
 
-        if let Some(name) = options.name.clone() {
-            args.push(name);
+        if let Some(name) = &options.name {
+            args.push(name.to_owned());
         }
 
-        if let Some(branch) = options.branch.clone() {
+        if let Some(branch) = &options.branch {
             args.push("-b".to_string());
-            args.push(branch);
+            args.push(branch.to_owned());
         }
 
         program.set_args(args);

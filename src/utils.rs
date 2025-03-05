@@ -34,7 +34,7 @@ impl Utils {
         }
     }
 
-    pub fn get_reposiotry_name_from_url(url: &str) -> Option<&str> {
+    pub fn get_repository_name_from_url(url: &str) -> Option<&str> {
         if let Some(pos) = url.rfind('/') {
             let mut filename = &url[pos + 1..];
 
