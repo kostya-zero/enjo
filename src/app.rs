@@ -3,9 +3,9 @@ use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
 use crate::storage::Storage;
-use crate::terminal::{create_spinner, Dialog, Message};
+use crate::terminal::{Dialog, Message, create_spinner};
 use crate::utils::Utils;
-use anyhow::{Result, anyhow};
+use anyhow::{Result, anyhow, bail};
 use std::{borrow::Cow, path::Path};
 
 pub fn run() -> Result<()> {
@@ -33,11 +33,11 @@ pub fn run() -> Result<()> {
                 ) {
                     Message::error("Failed to apply template. Cleaning up...");
                     if let Err(cleanup_err) = projects.delete(name) {
-                        return Err(anyhow!(
+                        bail!(
                             "Template application failed: {}. Additionally, cleanup failed: {}",
                             e,
                             cleanup_err
-                        ));
+                        )
                     }
                     return Err(e);
                 }
@@ -72,7 +72,7 @@ pub fn run() -> Result<()> {
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             match projects.clone(&clone_options) {
                 Ok(_) => Message::done("The project has been cloned."),
-                Err(e) => return Err(anyhow!(e.to_string())),
+                Err(e) => bail!(e.to_string()),
             }
 
             if let Some(repo) = Utils::get_repository_name_from_url(&clone_options.remote) {
@@ -93,7 +93,7 @@ pub fn run() -> Result<()> {
 
             let name = if project_name == "-" {
                 if storage.is_recent_empty() {
-                    return Err(anyhow!("No project was opened recently."));
+                    bail!("No project was opened recently.")
                 }
                 storage.get_recent_project().unwrap()
             } else if config.options.autocomplete {
@@ -112,9 +112,7 @@ pub fn run() -> Result<()> {
                 };
 
                 if program.is_empty() {
-                    return Err(anyhow!(
-                        "Required program is not specified in configuration file."
-                    ));
+                    bail!("Required program is not specified in configuration file.");
                 }
 
                 if name != storage.get_recent_project().unwrap_or(Cow::from("")) {
@@ -158,15 +156,13 @@ pub fn run() -> Result<()> {
                     Err(e) => return Err(e),
                 }
             } else {
-                return Err(anyhow!("Project not found."));
+                bail!("Project not found.");
             }
         }
         Some(("list", _sub)) => {
             let config: Config = Config::load()?;
             if !Path::new(&config.options.path).exists() {
-                return Err(anyhow!(
-                    "A directory with projects does not exist on the file system."
-                ));
+                bail!("Directory with projects does not exist on the file system.");
             }
 
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
@@ -187,9 +183,7 @@ pub fn run() -> Result<()> {
             let args_name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
                 _ => {
-                    return Err(anyhow!(
-                        "You need to provide a name of the project you want to rename."
-                    ));
+                    bail!("You need to provide a name of the project you want to rename.");
                 }
             };
 
@@ -202,24 +196,24 @@ pub fn run() -> Result<()> {
             let new_name = match sub.get_one::<String>("newname") {
                 Some(new_name) if !new_name.is_empty() => new_name,
                 _ => {
-                    return Err(anyhow!(
-                        "You need to provide a new name for the project you want to rename."
-                    ));
+                    bail!("New name is not provided.");
                 }
             };
 
             match projects.rename(name, new_name) {
                 Ok(_) => Message::done(&format!("The project was renamed to '{}'.", new_name)),
-                Err(e) => return Err(anyhow!(e.to_string())),
+                Err(e) => bail!(e.to_string()),
             }
         }
         Some(("delete", sub)) => {
             let config: Config = Config::load()?;
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
-            
+
             let args_name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
-                _ => return Err(anyhow!("You need to provide a name of the project you want to delete.")),
+                _ => {
+                    bail!("You need to provide a name of the project you want to delete.");
+                }
             };
 
             let project_name = if config.options.autocomplete {
@@ -228,14 +222,17 @@ pub fn run() -> Result<()> {
                 args_name.to_string()
             };
 
-            let project = projects.get(&project_name)
+            let project = projects
+                .get(&project_name)
                 .map_err(|_| anyhow!("Project not found."))?;
 
             let force_delete = sub.get_flag("force");
             let is_empty = project.is_empty()?;
-            
-            if !is_empty && !force_delete && 
-               !Dialog::ask("Are you sure you want to delete this project?", false) {
+
+            if !is_empty
+                && !force_delete
+                && !Dialog::ask("Are you sure you want to delete this project?", false)
+            {
                 Message::info("Aborting.");
                 return Ok(());
             }
@@ -250,9 +247,7 @@ pub fn run() -> Result<()> {
                 }
                 Err(_) => {
                     spinner.finish_and_clear();
-                    return Err(anyhow!(
-                        "Failed to remove project directory because of the file system error."
-                    ));
+                    bail!("Failed to remove project directory because of the file system error.");
                 }
             }
         }
@@ -261,7 +256,7 @@ pub fn run() -> Result<()> {
                 let mut storage: Storage = Storage::load_storage()?;
                 let name = Dialog::ask_string("How do you want to name this template?");
                 if name.is_empty() {
-                    return Err(anyhow!("Incorrect name for a template."));
+                    bail!("Incorrect name for a template.");
                 }
 
                 let mut commands: Vec<String> = Vec::new();
@@ -277,7 +272,7 @@ pub fn run() -> Result<()> {
                 }
 
                 if commands.is_empty() {
-                    return Err(anyhow!("No commands entered."));
+                    bail!("No commands entered.");
                 }
 
                 Message::busy("Creating template...");
@@ -285,7 +280,7 @@ pub fn run() -> Result<()> {
                 if storage.save_storage().is_ok() {
                     Message::done("Template created.");
                 } else {
-                    return Err(anyhow!("Failed to save templates."));
+                    bail!("Failed to save templates.");
                 }
             }
             Some(("list", _sub)) => {
@@ -310,8 +305,8 @@ pub fn run() -> Result<()> {
                             Message::item(command);
                         }
                     }
-                    _ => {
-                        return Err(anyhow!("Template not found."));
+                    Err(_) => {
+                        bail!("Template not found.");
                     }
                 }
             }
@@ -322,7 +317,7 @@ pub fn run() -> Result<()> {
                     if storage.save_storage().is_ok() {
                         Message::done("All templates have been cleared.");
                     } else {
-                        return Err(anyhow!("Failed to save templates."));
+                        bail!("Failed to save templates.");
                     }
                 } else {
                     Message::info("Aborted.");
@@ -335,16 +330,14 @@ pub fn run() -> Result<()> {
                         if storage.save_storage().is_ok() {
                             Message::done("Template removed.");
                         } else {
-                            return Err(anyhow!("Failed to save templates."));
+                            bail!("Failed to save templates.");
                         }
                     }
-                    Err(_) => return Err(anyhow!("Template not found.")),
+                    Err(_) => bail!("Template not found."),
                 }
             }
             _ => {
-                return Err(anyhow!(
-                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands."
-                ));
+                bail!("Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.");
             }
         },
         Some(("config", sub)) => match sub.subcommand() {
@@ -355,9 +348,7 @@ pub fn run() -> Result<()> {
                 let config: Config = Config::load()?;
                 let editor = &config.editor.program;
                 if editor.is_empty() {
-                    return Err(anyhow!(
-                        "Editor program name is not set in the configuration file."
-                    ));
+                    bail!("Editor program name is not set in the configuration file.");
                 }
 
                 let path = Platform::get_config_path();
@@ -379,12 +370,10 @@ pub fn run() -> Result<()> {
                 }
             }
             _ => {
-                return Err(anyhow!(
-                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.",
-                ));
+                bail!("Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.");
             }
         },
-        _ => return Err(anyhow!("This command is not implemented.")),
+        _ => bail!("This command is not implemented."),
     }
     Ok(())
 }

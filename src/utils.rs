@@ -2,7 +2,7 @@ use crate::platform::{Platform, PlatformName};
 use crate::program::Program;
 use crate::terminal::{Dialog, Message};
 use crate::{config::Config, storage::Storage};
-use anyhow::{Error, Result, anyhow};
+use anyhow::{Error, Result, anyhow, bail};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -105,14 +105,14 @@ impl Utils {
             let default_config: Config = Config::default();
             match default_config.save() {
                 Ok(_) => {}
-                Err(e) => return Err(anyhow!(e.to_string())),
+                Err(e) => bail!(e.to_string()),
             }
         }
 
         if !Platform::check_templates_exists() {
             let templates = Storage::new();
             if templates.save_storage().is_err() {
-                return Err(anyhow!("Failed to generate storage file."));
+                bail!("Failed to generate storage file.");
             }
         }
 
@@ -168,10 +168,7 @@ impl Utils {
         let output = cmd.output()?;
 
         if !output.status.success() {
-            return Err(anyhow!(
-                "Command failed with exit code: '{}'",
-                output.status
-            ));
+            bail!("Command failed with exit code: {}", output.status);
         }
 
         Ok(())
