@@ -7,6 +7,9 @@
 - Added a spinner when deleteing a project.
 - Reduces storage writes.
 - You can use `--force` to force project deletion.
+- Migrate project to Rust 2024 edition.
+- Performance improvements.
+- Some changes in the wording of the messages.
 
 ## 0.5.2
 
