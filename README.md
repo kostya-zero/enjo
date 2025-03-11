@@ -1,11 +1,8 @@
 # Enjo ![Crates.io Version](https://img.shields.io/crates/v/enjo) ![GitHub branch check runs](https://img.shields.io/github/check-runs/kostya-zero/enjo/main)
 
-Enjo is a command-line tool for managing your projects. It provides a simple and user-friendly interface for creating, opening, and deleting projects.
-
-## Requirements
-
-- **OS**: Windows, Linux, macOS (compaitability with *BSD systems is not guaranteed).
-- **Nerd Font** (for icons)
+Enjo is a command-line tool for managing your projects. 
+It provides a simple and user-friendly interface for creating, opening, and deleting projects.
+Enjo is available for Windows, Linux, and macOS (compatibility with *BSD systems is not guaranteed).
 
 ## Installation
 
