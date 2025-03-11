@@ -2,6 +2,10 @@
 
 ## Next
 
+TBD
+
+## 0.6.0
+
 - The default value of `autocomplete` option are set to `true`.
 - Removed the icons from the output.
 - Added a spinner when deleting a project.
