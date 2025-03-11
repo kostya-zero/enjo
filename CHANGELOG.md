@@ -4,7 +4,7 @@
 
 - The default value of `autocomplete` option are set to `true`.
 - Removed the icons from the output.
-- Added a spinner when deleteing a project.
+- Added a spinner when deleting a project.
 - Reduces storage writes.
 - You can use `--force` to force project deletion.
 - Migrate project to Rust 2024 edition.

@@ -74,14 +74,6 @@ pub fn run() -> Result<()> {
                 Ok(_) => Message::done("The project has been cloned."),
                 Err(e) => bail!(e.to_string()),
             }
-
-            if let Some(repo) = Utils::get_repository_name_from_url(&clone_options.remote) {
-                if repo.to_string().starts_with('.') {
-                    Message::info(
-                        "Your project name begins with a dot. It will not be listed unless hidden projects are enabled.",
-                    );
-                }
-            }
         }
         Some(("open", sub)) => {
             let config: Config = Config::load()?;

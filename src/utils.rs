@@ -5,6 +5,7 @@ use crate::{config::Config, storage::Storage};
 use anyhow::{Error, Result, anyhow, bail};
 use std::path::Path;
 use std::process::{Command, Stdio};
+use crate::colors::{BOLD, RESET, WHITE};
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum CompletionResult {
@@ -31,20 +32,6 @@ impl Utils {
             Err(anyhow!(e.to_string()))
         } else {
             Ok(())
-        }
-    }
-
-    pub fn get_repository_name_from_url(url: &str) -> Option<&str> {
-        if let Some(pos) = url.rfind('/') {
-            let mut filename = &url[pos + 1..];
-
-            if filename.ends_with(".git") {
-                filename = &filename[..filename.len() - 4];
-            }
-
-            Some(filename)
-        } else {
-            None
         }
     }
 
@@ -141,7 +128,7 @@ impl Utils {
         let total_commands = template.len();
 
         for (idx, command) in template.iter().enumerate() {
-            Message::busy(&format!("[{}/{}] {}", idx + 1, total_commands, command));
+            println!("{}{}[{}/{}]{} {}", WHITE, BOLD, idx + 1, total_commands, RESET, command);
 
             Self::execute_template_command(program, command, &cwd, quite)
                 .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;
