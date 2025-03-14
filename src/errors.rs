@@ -30,7 +30,7 @@ pub enum LibraryError {
     FileSystemError,
 
     #[error("Failed to clone repository.")]
-    CloneFailed(ProgramError),
+    CloneFailed,
 
     #[error("Failed to rename.")]
     FailedToRename,

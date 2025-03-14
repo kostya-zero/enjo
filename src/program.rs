@@ -1,64 +1,58 @@
-use crate::errors::ProgramError;
-use std::process::{Command, Stdio};
+use std::{path::Path, process::{Command, Stdio}};
+use anyhow::{Result, anyhow};
 
-#[derive(Default)]
-pub struct Program {
-    prog: String,
-    args: Vec<String>,
-    cwd: String,
-    fork_mode: bool,
-}
+pub struct Program;
 
 impl Program {
-    pub fn new(program: &str) -> Self {
-        Self {
-            prog: program.to_string(),
-            ..Default::default()
-        }
-    }
-
-    pub fn set_args(&mut self, new_args: Vec<String>) {
-        self.args = new_args;
-    }
-
-    pub fn set_fork_mode(&mut self, fork_mode: bool) {
-        self.fork_mode = fork_mode;
-    }
-
-    pub fn set_cwd(&mut self, new_cwd: &str) {
-        self.cwd = new_cwd.to_string();
-    }
-
-    pub fn run(&self) -> Result<(), ProgramError> {
-        let mut cmd = Command::new(self.prog.clone());
+    pub fn launch_program(program: &str, args: Vec<String>, cwd: &str, fork_mode: bool) -> Result<()> {
+        let mut cmd = Command::new(program);
         cmd.stdin(Stdio::inherit());
         cmd.stdout(Stdio::inherit());
         cmd.stderr(Stdio::inherit());
-        let converted_args: Vec<&str> = self.args.iter().map(|i| i.as_str()).collect();
+        let converted_args: Vec<&str> = args.iter().map(|i| i.as_str()).collect();
         cmd.args(converted_args);
-        if !self.cwd.is_empty() {
-            cmd.current_dir(self.cwd.as_str());
+        if !cwd.is_empty() {
+            cmd.current_dir(cwd);
         }
 
         #[cfg(windows)]
         ctrlc::set_handler(|| {}).unwrap();
 
-        if self.fork_mode {
+        if fork_mode {
             match cmd.spawn() {
                 Ok(_) => Ok(()),
-                Err(e) => Err(ProgramError::Other(e.to_string())),
+                Err(e) => Err(anyhow!(e.to_string())),
             }
         } else {
             match cmd.output() {
                 Ok(_) => Ok(()),
                 Err(e) => match e.kind() {
-                    std::io::ErrorKind::NotFound => {
-                        Err(ProgramError::ExecutableNotFound(self.prog.clone()))
-                    }
-                    std::io::ErrorKind::Interrupted => Err(ProgramError::Interrupted),
-                    _ => Err(ProgramError::Other(e.kind().to_string())),
+                    std::io::ErrorKind::NotFound => Err(anyhow!("Executable not found: {}", program)),
+                    std::io::ErrorKind::Interrupted => Err(anyhow!("Process interrupted")),
+                    _ => Err(anyhow!(e.kind().to_string())),
                 },
             }
+        }
+    }
+
+    pub fn execute_command(
+        program: &str,
+        command: &str,
+        cwd: &Path,
+        quite: bool,
+    ) -> Result<()> {
+        let mut cmd = Command::new(program);
+        cmd.args(["-c", command]).current_dir(cwd);
+
+        if !quite {
+            cmd.stdin(Stdio::inherit())
+                .stdout(Stdio::inherit())
+                .stderr(Stdio::inherit());
+        }
+
+        match cmd.output() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(anyhow!(e.to_string())),
         }
     }
 }

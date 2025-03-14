@@ -1,4 +1,5 @@
 use crate::args::build_cli;
+use crate::program::Program;
 use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
@@ -131,7 +132,7 @@ pub fn run() -> Result<()> {
                     config.editor.fork_mode
                 };
 
-                match Utils::launch_program(&program, proc_args, project_path, fork_mode) {
+                match Program::launch_program(&program, proc_args, project_path, fork_mode) {
                     Ok(_) => {
                         if fork_mode {
                             Message::done("Editor launched.");
@@ -346,7 +347,7 @@ pub fn run() -> Result<()> {
                 let path = Platform::get_config_path();
                 let mut editor_args = config.editor.args;
                 editor_args.push(path.to_str().unwrap().to_string());
-                Utils::launch_program(editor.as_str(), editor_args, "", false)?
+                Program::launch_program(editor.as_str(), editor_args, "", false)?
             }
             Some(("reset", _sub)) => {
                 let mut config: Config = Config::load()?;

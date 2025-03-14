@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::Result;
 
-use crate::{constants::SYSTEM_DIRECTORIES, errors::LibraryError, program::Program};
+use crate::{program::Program, constants::SYSTEM_DIRECTORIES, errors::LibraryError};
 
 #[derive(Debug, Clone, Default)]
 pub struct CloneOptions {
@@ -90,7 +90,6 @@ impl Library {
     }
 
     pub fn clone(&self, options: &CloneOptions) -> Result<(), LibraryError> {
-        let mut program = Program::new("git");
         let mut args = vec!["clone".to_string(), options.remote.clone()];
 
         if let Some(name) = &options.name {
@@ -102,11 +101,10 @@ impl Library {
             args.push(branch.to_owned());
         }
 
-        program.set_args(args);
-        program.set_cwd(self.base_path.to_str().unwrap());
-        match program.run() {
+        let cwd = self.base_path.to_str().unwrap();
+        match Program::launch_program("git", args, cwd, false) {
             Ok(_) => Ok(()),
-            Err(e) => Err(LibraryError::CloneFailed(e)),
+            Err(_) => Err(LibraryError::CloneFailed),
         }
     }
 

@@ -6,8 +6,8 @@ mod constants;
 mod errors;
 mod library;
 mod platform;
-mod program;
 mod storage;
+mod program;
 pub mod terminal;
 mod utils;
 

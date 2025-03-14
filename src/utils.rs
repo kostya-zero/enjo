@@ -1,10 +1,9 @@
-use crate::platform::{Platform, PlatformName};
 use crate::program::Program;
+use crate::platform::{Platform, PlatformName};
 use crate::terminal::{Dialog, Message};
 use crate::{config::Config, storage::Storage};
 use anyhow::{Error, Result, anyhow, bail};
 use std::path::Path;
-use std::process::{Command, Stdio};
 use crate::colors::{BOLD, RESET, WHITE};
 
 #[derive(Debug, Eq, PartialEq)]
@@ -16,25 +15,6 @@ pub enum CompletionResult {
 
 pub struct Utils;
 impl Utils {
-    pub fn launch_program(
-        program: &str,
-        args: Vec<String>,
-        cwd: &str,
-        fork_mode: bool,
-    ) -> Result<()> {
-        let mut proc = Program::new(program);
-        if !cwd.is_empty() {
-            proc.set_cwd(cwd);
-        }
-        proc.set_fork_mode(fork_mode);
-        proc.set_args(args);
-        if let Err(e) = proc.run() {
-            Err(anyhow!(e.to_string()))
-        } else {
-            Ok(())
-        }
-    }
-
     pub fn autocomplete(word: &str, words_list: Vec<&str>) -> Option<String> {
         let suggested = Self::suggest_completion(word, words_list.clone());
 
@@ -130,32 +110,8 @@ impl Utils {
         for (idx, command) in template.iter().enumerate() {
             println!("{}{}[{}/{}]{} {}", WHITE, BOLD, idx + 1, total_commands, RESET, command);
 
-            Self::execute_template_command(program, command, &cwd, quite)
+            Program::execute_command(program, command, &cwd, quite)
                 .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;
-        }
-
-        Ok(())
-    }
-
-    fn execute_template_command(
-        program: &str,
-        command: &str,
-        cwd: &Path,
-        quite: bool,
-    ) -> Result<(), Error> {
-        let mut cmd = Command::new(program);
-        cmd.args(["-c", command]).current_dir(cwd);
-
-        if !quite {
-            cmd.stdin(Stdio::inherit())
-                .stdout(Stdio::inherit())
-                .stderr(Stdio::inherit());
-        }
-
-        let output = cmd.output()?;
-
-        if !output.status.success() {
-            bail!("Command failed with exit code: {}", output.status);
         }
 
         Ok(())
