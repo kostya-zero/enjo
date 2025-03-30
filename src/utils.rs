@@ -4,7 +4,6 @@ use crate::terminal::{Dialog, Message};
 use crate::{config::Config, storage::Storage};
 use anyhow::{Error, Result, anyhow, bail};
 use std::path::Path;
-use crate::colors::{BOLD, RESET, WHITE};
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum CompletionResult {
@@ -97,7 +96,7 @@ impl Utils {
             .get_template(template_name)
             .map_err(|_| anyhow!("Template not found"))?;
 
-        Message::info("Generating project from template...");
+        Message::print("Generating project from template...");
 
         let program = match Platform::get_platform() {
             PlatformName::Windows => "powershell.exe",
@@ -108,7 +107,8 @@ impl Utils {
         let total_commands = template.len();
 
         for (idx, command) in template.iter().enumerate() {
-            println!("{}{}[{}/{}]{} {}", WHITE, BOLD, idx + 1, total_commands, RESET, command);
+            let current = idx as i8 + 1;
+            Message::progress(command, current, total_commands as i8);
 
             Program::execute_command(program, command, &cwd, quite)
                 .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;

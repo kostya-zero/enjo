@@ -12,10 +12,6 @@ use crate::colors;
 pub struct Message;
 
 impl Message {
-    fn print_message(prefix: &str, color_code: &str, msg: &str) {
-        println!("{}{}{}\x1b[0m: {}", color_code, colors::BOLD, prefix, msg);
-    }
-
     pub fn error(msg: &str) {
         eprintln!(
             "{}{}error{}: {}",
@@ -26,16 +22,12 @@ impl Message {
         )
     }
 
-    pub fn done(msg: &str) {
-        Self::print_message("done", colors::GREEN, msg);
+    pub fn print(msg: &str) {
+        println!("{}", msg);
     }
 
-    pub fn busy(msg: &str) {
-        Self::print_message("busy", colors::WHITE, msg);
-    }
-
-    pub fn info(msg: &str) {
-        Self::print_message("info", colors::WHITE, msg);
+    pub fn progress(msg: &str, current: i8, total: i8) {
+        println!("{}{}[{}/{}]{} {}", colors::WHITE, colors::BOLD, current, total, colors::RESET, msg);
     }
 
     pub fn title(msg: &str) {
