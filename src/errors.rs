@@ -26,6 +26,9 @@ pub enum LibraryError {
     #[error("Argument is empty.")]
     EmptyArgument,
 
+    #[error("Invalid path to the projects directory.")]
+    InvalidPath,
+
     #[error("File system error occured.")]
     FileSystemError,
 

@@ -105,8 +105,7 @@ pub fn run() -> Result<()> {
             };
 
             if let Ok(project) = projects.get(name.as_ref()) {
-                let is_shell = sub.get_flag("shell");
-                let (program, args, end_message, start_message, fork_mode) = if is_shell {
+                let (program, args, end_message, start_message, fork_mode) = if sub.get_flag("shell") {
                     (
                         config.shell.program,
                         Vec::new(),
@@ -133,10 +132,9 @@ pub fn run() -> Result<()> {
                     storage.save_storage().unwrap();
                 }
 
-                let project_path = project.get_path_str();
                 Message::print(start_message);
 
-                Program::launch_program(&program, args, project_path, fork_mode)?;
+                Program::launch_program(&program, args, project.get_path_str(), fork_mode)?;
 
                 if fork_mode {
                     // Because only editor could be launched in fork mode.
@@ -151,10 +149,6 @@ pub fn run() -> Result<()> {
         }
         Some(("list", _sub)) => {
             let config: Config = Config::load()?;
-            if !Path::new(&config.options.path).exists() {
-                bail!("Directory with projects does not exist on the file system.");
-            }
-
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             if projects.is_empty() {
                 Message::print("No projects found.");
@@ -186,7 +180,7 @@ pub fn run() -> Result<()> {
             let new_name = match sub.get_one::<String>("newname") {
                 Some(new_name) if !new_name.is_empty() => new_name,
                 _ => {
-                    bail!("New name is not provided.");
+                    bail!("Provide a new name for the project.");
                 }
             };
 
@@ -244,7 +238,7 @@ pub fn run() -> Result<()> {
         Some(("templates", sub)) => match sub.subcommand() {
             Some(("new", _sub)) => {
                 let mut storage: Storage = Storage::load_storage()?;
-                let name = Dialog::ask_string("How do you want to name this template?");
+                let name = Dialog::ask_string("Name of new template?");
                 if name.is_empty() {
                     bail!("Incorrect name for a template.");
                 }
@@ -252,7 +246,7 @@ pub fn run() -> Result<()> {
                 let mut commands: Vec<String> = Vec::new();
                 loop {
                     let command = Dialog::ask_string(
-                        "Enter a command (or just press enter to stop entering commands):",
+                        "Enter a command (or press enter to finish):",
                     );
                     if command.trim().is_empty() {
                         break;
@@ -351,7 +345,7 @@ pub fn run() -> Result<()> {
             Some(("reset", _sub)) => {
                 let mut config: Config = Config::load()?;
                 if Dialog::ask(
-                    "Do you really want to reset your current configuration?",
+                    "Reset your current configuration?",
                     false,
                 ) {
                     config.reset();

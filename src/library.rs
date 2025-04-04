@@ -52,6 +52,9 @@ pub struct Library {
 impl Library {
     pub fn new(path: &str, display_hidden: bool) -> Result<Self, LibraryError> {
         let base_path = PathBuf::from(path);
+        if !base_path.exists() || !base_path.is_dir() {
+            return Err(LibraryError::InvalidPath);
+        }
         let projects = Self::collect_projects(path, display_hidden)?;
         Ok(Self {
             projects,
