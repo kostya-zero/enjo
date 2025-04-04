@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::Result;
 
-use crate::{program::Program, constants::SYSTEM_DIRECTORIES, errors::LibraryError};
+use crate::{constants::SYSTEM_DIRECTORIES, errors::LibraryError, program::Program};
 
 #[derive(Debug, Clone, Default)]
 pub struct CloneOptions {

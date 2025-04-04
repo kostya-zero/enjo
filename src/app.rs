@@ -1,8 +1,8 @@
 use crate::args::build_cli;
-use crate::program::Program;
 use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
+use crate::program::Program;
 use crate::storage::Storage;
 use crate::terminal::{Dialog, Message, create_spinner};
 use crate::utils::Utils;
@@ -45,7 +45,10 @@ pub fn run() -> Result<()> {
                     return Err(e);
                 }
                 let elapsed_time = started_time.elapsed().as_millis();
-                Message::print(&format!("Generated project from template in {} ms.", elapsed_time));
+                Message::print(&format!(
+                    "Generated project from template in {} ms.",
+                    elapsed_time
+                ));
             }
 
             Message::print("The project has been created.")
@@ -103,9 +106,22 @@ pub fn run() -> Result<()> {
 
             if let Ok(project) = projects.get(name.as_ref()) {
                 let is_shell = sub.get_flag("shell");
-                let program = match is_shell {
-                    true => config.shell.program,
-                    false => config.editor.program,
+                let (program, args, end_message, start_message, fork_mode) = if is_shell {
+                    (
+                        config.shell.program,
+                        Vec::new(),
+                        "Shell session ended.",
+                        "Launching shell...",
+                        false,
+                    )
+                } else {
+                    (
+                        config.editor.program,
+                        config.editor.args,
+                        "Editor session ended.",
+                        "Launching editor...",
+                        config.editor.fork_mode,
+                    )
                 };
 
                 if program.is_empty() {
@@ -118,40 +134,17 @@ pub fn run() -> Result<()> {
                 }
 
                 let project_path = project.get_path_str();
-                let proc_args = if is_shell {
-                    Vec::new()
-                } else {
-                    config.editor.args.clone()
-                };
+                Message::print(start_message);
 
-                if is_shell {
-                    Message::print("New shell session is starting...");
-                } else {
-                    Message::print("Launching editor...");
-                };
+                Program::launch_program(&program, args, project_path, fork_mode)?;
 
-                let fork_mode = if is_shell {
-                    false
-                } else {
-                    config.editor.fork_mode
-                };
-
-                match Program::launch_program(&program, proc_args, project_path, fork_mode) {
-                    Ok(_) => {
-                        if fork_mode {
-                            Message::print("Editor launched.");
-                            return Ok(());
-                        }
-                        let end_message = if is_shell {
-                            "End of shell session."
-                        } else {
-                            "Editor has been closed."
-                        };
-                        Message::print(end_message);
-                        return Ok(());
-                    }
-                    Err(e) => return Err(e),
+                if fork_mode {
+                    // Because only editor could be launched in fork mode.
+                    Message::print("Editor launched.");
+                    return Ok(());
                 }
+
+                Message::print(end_message);
             } else {
                 bail!("Project not found.");
             }
@@ -334,7 +327,9 @@ pub fn run() -> Result<()> {
                 }
             }
             _ => {
-                bail!("Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.");
+                bail!(
+                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands."
+                );
             }
         },
         Some(("config", sub)) => match sub.subcommand() {
@@ -367,7 +362,9 @@ pub fn run() -> Result<()> {
                 }
             }
             _ => {
-                bail!("Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands.");
+                bail!(
+                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands."
+                );
             }
         },
         _ => bail!("This command is not implemented."),

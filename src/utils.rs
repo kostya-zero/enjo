@@ -1,5 +1,5 @@
-use crate::program::Program;
 use crate::platform::{Platform, PlatformName};
+use crate::program::Program;
 use crate::terminal::{Dialog, Message};
 use crate::{config::Config, storage::Storage};
 use anyhow::{Error, Result, anyhow, bail};

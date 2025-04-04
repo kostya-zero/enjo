@@ -27,7 +27,15 @@ impl Message {
     }
 
     pub fn progress(msg: &str, current: i8, total: i8) {
-        println!("{}{}[{}/{}]{} {}", colors::WHITE, colors::BOLD, current, total, colors::RESET, msg);
+        println!(
+            "{}{}[{}/{}]{} {}",
+            colors::WHITE,
+            colors::BOLD,
+            current,
+            total,
+            colors::RESET,
+            msg
+        );
     }
 
     pub fn title(msg: &str) {

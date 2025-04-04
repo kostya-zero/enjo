@@ -1,10 +1,18 @@
-use std::{path::Path, process::{Command, Stdio}};
 use anyhow::{Result, anyhow};
+use std::{
+    path::Path,
+    process::{Command, Stdio},
+};
 
 pub struct Program;
 
 impl Program {
-    pub fn launch_program(program: &str, args: Vec<String>, cwd: &str, fork_mode: bool) -> Result<()> {
+    pub fn launch_program(
+        program: &str,
+        args: Vec<String>,
+        cwd: &str,
+        fork_mode: bool,
+    ) -> Result<()> {
         let mut cmd = Command::new(program);
         cmd.stdin(Stdio::inherit());
         cmd.stdout(Stdio::inherit());
@@ -27,7 +35,9 @@ impl Program {
             match cmd.output() {
                 Ok(_) => Ok(()),
                 Err(e) => match e.kind() {
-                    std::io::ErrorKind::NotFound => Err(anyhow!("Executable not found: {}", program)),
+                    std::io::ErrorKind::NotFound => {
+                        Err(anyhow!("Executable not found: {}", program))
+                    }
                     std::io::ErrorKind::Interrupted => Err(anyhow!("Process interrupted")),
                     _ => Err(anyhow!(e.kind().to_string())),
                 },
@@ -35,16 +45,11 @@ impl Program {
         }
     }
 
-    pub fn execute_command(
-        program: &str,
-        command: &str,
-        cwd: &Path,
-        quite: bool,
-    ) -> Result<()> {
+    pub fn execute_command(program: &str, command: &str, cwd: &Path, quiet: bool) -> Result<()> {
         let mut cmd = Command::new(program);
         cmd.args(["-c", command]).current_dir(cwd);
 
-        if !quite {
+        if !quiet {
             cmd.stdin(Stdio::inherit())
                 .stdout(Stdio::inherit())
                 .stderr(Stdio::inherit());
