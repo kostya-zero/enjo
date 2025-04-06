@@ -8,7 +8,7 @@ use crate::terminal::{Dialog, Message, create_spinner};
 use crate::utils::Utils;
 use anyhow::{Result, anyhow, bail};
 use std::time::Instant;
-use std::{borrow::Cow, path::Path};
+use std::borrow::Cow;
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
@@ -28,13 +28,13 @@ pub fn run() -> Result<()> {
 
             if let Some(template_name) = sub.get_one::<String>("template") {
                 let started_time = Instant::now();
-                if let Err(e) = Utils::apply_template(
+                if let Err(e) = Utils::apply_template(  
                     template_name,
                     name,
                     &config.options.path,
                     sub.get_flag("quite"),
                 ) {
-                    Message::error("Failed to apply template. Cleaning up...");
+                    Message::error("Failed to apply temp_+late. Cleaning up...");
                     if let Err(cleanup_err) = projects.delete(name) {
                         bail!(
                             "Template application failed: {}. Additionally, cleanup failed: {}",
