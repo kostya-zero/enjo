@@ -39,7 +39,7 @@ impl Message {
     }
 
     pub fn title(msg: &str) {
-        println!("{}{}{}", colors::BOLD, msg, colors::RESET);
+        println!("{}{}{}{}", colors::BOLD, colors::WHITE, msg, colors::RESET);
     }
 
     pub fn item(msg: &str) {

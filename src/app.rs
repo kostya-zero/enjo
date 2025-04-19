@@ -150,6 +150,7 @@ pub fn run() -> Result<()> {
         }
         Some(("list", _sub)) => {
             let config: Config = Config::load()?;
+            let storage: Storage = Storage::load_storage()?;
             let projects = Library::new(&config.options.path, config.options.display_hidden)?;
             if projects.is_empty() {
                 Message::print("No projects found.");
@@ -158,7 +159,11 @@ pub fn run() -> Result<()> {
 
             Message::title("Your projects:");
             for project in projects.get_vec().iter() {
-                Message::item(project.get_name());
+                if project.get_name() == storage.get_recent_project().unwrap_or(Cow::from("")) {
+                    Message::item(&format!("{} \x1b[1m(recent)\x1b[0m", project.get_name()));
+                } else {
+                    Message::item(project.get_name());
+                }
             }
         }
         Some(("rename", sub)) => {
