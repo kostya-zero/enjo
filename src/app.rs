@@ -7,8 +7,8 @@ use crate::storage::Storage;
 use crate::terminal::{Dialog, Message, create_spinner};
 use crate::utils::Utils;
 use anyhow::{Result, anyhow, bail};
-use std::time::Instant;
 use std::borrow::Cow;
+use std::time::Instant;
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
@@ -28,7 +28,7 @@ pub fn run() -> Result<()> {
 
             if let Some(template_name) = sub.get_one::<String>("template") {
                 let started_time = Instant::now();
-                if let Err(e) = Utils::apply_template(  
+                if let Err(e) = Utils::apply_template(
                     template_name,
                     name,
                     &config.options.path,
@@ -49,9 +49,9 @@ pub fn run() -> Result<()> {
                     "Generated project from template in {} ms.",
                     elapsed_time
                 ));
+            } else {
+                Message::print("Done.")
             }
-
-            Message::print("The project has been created.")
         }
         Some(("clone", sub)) => {
             let config: Config = Config::load()?;
@@ -105,23 +105,24 @@ pub fn run() -> Result<()> {
             };
 
             if let Ok(project) = projects.get(name.as_ref()) {
-                let (program, args, end_message, start_message, fork_mode) = if sub.get_flag("shell") {
-                    (
-                        config.shell.program,
-                        Vec::new(),
-                        "Shell session ended.",
-                        "Launching shell...",
-                        false,
-                    )
-                } else {
-                    (
-                        config.editor.program,
-                        config.editor.args,
-                        "Editor session ended.",
-                        "Launching editor...",
-                        config.editor.fork_mode,
-                    )
-                };
+                let (program, args, end_message, start_message, fork_mode) =
+                    if sub.get_flag("shell") {
+                        (
+                            config.shell.program,
+                            Vec::new(),
+                            "Shell session ended.",
+                            "Launching shell...",
+                            false,
+                        )
+                    } else {
+                        (
+                            config.editor.program,
+                            config.editor.args,
+                            "Editor session ended.",
+                            "Launching editor...",
+                            config.editor.fork_mode,
+                        )
+                    };
 
                 if program.is_empty() {
                     bail!("Required program is not specified in configuration file.");
@@ -245,9 +246,7 @@ pub fn run() -> Result<()> {
 
                 let mut commands: Vec<String> = Vec::new();
                 loop {
-                    let command = Dialog::ask_string(
-                        "Enter a command (or press enter to finish):",
-                    );
+                    let command = Dialog::ask_string("Enter a command (or press enter to finish):");
                     if command.trim().is_empty() {
                         break;
                     } else {
@@ -344,10 +343,7 @@ pub fn run() -> Result<()> {
             }
             Some(("reset", _sub)) => {
                 let mut config: Config = Config::load()?;
-                if Dialog::ask(
-                    "Reset your current configuration?",
-                    false,
-                ) {
+                if Dialog::ask("Reset your current configuration?", false) {
                     config.reset();
                     config.save()?;
                     Message::print("The configuration has been reset.");
