@@ -29,19 +29,19 @@ pub fn build_cli() -> Command {
                 .about("Clone Git repository (requires git to be installed).")
                 .args([
                     Arg::new("remote")
-                        .help("Repository to be cloned.")
+                        .help("URL of repository to clone.")
                         .value_parser(value_parser!(String))
                         .required(false)
                         .num_args(1),
                     Arg::new("name")
-                        .help("Name of directory for this repo.")
+                        .help("Directory name for the cloned repository.")
                         .value_parser(value_parser!(String))
                         .short('n')
                         .long("name")
                         .required(false)
                         .num_args(1),
                     Arg::new("branch")
-                        .help("Branch to use as default while cloning.")
+                        .help("Branch to clone.")
                         .value_parser(value_parser!(String))
                         .short('b')
                         .long("branch")
@@ -70,7 +70,7 @@ pub fn build_cli() -> Command {
                     .required(false)
                     .num_args(1),
                 Arg::new("newname")
-                    .help("New name.")
+                    .help("New name for the project.")
                     .value_parser(value_parser!(String))
                     .required(false)
                     .num_args(1),
