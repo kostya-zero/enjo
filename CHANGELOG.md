@@ -1,8 +1,16 @@
 # Enjo changelog
 
-## Next
+# Next
 
 TBD
+
+## 0.6.1
+
+- Mark the most recently opened project in the `list` command output.
+- More concise output for all commands.
+- Improve help messages for the `clone` and `rename` commands.
+- Various internal refactorings and code improvements for better maintainability and error handling.
+- Fixes for internal tests.
 
 ## 0.6.0
 
