@@ -1,26 +1,25 @@
-# Configuration manual
+# Configuration Manual
 
-With this manual you can easily configure Enjo for your workspace.
+This manual provides guidance on configuring Enjo for your workspace.
 
-### Configuration file
+### Configuration File
 
-If you don't have configuration file in your file system, Enjo will generate it in this locations:
+If a configuration file does not exist in your file system, Enjo will generate one in the following locations:
 
 - **Windows**: `%USERPROFILE%\.enjo\config.toml`
 - **Linux** and **macOS**: `$HOME/.enjo/config.toml`
 
-Enjo will generate configuration based on your environment settings like `EDITOR` and `SHELL` environment variables.
+Enjo generates the configuration based on your environment settings, such as the `EDITOR` and `SHELL` environment variables.
 
 > [!NOTE]
-> If you are using _VS Code_, _VS Codium_ or _Windsurf_ on Windows, Enjo will set `editor` field to `code.cmd`, `codium.cmd` and `windsurf.cmd` in configuration, because for some reason Enjo cant find `code` and `codium`. Also, Enjo will add a single dot to `editor_args` to tell _VS Code_, _VS Codium_, _Windsurf_ and _Zed_ to open this directory.
+> If you are using _VS Code_, _VS Codium_, or _Windsurf_ on Windows, Enjo will set the `program` field to `code.cmd`, `codium.cmd`, or `windsurf.cmd` respectively in the `[editor]` section of your configuration, as these editors are launched via `.cmd` files. Additionally, Enjo will add a single dot (`.`) to the `args` field in the `[editor]` section to instruct _VS Code_, _VS Codium_, _Windsurf_, and _Zed_ to open the current directory.
 
 ### Default configuration structure
 
 ```toml
 [options]
-path = '/home/user'
+projects_directory = '/home/user'
 display_hidden = false
-autocomplete = false
 
 [editor]
 program = "nvim"
@@ -29,32 +28,49 @@ args = []
 
 [shell]
 program = "fish"
+
+[recent]
+enabled = true
+recent_project = "example"
+
+[autocomplete]
+enabled = true
 ```
 
-For more information about fields in configuration goto [parameters section](#parameters).
+For more information about the fields in the configuration, refer to the [Parameters section](#parameters).
 
 ### Manage configuration
 
-Enjo allows to manage configuration through `config` subcommand. This is a list of available actions:
+Enjo allows you to manage the configuration through the `config` subcommand. Here is a list of available actions:
 
-- `edit` - Open editor to configure configuration file.
-- `path` - Get path to the configuration file.
-- `reset` - Reset configuration.
+- `edit` - Opens the configuration file in the editor specified in the `[editor]` section of the configuration. This allows you to manually edit the configuration settings.
+- `path` - Gets the path to the configuration file.
+- `reset` - Resets the configuration to its default settings.
 
 # Parameters
 
+This section details the configuration parameters available in the `config.toml` file, organized by their respective sections.
+
 ### `options`
 
-- `path` - Path to directory with your projects. But default it uses path to user's home directory.
-- `autocomplete` - Enables autocomplete functionality. Disabled by default.
-- `display_hidden` - This options determines the display of hidden directories. By default, set to `false`.
+- `projects_directory` - Path to the directory containing your projects. By default, it uses the path to the user's home directory.
+- `display_hidden` - Controls whether hidden directories are displayed. By default, set to `false`.
 
 ### `editor`
 
-- `program` - The name of the executable to be used as an editor to open projects and configuration file. You can specify it as the name of an executable (e.g., `nvim`) or as an absolute path to the executable (e.g., `/usr/bin/nvim`).
-- `fork_mode` - Determines whether the editor should run as a separate process.
-- `args` - Arguments to be passed to the editor. By default this field is empty, but for _VS Code_ and _VS Codium_ it will contain a dot.
+- `program` - The name of the executable to be used as an editor to open projects and the configuration file. You can specify it as the name of an executable (e.g., `nvim`) or as an absolute path to the executable (e.g., `/usr/bin/nvim`).
+- `fork_mode` - Determines whether the editor should run as a separate process. Set this to `true` if you want Enjo to launch the editor and immediately return control to the terminal (useful for GUI editors).
+- `args` - Arguments to be passed to the editor. By default, this field is empty, but for _VS Code_, _VS Codium_, _Windsurf_, and _Zed_, it will contain a dot (`.`) to open the current directory.
 
 ### `shell`
 
-- `program` - Name of executable that will be used as shell to open projects. You set it like name of executable (e.g. `bash`) or as absolute path to executable (e.g. `/usr/bin/bash`).
+- `program` - Name of the executable that will be used as a shell to open projects. You can set it as the name of an executable (e.g., `bash`) or as an absolute path to the executable (e.g., `/usr/bin/bash`).
+
+### `recent`
+
+- `enabled` - Controls whether the recent projects feature is enabled. By default, set to `true`.
+- `recent_project` - Name of the most recent project. This field is used to store the name of the most recently opened project.
+
+### `autocomplete`
+
+- `enabled` - Controls whether the autocomplete feature is enabled. By default, set to `true`.

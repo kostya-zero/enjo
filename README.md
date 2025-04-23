@@ -1,41 +1,41 @@
 # Enjo ![Crates.io Version](https://img.shields.io/crates/v/enjo) ![GitHub branch check runs](https://img.shields.io/github/check-runs/kostya-zero/enjo/main)
 
-Enjo is a command-line tool for managing your projects. 
-It provides a simple and user-friendly interface for creating, opening, and deleting projects.
+Enjo is a command-line tool designed for managing your projects.
+It offers a simple and user-friendly interface for creating, opening, and deleting projects.
 Enjo is available for Windows, Linux, and macOS (compatibility with *BSD systems is not guaranteed).
 
 ## Installation
 
-We recommend to use [Cargo](https://doc.rust-lang.org/cargo/) to install Enjo. You can install Enjo using the following commands:
+We recommend using [Cargo](https://doc.rust-lang.org/cargo/) to install Enjo. You can install Enjo with the following commands:
 
 ```shell
 # Compile and install Enjo.
 cargo install enjo
 
-# For precompiled binaries (if you have cargo-binstall installed).
+# Install precompiled binaries (requires cargo-binstall).
 cargo binstall enjo
 ```
 
-Also you can install Enjo from [GitHub Releases](https://github.com/kostya-zero/enjo/releases). If you want to build Enjo, please visit [Building Enjo](docs/BUILDING.md).
+You can also install Enjo from [GitHub Releases](https://github.com/kostya-zero/enjo/releases). If you prefer to build Enjo from source, please refer to the [Building Enjo](docs/BUILDING.md) guide.
 
 ## Usage
 
-Before using Enjo, configure it based on your workspace setup. Full configuration options are available in the [Configuration Manual](docs/CONFIGURATION.md).
+Before using Enjo, configure it according to your workspace setup. Detailed configuration options are available in the [Configuration Manual](docs/CONFIGURATION.md).
 
 ### List Projects
 
-Enjo allows easy management of your projects. To view a list of projects, use the `list` subcommand:
+Enjo simplifies project management. To view a list of your projects, use the `list` subcommand:
 
 ```shell
 enjo list
 ```
 
 > [!NOTE]
-> By default, Enjo will hide projects that begin with a dot (e.g., `.hidden_project`). You can adjust this setting by configuring the `display_hidden` parameter as outlined in the [Configuration Manual](docs/CONFIGURATION.md).
+> By default, Enjo hides projects whose names start with a dot (e.g., `.hidden_project`). You can change this behavior by configuring the `display_hidden` parameter as described in the [Configuration Manual](docs/CONFIGURATION.md).
 
 ### Managing Projects
 
-Creating and deleting projects in Enjo is straightforward:
+Creating and deleting projects with Enjo is straightforward:
 
 ```shell
 # Create a new project.
@@ -47,7 +47,7 @@ enjo delete bookshelf
 
 ### Working with Projects
 
-Open project directories directly in your editor or shell using the `open` subcommand:
+Open project directories directly in your configured editor or shell using the `open` subcommand:
 
 ```shell
 # Open the project in your editor.
@@ -59,7 +59,7 @@ enjo open bookshelf --shell
 
 ### Quick Help
 
-For help with commands, use the `--help` flag:
+For assistance with commands, use the `--help` flag:
 
 ```shell
 # General help.

@@ -6,27 +6,36 @@ use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
 
 #[derive(Deserialize, Serialize, Clone)]
-#[serde(default)]
 pub struct Options {
-    pub path: String,
+    pub projects_directory: String,
     pub display_hidden: bool,
-    pub autocomplete: bool,
 }
 
 #[derive(Deserialize, Serialize, Default, Clone)]
-#[serde(default)]
 pub struct Config {
     pub options: Options,
     pub editor: EditorOptions,
     pub shell: ShellOptions,
+    pub recent: Recent,
+    pub autocomplete: Autocomplete,
+}
+
+#[derive(Deserialize, Serialize, Default, Clone)]
+pub struct Autocomplete {
+    pub enabled: bool,
+}
+
+#[derive(Deserialize, Serialize, Default, Clone)]
+pub struct Recent {
+    pub enabled: bool,
+    pub recent_project: String,
 }
 
 impl Default for Options {
     fn default() -> Self {
         Self {
-            path: Platform::get_user_home().to_str().unwrap().to_string(),
+            projects_directory: Platform::get_user_home().to_str().unwrap().to_string(),
             display_hidden: false,
-            autocomplete: true,
         }
     }
 }

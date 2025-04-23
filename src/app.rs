@@ -18,7 +18,10 @@ pub fn run() -> Result<()> {
     match args.subcommand() {
         Some(("new", sub)) => {
             let config: Config = Config::load()?;
-            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
+            let projects = Library::new(
+                &config.options.projects_directory,
+                config.options.display_hidden,
+            )?;
 
             let name = sub
                 .get_one::<String>("name")
@@ -31,10 +34,10 @@ pub fn run() -> Result<()> {
                 if let Err(e) = Utils::apply_template(
                     template_name,
                     name,
-                    &config.options.path,
-                    sub.get_flag("quite"),
+                    &config.options.projects_directory,
+                    sub.get_flag("quiet"),
                 ) {
-                    Message::error("Failed to apply temp_+late. Cleaning up...");
+                    Message::error("Failed to apply template. Cleaning up...");
                     if let Err(cleanup_err) = projects.delete(name) {
                         bail!(
                             "Template application failed: {}. Additionally, cleanup failed: {}",
@@ -77,7 +80,10 @@ pub fn run() -> Result<()> {
                 name,
             };
 
-            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
+            let projects = Library::new(
+                &config.options.projects_directory,
+                config.options.display_hidden,
+            )?;
             match projects.clone(&clone_options) {
                 Ok(_) => Message::print("The project has been cloned."),
                 Err(e) => bail!(e.to_string()),
@@ -86,7 +92,10 @@ pub fn run() -> Result<()> {
         Some(("open", sub)) => {
             let config: Config = Config::load()?;
             let mut storage: Storage = Storage::load_storage()?;
-            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
+            let projects = Library::new(
+                &config.options.projects_directory,
+                config.options.display_hidden,
+            )?;
             let project_name = sub
                 .get_one::<String>("name")
                 .ok_or_else(|| anyhow!("The project name is not provided."))?;
@@ -96,7 +105,7 @@ pub fn run() -> Result<()> {
                     bail!("No project was opened recently.")
                 }
                 storage.get_recent_project().unwrap()
-            } else if config.options.autocomplete {
+            } else if config.autocomplete.enabled {
                 Cow::from(
                     Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default(),
                 )
@@ -151,7 +160,10 @@ pub fn run() -> Result<()> {
         Some(("list", _sub)) => {
             let config: Config = Config::load()?;
             let storage: Storage = Storage::load_storage()?;
-            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
+            let projects = Library::new(
+                &config.options.projects_directory,
+                config.options.display_hidden,
+            )?;
             if projects.is_empty() {
                 Message::print("No projects found.");
                 return Ok(());
@@ -168,7 +180,10 @@ pub fn run() -> Result<()> {
         }
         Some(("rename", sub)) => {
             let config: Config = Config::load()?;
-            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
+            let projects = Library::new(
+                &config.options.projects_directory,
+                config.options.display_hidden,
+            )?;
 
             let args_name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
@@ -177,7 +192,7 @@ pub fn run() -> Result<()> {
                 }
             };
 
-            let name = if config.options.autocomplete {
+            let name = if config.autocomplete.enabled {
                 &Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
             } else {
                 args_name
@@ -197,7 +212,10 @@ pub fn run() -> Result<()> {
         }
         Some(("delete", sub)) => {
             let config: Config = Config::load()?;
-            let projects = Library::new(&config.options.path, config.options.display_hidden)?;
+            let projects = Library::new(
+                &config.options.projects_directory,
+                config.options.display_hidden,
+            )?;
 
             let args_name = match sub.get_one::<String>("name") {
                 Some(name) if !name.is_empty() => name,
@@ -206,7 +224,7 @@ pub fn run() -> Result<()> {
                 }
             };
 
-            let project_name = if config.options.autocomplete {
+            let project_name = if config.autocomplete.enabled {
                 Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
             } else {
                 args_name.to_string()

@@ -20,9 +20,9 @@ pub fn build_cli() -> Command {
                     .short('t')
                     .long("template")
                     .num_args(1),
-                Arg::new("quite")
+                Arg::new("quiet")
                     .help("Do not show the output of the running commands.")
-                    .long("quite")
+                    .long("quiet")
                     .action(ArgAction::SetTrue),
             ]),
             Command::new("clone")
