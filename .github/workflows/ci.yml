@@ -45,9 +45,7 @@ jobs:
         name: Install cargo-nextest
         with:
           tool: nextest
-      - name: Run test
-        run: cargo test --no-run --target x86_64-unknown-linux-gnu
       - name: Run Nextest
-        run: cargo nextest run 
+        run: cargo nextest run --target x86_64-unknown-linux-gnu
 
 
