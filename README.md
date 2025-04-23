@@ -31,7 +31,7 @@ enjo list
 ```
 
 > [!NOTE]
-> By default, Enjo will hide projects that begin with a dot (e.g., .`hidden_project`). You can adjust this setting by configuring the `hide_dots` parameter as outlined in the [Configuration Manual](docs/CONFIGURATION.md).
+> By default, Enjo will hide projects that begin with a dot (e.g., `.hidden_project`). You can adjust this setting by configuring the `display_hidden` parameter as outlined in the [Configuration Manual](docs/CONFIGURATION.md).
 
 ### Managing Projects
 
