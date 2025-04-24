@@ -1,7 +1,8 @@
+use crate::config::Config;
 use crate::platform::{Platform, PlatformName};
 use crate::program::Program;
+use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
-use crate::{config::Config, storage::Storage};
 use anyhow::{Error, Result, anyhow, bail};
 use std::path::Path;
 
@@ -76,9 +77,9 @@ impl Utils {
         }
 
         if !Platform::check_templates_exists() {
-            let templates = Storage::new();
-            if templates.save_storage().is_err() {
-                bail!("Failed to generate storage file.");
+            let templates = Templates::new();
+            if templates.save().is_err() {
+                bail!("Failed to generate templates file.");
             }
         }
 
@@ -91,10 +92,10 @@ impl Utils {
         base_path: &str,
         quite: bool,
     ) -> Result<(), Error> {
-        let templates = Storage::load_storage()?;
+        let templates = Templates::load().map_err(|e| anyhow!("Failed to load templates: {}", e))?;
         let template = templates
             .get_template(template_name)
-            .map_err(|_| anyhow!("Template not found"))?;
+            .ok_or_else(|| anyhow!("Template '{}' not found", template_name))?;
 
         Message::print("Generating project from template...");
 

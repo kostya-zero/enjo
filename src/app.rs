@@ -3,11 +3,11 @@ use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
 use crate::program::Program;
-use crate::storage::Storage;
+use crate::templates::Templates;
 use crate::terminal::{Dialog, Message, create_spinner};
 use crate::utils::Utils;
 use anyhow::{Result, anyhow, bail};
-use std::borrow::Cow;
+use std::ops::Deref;
 use std::time::Instant;
 
 pub fn run() -> Result<()> {
@@ -90,8 +90,7 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("open", sub)) => {
-            let config: Config = Config::load()?;
-            let mut storage: Storage = Storage::load_storage()?;
+            let mut config: Config = Config::load()?;
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -100,51 +99,50 @@ pub fn run() -> Result<()> {
                 .get_one::<String>("name")
                 .ok_or_else(|| anyhow!("The project name is not provided."))?;
 
+            let recent_project = &config.recent.recent_project;
+
             let name = if project_name == "-" {
-                if storage.is_recent_empty() {
+                if recent_project.is_empty() {
                     bail!("No project was opened recently.")
                 }
-                storage.get_recent_project().unwrap()
+                recent_project.clone()
             } else if config.autocomplete.enabled {
-                Cow::from(
-                    Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default(),
-                )
+                Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default()
             } else {
-                Cow::from(project_name)
+                project_name.clone()
             };
 
             if let Ok(project) = projects.get(name.as_ref()) {
-                let (program, args, end_message, start_message, fork_mode) =
-                    if sub.get_flag("shell") {
-                        (
-                            config.shell.program,
-                            Vec::new(),
-                            "Shell session ended.",
-                            "Launching shell...",
-                            false,
-                        )
-                    } else {
-                        (
-                            config.editor.program,
-                            config.editor.args,
-                            "Editor session ended.",
-                            "Launching editor...",
-                            config.editor.fork_mode,
-                        )
-                    };
+                let (program, args, end_message, start_message, fork_mode) = if sub.get_flag("shell") {
+                    (
+                        &config.shell.program,
+                        Vec::new(),
+                        "Shell session ended.",
+                        "Launching shell...",
+                        false,
+                    )
+                } else {
+                    (
+                        &config.editor.program,
+                        config.editor.args.clone(),
+                        "Editor session ended.",
+                        "Launching editor...",
+                        config.editor.fork_mode,
+                    )
+                };
 
                 if program.is_empty() {
                     bail!("Required program is not specified in configuration file.");
                 }
 
-                if name != storage.get_recent_project().unwrap_or(Cow::from("")) {
-                    storage.set_recent_project(&name);
-                    storage.save_storage().unwrap();
+                if name != recent_project.deref() {
+                    config.recent.recent_project = name.clone();
+                    config.save()?;
                 }
 
                 Message::print(start_message);
 
-                Program::launch_program(&program, args, project.get_path_str(), fork_mode)?;
+                Program::launch_program(program, args, project.get_path_str(), fork_mode)?;
 
                 if fork_mode {
                     // Because only editor could be launched in fork mode.
@@ -159,7 +157,6 @@ pub fn run() -> Result<()> {
         }
         Some(("list", _sub)) => {
             let config: Config = Config::load()?;
-            let storage: Storage = Storage::load_storage()?;
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -169,9 +166,11 @@ pub fn run() -> Result<()> {
                 return Ok(());
             }
 
+            let recent = &config.recent.recent_project;
+
             Message::title("Your projects:");
             for project in projects.get_vec().iter() {
-                if project.get_name() == storage.get_recent_project().unwrap_or(Cow::from("")) {
+                if project.get_name() == recent {
                     Message::item(&format!("{} \x1b[1m(recent)\x1b[0m", project.get_name()));
                 } else {
                     Message::item(project.get_name());
@@ -261,7 +260,7 @@ pub fn run() -> Result<()> {
         }
         Some(("templates", sub)) => match sub.subcommand() {
             Some(("new", _sub)) => {
-                let mut storage: Storage = Storage::load_storage()?;
+                let mut templates = Templates::load()?;
                 let name = Dialog::ask_string("Name of new template?");
                 if name.is_empty() {
                     bail!("Incorrect name for a template.");
@@ -282,45 +281,45 @@ pub fn run() -> Result<()> {
                 }
 
                 Message::print("Creating template...");
-                storage.add_template(&name, commands).unwrap();
-                if storage.save_storage().is_ok() {
+                templates.add_template(&name, commands)?;
+                if templates.save().is_ok() {
                     Message::print("Template created.");
                 } else {
                     bail!("Failed to save templates.");
                 }
             }
             Some(("list", _sub)) => {
-                let storage: Storage = Storage::load_storage()?;
-                if storage.is_templates_empty() {
+                let templates = Templates::load()?;
+                if templates.is_empty() {
                     Message::print("No templates found.");
                     return Ok(());
                 }
 
                 Message::title("Templates:");
-                for template in storage.get_templates_names().iter() {
+                for template in templates.list_templates().iter() {
                     Message::item(template);
                 }
             }
             Some(("info", sub)) => {
-                let storage: Storage = Storage::load_storage()?;
+                let templates = Templates::load()?;
 
-                match storage.get_template(sub.get_one::<String>("name").unwrap()) {
-                    Ok(template) => {
+                match templates.get_template(sub.get_one::<String>("name").unwrap()) {
+                    Some(template) => {
                         Message::title("Commands of this template:");
                         for command in template.iter() {
                             Message::item(command);
                         }
                     }
-                    Err(_) => {
+                    None => {
                         bail!("Template not found.");
                     }
                 }
             }
             Some(("clear", _sub)) => {
                 if Dialog::ask("Do you really want to clear all templates?", false) {
-                    let mut storage: Storage = Storage::load_storage()?;
-                    storage.clear_templates();
-                    if storage.save_storage().is_ok() {
+                    let mut templates = Templates::load()?;
+                    templates.clear();
+                    if templates.save().is_ok() {
                         Message::print("All templates have been cleared.");
                     } else {
                         bail!("Failed to save templates.");
@@ -330,10 +329,10 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("remove", sub)) => {
-                let mut storage: Storage = Storage::load_storage()?;
-                match storage.remove_template(sub.get_one::<String>("name").unwrap()) {
+                let mut templates = Templates::load()?;
+                match templates.remove_template(sub.get_one::<String>("name").unwrap()) {
                     Ok(_) => {
-                        if storage.save_storage().is_ok() {
+                        if templates.save().is_ok() {
                             Message::print("Template removed.");
                         } else {
                             bail!("Failed to save templates.");

@@ -17,8 +17,8 @@ impl Platform {
         Self::get_config_dir_path().join("config.toml")
     }
 
-    pub fn get_storage_path() -> PathBuf {
-        Self::get_config_dir_path().join("storage.dat")
+    pub fn get_templates_path() -> PathBuf {
+        Self::get_config_dir_path().join("templates.json")
     }
 
     pub fn get_config_dir_path() -> PathBuf {
@@ -67,6 +67,6 @@ impl Platform {
     }
 
     pub fn check_templates_exists() -> bool {
-        Path::new(&Self::get_storage_path()).exists()
+        Path::new(&Self::get_templates_path()).exists()
     }
 }

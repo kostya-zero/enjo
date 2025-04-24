@@ -7,7 +7,7 @@ mod errors;
 mod library;
 mod platform;
 mod program;
-mod storage;
+mod templates;
 pub mod terminal;
 mod utils;
 

@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -48,8 +49,8 @@ pub enum LibraryError {
     IoError(String),
 }
 
-#[derive(Debug, Error)]
-pub enum StorageError {
+#[derive(Debug, Error, Deserialize)]
+pub enum TemplatesError {
     #[error("Template with the same name already exists.")]
     AlreadyExists,
 
@@ -59,12 +60,12 @@ pub enum StorageError {
     #[error("File system error occurred while working with the file.")]
     FileSystemError,
 
-    #[error("Failed to serialize storage data.")]
+    #[error("Failed to serialize templates data.")]
     SerializationError,
 
-    #[error("Failed to deserialize storage data.")]
+    #[error("Failed to deserialize templates data.")]
     DeserializationError,
 
-    #[error("Invalid command in template.")]
-    InvalidCommand,
+    #[error("Commands in the template are empty.")]
+    CommandsAreEmpty,
 }
