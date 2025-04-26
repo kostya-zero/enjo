@@ -2,7 +2,7 @@
 
 # Next
 
-TBD
+- Now templates will be stored in a separate JSON file called `templates.json`. It will be created in the same directory as the configuration file. You can add your templates to this file manually or use the `templates` command to manage them.
 
 ## 0.6.1
 
