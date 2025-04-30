@@ -10,6 +10,25 @@ use anyhow::{Result, anyhow, bail};
 use std::ops::Deref;
 use std::time::Instant;
 
+fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
+    if project_name == "-" {
+        if config.recent.recent_project.is_empty() {
+            bail!("No project was opened recently.")
+        }
+        Ok(config.recent.recent_project.clone())
+    } else if config.autocomplete.enabled {
+        // Utils::autocomplete(project_name, projects.get_names())?
+        let name = Utils::autocomplete(project_name, projects.get_names());
+        if let Some(name) = name {
+            Ok(name)
+        } else {
+            bail!("Project not found.")
+        }
+    } else {
+        Ok(project_name.to_string())
+    }
+}
+
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
 
@@ -101,35 +120,27 @@ pub fn run() -> Result<()> {
 
             let recent_project = &config.recent.recent_project;
 
-            let name = if project_name == "-" {
-                if recent_project.is_empty() {
-                    bail!("No project was opened recently.")
-                }
-                recent_project.clone()
-            } else if config.autocomplete.enabled {
-                Utils::autocomplete(project_name, projects.get_names()).unwrap_or_default()
-            } else {
-                project_name.clone()
-            };
+            let name = resolve_project_name(project_name, &config, &projects)?;
 
             if let Ok(project) = projects.get(name.as_ref()) {
-                let (program, args, end_message, start_message, fork_mode) = if sub.get_flag("shell") {
-                    (
-                        &config.shell.program,
-                        Vec::new(),
-                        "Shell session ended.",
-                        "Launching shell...",
-                        false,
-                    )
-                } else {
-                    (
-                        &config.editor.program,
-                        config.editor.args.clone(),
-                        "Editor session ended.",
-                        "Launching editor...",
-                        config.editor.fork_mode,
-                    )
-                };
+                let (program, args, end_message, start_message, fork_mode) =
+                    if sub.get_flag("shell") {
+                        (
+                            &config.shell.program,
+                            Vec::new(),
+                            "Shell session ended.",
+                            "Launching shell...",
+                            false,
+                        )
+                    } else {
+                        (
+                            &config.editor.program,
+                            config.editor.args.clone(),
+                            "Editor session ended.",
+                            "Launching editor...",
+                            config.editor.fork_mode,
+                        )
+                    };
 
                 if program.is_empty() {
                     bail!("Required program is not specified in configuration file.");
@@ -191,11 +202,7 @@ pub fn run() -> Result<()> {
                 }
             };
 
-            let name = if config.autocomplete.enabled {
-                &Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
-            } else {
-                args_name
-            };
+            let name = resolve_project_name(args_name, &config, &projects)?;
 
             let new_name = match sub.get_one::<String>("newname") {
                 Some(new_name) if !new_name.is_empty() => new_name,
@@ -204,7 +211,7 @@ pub fn run() -> Result<()> {
                 }
             };
 
-            match projects.rename(name, new_name) {
+            match projects.rename(name.as_ref(), new_name) {
                 Ok(_) => Message::print(&format!("The project was renamed to '{}'.", new_name)),
                 Err(e) => bail!(e.to_string()),
             }
@@ -223,11 +230,7 @@ pub fn run() -> Result<()> {
                 }
             };
 
-            let project_name = if config.autocomplete.enabled {
-                Utils::autocomplete(args_name, projects.get_names()).unwrap_or_default()
-            } else {
-                args_name.to_string()
-            };
+            let project_name = resolve_project_name(args_name, &config, &projects)?;
 
             let project = projects
                 .get(&project_name)
