@@ -6,7 +6,7 @@ use crate::program::Program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message, create_spinner};
 use crate::utils::Utils;
-use anyhow::{Result, anyhow, bail};
+use anyhow::{Result, anyhow, bail, ensure};
 use std::ops::Deref;
 use std::time::Instant;
 
@@ -17,7 +17,6 @@ fn resolve_project_name(project_name: &str, config: &Config, projects: &Library)
         }
         Ok(config.recent.recent_project.clone())
     } else if config.autocomplete.enabled {
-        // Utils::autocomplete(project_name, projects.get_names())?
         let name = Utils::autocomplete(project_name, projects.get_names());
         if let Some(name) = name {
             Ok(name)
@@ -118,53 +117,49 @@ pub fn run() -> Result<()> {
                 .get_one::<String>("name")
                 .ok_or_else(|| anyhow!("The project name is not provided."))?;
 
-            let recent_project = &config.recent.recent_project;
-
             let name = resolve_project_name(project_name, &config, &projects)?;
 
-            if let Ok(project) = projects.get(name.as_ref()) {
-                let (program, args, end_message, start_message, fork_mode) =
-                    if sub.get_flag("shell") {
-                        (
-                            &config.shell.program,
-                            Vec::new(),
-                            "Shell session ended.",
-                            "Launching shell...",
-                            false,
-                        )
-                    } else {
-                        (
-                            &config.editor.program,
-                            config.editor.args.clone(),
-                            "Editor session ended.",
-                            "Launching editor...",
-                            config.editor.fork_mode,
-                        )
-                    };
+            let project = projects.get(&name).map_err(|_| anyhow!("Project not found."))?;
 
-                if program.is_empty() {
-                    bail!("Required program is not specified in configuration file.");
-                }
+            let (program, args, end_message, start_message, fork_mode) =
+                if sub.get_flag("shell") {
+                    (
+                        &config.shell.program,
+                        Vec::<String>::new(),
+                        "Shell session ended.",
+                        "Launching shell...",
+                        false,
+                    )
+                } else {
+                    (
+                        &config.editor.program,
+                        config.editor.args.clone(),
+                        "Editor session ended.",
+                        "Launching editor...",
+                        config.editor.fork_mode,
+                    )
+                };
 
-                if name != recent_project.deref() {
-                    config.recent.recent_project = name.clone();
-                    config.save()?;
-                }
+            ensure!(
+                !program.is_empty(),
+                "Required program is not specified in configuration file."
+            );
 
-                Message::print(start_message);
-
-                Program::launch_program(program, args, project.get_path_str(), fork_mode)?;
-
-                if fork_mode {
-                    // Because only editor could be launched in fork mode.
-                    Message::print("Editor launched.");
-                    return Ok(());
-                }
-
-                Message::print(end_message);
-            } else {
-                bail!("Project not found.");
+            if config.recent.enabled && name != config.recent.recent_project {
+                config.recent.recent_project = name.clone();
+                config.save()?;
             }
+
+            Message::print(start_message);
+            Program::launch_program(program, args, project.get_path_str(), fork_mode)?;
+
+            if fork_mode {
+                // Because only editor could be launched in fork mode.
+                Message::print("Editor launched.");
+                return Ok(());
+            }
+
+            Message::print(end_message);
         }
         Some(("list", _sub)) => {
             let config: Config = Config::load()?;
@@ -195,21 +190,15 @@ pub fn run() -> Result<()> {
                 config.options.display_hidden,
             )?;
 
-            let args_name = match sub.get_one::<String>("name") {
-                Some(name) if !name.is_empty() => name,
-                _ => {
-                    bail!("You need to provide a name of the project you want to rename.");
-                }
-            };
+            let args_name = sub
+                .get_one::<String>("name")
+                .ok_or_else(|| anyhow!("You need to provide a name of the project you want to rename."))?;
 
             let name = resolve_project_name(args_name, &config, &projects)?;
 
-            let new_name = match sub.get_one::<String>("newname") {
-                Some(new_name) if !new_name.is_empty() => new_name,
-                _ => {
-                    bail!("Provide a new name for the project.");
-                }
-            };
+            let new_name = sub
+                .get_one::<String>("newname")
+                .ok_or_else(|| anyhow!("You need to provide a new name for the project."))?;
 
             match projects.rename(name.as_ref(), new_name) {
                 Ok(_) => Message::print(&format!("The project was renamed to '{}'.", new_name)),
@@ -223,12 +212,9 @@ pub fn run() -> Result<()> {
                 config.options.display_hidden,
             )?;
 
-            let args_name = match sub.get_one::<String>("name") {
-                Some(name) if !name.is_empty() => name,
-                _ => {
-                    bail!("You need to provide a name of the project you want to delete.");
-                }
-            };
+            let args_name = sub
+                .get_one::<String>("name")
+                .ok_or_else(|| anyhow!("You need to provide a name of the project you want to delete."))?;
 
             let project_name = resolve_project_name(args_name, &config, &projects)?;
 
@@ -306,7 +292,11 @@ pub fn run() -> Result<()> {
             Some(("info", sub)) => {
                 let templates = Templates::load()?;
 
-                match templates.get_template(sub.get_one::<String>("name").unwrap()) {
+                let name = sub.get_one::<String>("name").ok_or_else(|| {
+                    anyhow!("You need to provide a name of the template.")
+                })?;
+
+                match templates.get_template(name) {
                     Some(template) => {
                         Message::title("Commands of this template:");
                         for command in template.iter() {

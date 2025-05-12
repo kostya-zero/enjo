@@ -92,7 +92,8 @@ impl Utils {
         base_path: &str,
         quite: bool,
     ) -> Result<(), Error> {
-        let templates = Templates::load().map_err(|e| anyhow!("Failed to load templates: {}", e))?;
+        let templates =
+            Templates::load().map_err(|e| anyhow!("Failed to load templates: {}", e))?;
         let template = templates
             .get_template(template_name)
             .ok_or_else(|| anyhow!("Template '{}' not found", template_name))?;
