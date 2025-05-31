@@ -20,15 +20,30 @@ pub struct Config {
     pub autocomplete: Autocomplete,
 }
 
-#[derive(Deserialize, Serialize, Default, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Autocomplete {
     pub enabled: bool,
 }
 
-#[derive(Deserialize, Serialize, Default, Clone)]
+impl Default for Autocomplete {
+    fn default() -> Self {
+        Self { enabled: true }
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Recent {
     pub enabled: bool,
     pub recent_project: String,
+}
+
+impl Default for Recent {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            recent_project: String::new(),
+        }
+    }
 }
 
 impl Default for Options {
@@ -58,7 +73,7 @@ impl Default for EditorOptions {
         }
 
         match new_editor.as_str() {
-            "code" | "codium" | "windsurf" => {
+            "code" | "code-insiders" | "codium" | "windsurf" => {
                 new_args.push(".".to_string());
                 fork_mode = true;
                 if PlatformName::Windows == Platform::get_platform() {

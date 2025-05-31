@@ -21,7 +21,7 @@ pub fn build_cli() -> Command {
                     .long("template")
                     .num_args(1),
                 Arg::new("quiet")
-                    .help("Do not show the output of the running commands.")
+                    .help("Hide the output of running commands.")
                     .long("quiet")
                     .action(ArgAction::SetTrue),
             ]),

@@ -11,8 +11,12 @@ If a configuration file does not exist in your file system, Enjo will generate o
 
 Enjo generates the configuration based on your environment settings, such as the `EDITOR` and `SHELL` environment variables.
 
-> [!NOTE]
-> If you are using _VS Code_, _VS Codium_, or _Windsurf_ on Windows, Enjo will set the `program` field to `code.cmd`, `codium.cmd`, or `windsurf.cmd` respectively in the `[editor]` section of your configuration, as these editors are launched via `.cmd` files. Additionally, Enjo will add a single dot (`.`) to the `args` field in the `[editor]` section to instruct _VS Code_, _VS Codium_, _Windsurf_, and _Zed_ to open the current directory.
+>[!NOTE]
+> On Windows, Enjo appends `.cmd` to the `program` field for specific editors. This is because Enjo requires the `.cmd` files to launch these editors. The affected editors are:
+> - Visual Studio Code
+> - Visual Studio Code - Insiders
+> - VS Codium
+> - Windsurf
 
 ### Default configuration structure
 
