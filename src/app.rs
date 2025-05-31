@@ -4,10 +4,9 @@ use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
 use crate::program::Program;
 use crate::templates::Templates;
-use crate::terminal::{Dialog, Message, create_spinner};
+use crate::terminal::{Dialog, Message};
 use crate::utils::Utils;
 use anyhow::{Result, anyhow, bail, ensure};
-use std::ops::Deref;
 use std::time::Instant;
 
 fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
@@ -43,7 +42,7 @@ pub fn run() -> Result<()> {
 
             let name = sub
                 .get_one::<String>("name")
-                .ok_or_else(|| anyhow!("You need to provide a name for your new project."))?;
+                .ok_or_else(|| anyhow!("Provide a name for a new project."))?;
 
             projects.create(name)?;
 
@@ -233,16 +232,13 @@ pub fn run() -> Result<()> {
                 return Ok(());
             }
 
-            let spinner = create_spinner();
-            spinner.set_message("Deleting project...");
+            Message::print("Deleting project...");
 
             match projects.delete(&project_name) {
                 Ok(_) => {
-                    spinner.finish_and_clear();
                     Message::print("The project has been deleted.");
                 }
                 Err(_) => {
-                    spinner.finish_and_clear();
                     bail!("Failed to remove project directory because of the file system error.");
                 }
             }
