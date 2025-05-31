@@ -63,7 +63,7 @@ pub fn run() -> Result<()> {
                             cleanup_err
                         )
                     }
-                    return Err(e);
+                    bail!(e)
                 }
                 let elapsed_time = started_time.elapsed().as_millis();
                 Message::print(&format!(
@@ -192,13 +192,13 @@ pub fn run() -> Result<()> {
 
             let args_name = sub
                 .get_one::<String>("name")
-                .ok_or_else(|| anyhow!("You need to provide a name of the project you want to rename."))?;
+                .ok_or_else(|| anyhow!("No project to rename."))?;
 
             let name = resolve_project_name(args_name, &config, &projects)?;
 
             let new_name = sub
                 .get_one::<String>("newname")
-                .ok_or_else(|| anyhow!("You need to provide a new name for the project."))?;
+                .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
 
             match projects.rename(name.as_ref(), new_name) {
                 Ok(_) => Message::print(&format!("The project was renamed to '{}'.", new_name)),
@@ -214,7 +214,7 @@ pub fn run() -> Result<()> {
 
             let args_name = sub
                 .get_one::<String>("name")
-                .ok_or_else(|| anyhow!("You need to provide a name of the project you want to delete."))?;
+                .ok_or_else(|| anyhow!("No project to delete."))?;
 
             let project_name = resolve_project_name(args_name, &config, &projects)?;
 
