@@ -6,8 +6,8 @@ This manual provides guidance on configuring Enjo for your workspace.
 
 If a configuration file does not exist in your file system, Enjo will generate one in the following locations:
 
-- **Windows**: `%USERPROFILE%\.enjo\config.toml`
-- **Linux** and **macOS**: `$HOME/.enjo/config.toml`
+- **Windows**: `%USERPROFILE%\enjo\config.toml`
+- **Linux** and **macOS**: `$HOME/.config/enjo/config.toml`
 
 Enjo generates the configuration based on your environment settings, such as the `EDITOR` and `SHELL` environment variables.
 
