@@ -73,7 +73,7 @@ impl Default for EditorOptions {
         }
 
         match new_editor.as_str() {
-            "code" | "code-insiders" | "codium" | "windsurf" => {
+            "code" | "code-insiders" | "codium" | "code-oss" | "windsurf" => {
                 new_args.push(".".to_string());
                 fork_mode = true;
                 if PlatformName::Windows == Platform::get_platform() {

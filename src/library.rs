@@ -112,10 +112,6 @@ impl Library {
     }
 
     pub fn create(&self, name: &str) -> Result<(), LibraryError> {
-        if name.is_empty() {
-            return Err(LibraryError::EmptyArgument);
-        }
-
         if self.base_path.join(name).exists() {
             return Err(LibraryError::AlreadyExists);
         }
@@ -146,9 +142,6 @@ impl Library {
     }
 
     pub fn get(&self, name: &str) -> Result<&Project, LibraryError> {
-        if name.is_empty() {
-            return Err(LibraryError::EmptyArgument);
-        }
         self.projects
             .iter()
             .find(|x| x.name == name)

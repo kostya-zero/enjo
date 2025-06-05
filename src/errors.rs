@@ -9,7 +9,7 @@ pub enum ConfigError {
     #[error("Failed to format configuration to TOML.")]
     FormatFailed,
 
-    #[error("Cannot load the configuration file because it does not exist on the file system.")]
+    #[error("Cannot find configuration file.")]
     FileNotFound,
 
     #[error("Configuration file has a bad structure and cannot be deserialized.")]
@@ -24,14 +24,14 @@ pub enum LibraryError {
     #[error("Project not found.")]
     ProjectNotFound,
 
-    #[error("Argument is empty.")]
-    EmptyArgument,
-
     #[error("Invalid path to the projects directory.")]
     InvalidPath,
 
-    #[error("File system error occured.")]
+    #[error("File system error occurred.")]
     FileSystemError,
+
+    #[error("Failed to launch Git.")]
+    GitNotFound,
 
     #[error("Failed to clone repository.")]
     CloneFailed,
@@ -42,7 +42,7 @@ pub enum LibraryError {
     #[error("A project with the same name already exists.")]
     ProjectExists,
 
-    #[error("Invalid project name. System directory names cannot be used.")]
+    #[error("This name of the project is not allowed.")]
     InvalidProjectName,
 
     #[error("An unexpected I/O error occurred: {0}.")]
@@ -57,7 +57,7 @@ pub enum TemplatesError {
     #[error("Template not found.")]
     TemplateNotFound,
 
-    #[error("File system error occurred while working with the file.")]
+    #[error("File system error occurred.")]
     FileSystemError,
 
     #[error("Failed to serialize templates data.")]

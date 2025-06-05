@@ -57,7 +57,7 @@ pub fn run() -> Result<()> {
                     Message::error("Failed to apply template. Cleaning up...");
                     if let Err(cleanup_err) = projects.delete(name) {
                         bail!(
-                            "Template application failed: {}. Additionally, cleanup failed: {}",
+                            "Failed to apply template: {}. Additionally, cleanup failed: {}",
                             e,
                             cleanup_err
                         )

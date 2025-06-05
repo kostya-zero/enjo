@@ -15,6 +15,7 @@ Enjo generates the configuration based on your environment settings, such as the
 > On Windows, Enjo appends `.cmd` to the `program` field for specific editors. This is because Enjo requires the `.cmd` files to launch these editors. The affected editors are:
 > - Visual Studio Code
 > - Visual Studio Code - Insiders
+> - Code - OSS
 > - VS Codium
 > - Windsurf
 
