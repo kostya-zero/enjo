@@ -1,9 +1,9 @@
 use crate::config::Config;
-use crate::platform::{Platform, PlatformName};
+use crate::platform::Platform;
 use crate::program::Program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
-use anyhow::{Error, Result, anyhow, bail};
+use anyhow::{anyhow, bail, Error, Result};
 use std::path::Path;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -88,8 +88,8 @@ impl Utils {
 
     pub fn apply_template(
         template_name: &str,
+        config: &Config,
         project_name: &str,
-        base_path: &str,
         quite: bool,
     ) -> Result<(), Error> {
         let templates =
@@ -100,19 +100,19 @@ impl Utils {
 
         Message::print("Generating project from template...");
 
-        let program = match Platform::get_platform() {
-            PlatformName::Windows => "powershell.exe",
-            _ => "sh",
-        };
+        let program = &config.shell.program;
 
-        let cwd = Path::new(base_path).join(project_name);
+        let cwd = Path::new(&config.options.projects_directory).join(project_name);
         let total_commands = template.len();
 
         for (idx, command) in template.iter().enumerate() {
             let current = idx as i8 + 1;
             Message::progress(command, current, total_commands as i8);
 
-            Program::execute_command(program, command, &cwd, quite)
+            let mut args = config.shell.args.clone();
+            args.push(command.clone());
+
+            Program::execute_command(program, &args, &cwd, quite)
                 .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;
         }
 

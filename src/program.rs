@@ -44,9 +44,9 @@ impl Program {
         }
     }
 
-    pub fn execute_command(program: &str, command: &str, cwd: &Path, quiet: bool) -> Result<()> {
+    pub fn execute_command(program: &str, args: &Vec<String>, cwd: &Path, quiet: bool) -> Result<()> {
         let mut cmd = Command::new(program);
-        cmd.args(["-c", command]).current_dir(cwd);
+        cmd.args(args).current_dir(cwd);
 
         if !quiet {
             cmd.stdin(Stdio::inherit())

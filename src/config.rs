@@ -18,13 +18,8 @@ pub enum ConfigError {
     BadStructure,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
-pub struct Options {
-    pub projects_directory: String,
-    pub display_hidden: bool,
-}
-
 #[derive(Deserialize, Serialize, Default, Clone)]
+#[serde(default)]
 pub struct Config {
     pub options: Options,
     pub editor: EditorOptions,
@@ -34,6 +29,14 @@ pub struct Config {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
+#[serde(default)]
+pub struct Options {
+    pub projects_directory: String,
+    pub display_hidden: bool,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+#[serde(default)]
 pub struct Autocomplete {
     pub enabled: bool,
 }
@@ -45,6 +48,7 @@ impl Default for Autocomplete {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
+#[serde(default)]
 pub struct Recent {
     pub enabled: bool,
     pub recent_project: String,
@@ -69,6 +73,7 @@ impl Default for Options {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
+#[serde(default)]
 pub struct EditorOptions {
     pub program: String,
     pub fork_mode: bool,
@@ -109,16 +114,24 @@ impl Default for EditorOptions {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
+#[serde(default)]
 pub struct ShellOptions {
     pub program: String,
+    pub args: Vec<String>,
 }
 
 impl Default for ShellOptions {
     fn default() -> Self {
-        let shell_program = env::var("SHELL").unwrap_or_else(|_| Platform::get_default_shell());
-        Self {
-            program: shell_program,
-        }
+        let program = env::var("SHELL").unwrap_or_else(|_| Platform::get_default_shell());
+        let args = match program.as_str() {
+            "powershell.exe" | "powershell" | "pwsh.exe" | "pwsh" => {
+                vec!["-NoLogo".to_string(), "-Command".to_string()]
+            }
+            "cmd" | "cmd.exe" => vec!["/C".to_string()],
+            "zsh" | "bash" | "fish" | "sh" => vec!["-c".to_string()],
+            _ => vec!["-c".to_string()],
+        };
+        Self { program, args }
     }
 }
 

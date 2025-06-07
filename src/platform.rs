@@ -41,8 +41,8 @@ impl Platform {
 
     pub fn get_user_home() -> PathBuf {
         match Self::get_platform() {
-            PlatformName::Windows => Path::new(&env::var("USERPROFILE").unwrap()).to_path_buf(),
-            _ => Path::new(&env::var("HOME").unwrap()).to_path_buf(),
+            PlatformName::Windows => PathBuf::from(env::var("USERPROFILE").unwrap_or_else(|_| String::from("C:\\"))),
+            _ => PathBuf::from(env::var("HOME").unwrap_or_else(|_| String::from("/"))),
         }
     }
 

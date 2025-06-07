@@ -6,7 +6,7 @@ use crate::program::Program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils::Utils;
-use anyhow::{Result, anyhow, bail, ensure};
+use anyhow::{anyhow, bail, ensure, Result};
 use std::time::Instant;
 
 fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
@@ -52,8 +52,8 @@ pub fn run() -> Result<()> {
                 let started_time = Instant::now();
                 if let Err(e) = Utils::apply_template(
                     template_name,
+                    &config,
                     name,
-                    &config.options.projects_directory,
                     sub.get_flag("quiet"),
                 ) {
                     Message::error("Failed to apply template. Cleaning up...");

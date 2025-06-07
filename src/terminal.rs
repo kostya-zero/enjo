@@ -9,7 +9,7 @@ pub struct Message;
 
 impl Message {
     pub fn error(msg: &str) {
-        eprintln!("{}: {}", "err".red(), msg)
+        eprintln!("{}: {}", "error".bright_red().bold(), msg)
     }
 
     pub fn print(msg: &str) {
