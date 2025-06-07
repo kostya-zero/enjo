@@ -32,7 +32,8 @@ fork_mode = false
 args = []
 
 [shell]
-program = "fish"
+program = "bash"
+args = ["-c"]
 
 [recent]
 enabled = true
@@ -70,6 +71,7 @@ This section details the configuration parameters available in the `config.toml`
 ### `shell`
 
 - `program` - Name of the executable that will be used as a shell to open projects. You can set it as the name of an executable (e.g., `bash`) or as an absolute path to the executable (e.g., `/usr/bin/bash`).
+- `args` - Arguments to be passed to run commands using the shell. By default, this field is set to value determined by user's and `EDITOR` variable.
 
 ### `recent`
 
