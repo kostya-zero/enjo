@@ -1,6 +1,4 @@
-use crate::{
-    platform::{Platform, PlatformName},
-};
+use crate::platform::{Platform, PlatformName};
 use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
 use thiserror::Error;

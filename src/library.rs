@@ -4,9 +4,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::program::Program;
 use anyhow::Result;
 use thiserror::Error;
-use crate::program::Program;
 
 #[derive(Debug, Error)]
 pub enum LibraryError {
@@ -147,7 +147,7 @@ impl Library {
         }
 
         let cwd = self.base_path.to_str().unwrap();
-        match Program::launch_program("git", args, cwd, false) {
+        match Program::launch_program("git", &args, Some(cwd), false) {
             Ok(_) => Ok(()),
             Err(_) => Err(LibraryError::CloneFailed),
         }

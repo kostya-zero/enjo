@@ -1,8 +1,8 @@
 use std::{collections::HashMap, fs};
 
+use crate::platform::Platform;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use crate::platform::Platform;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Templates(HashMap<String, Vec<String>>);

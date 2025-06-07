@@ -6,7 +6,7 @@ use crate::program::Program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils::Utils;
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{Result, anyhow, bail, ensure};
 use std::time::Instant;
 
 fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
@@ -151,7 +151,7 @@ pub fn run() -> Result<()> {
             }
 
             Message::print(start_message);
-            Program::launch_program(program, args, project.get_path_str(), fork_mode)?;
+            Program::launch_program(program, &args, Some(project.get_path_str()), fork_mode)?;
 
             if fork_mode {
                 // Because only editor could be launched in fork mode.
@@ -259,10 +259,7 @@ pub fn run() -> Result<()> {
                     bail!("No commands entered.");
                 }
 
-                ensure!(
-                    commands.is_empty(),
-                    "No commands entered."
-                );
+                ensure!(commands.is_empty(), "No commands entered.");
 
                 Message::print("Creating template...");
                 templates.add_template(&name, commands)?;
@@ -322,9 +319,7 @@ pub fn run() -> Result<()> {
                 }
             }
             _ => {
-                bail!(
-                    "This command is not implemented."
-                );
+                bail!("This command is not implemented.");
             }
         },
         Some(("config", sub)) => match sub.subcommand() {
@@ -340,7 +335,7 @@ pub fn run() -> Result<()> {
                 let path = Platform::get_config_path();
                 let mut editor_args = config.editor.args;
                 editor_args.push(path.to_str().unwrap().to_string());
-                Program::launch_program(editor, editor_args, "", false)?
+                Program::launch_program(editor, &editor_args, None, false)?
             }
             Some(("reset", _sub)) => {
                 if Dialog::ask("Reset your current configuration?", false) {
@@ -352,9 +347,7 @@ pub fn run() -> Result<()> {
                 }
             }
             _ => {
-                bail!(
-                    "This command is not implemented."
-                );
+                bail!("This command is not implemented.");
             }
         },
         _ => bail!("This command is not implemented."),

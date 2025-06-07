@@ -1,19 +1,15 @@
 use colored::Colorize;
 use dialoguer::{
-    console::{style, Style}, theme::{ColorfulTheme, Theme},
-    Confirm,
-    Input,
+    Confirm, Input,
+    console::{Style, style},
+    theme::{ColorfulTheme, Theme},
 };
 
 pub struct Message;
 
 impl Message {
     pub fn error(msg: &str) {
-        eprintln!(
-            "{}: {}",
-            "err".red(),
-            msg
-        )
+        eprintln!("{}: {}", "err".red(), msg)
     }
 
     pub fn print(msg: &str) {

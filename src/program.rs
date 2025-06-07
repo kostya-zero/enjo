@@ -9,22 +9,21 @@ pub struct Program;
 impl Program {
     pub fn launch_program(
         program: &str,
-        args: Vec<String>,
-        cwd: &str,
+        args: &Vec<String>,
+        cwd: Option<&str>,
         fork_mode: bool,
     ) -> Result<()> {
         let mut cmd = Command::new(program);
-        cmd.stdin(Stdio::inherit());
-        cmd.stdout(Stdio::inherit());
-        cmd.stderr(Stdio::inherit());
-        let converted_args: Vec<&str> = args.iter().map(|i| i.as_str()).collect();
-        cmd.args(converted_args);
-        if !cwd.is_empty() {
-            cmd.current_dir(cwd);
+        cmd.stdin(Stdio::inherit())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit());
+        cmd.args(args);
+        if let Some(cwd_path) = cwd {
+            cmd.current_dir(cwd_path);
         }
 
         #[cfg(windows)]
-        ctrlc::set_handler(|| {}).unwrap();
+        ctrlc::set_handler(|| {})?;
 
         if fork_mode {
             match cmd.spawn() {
