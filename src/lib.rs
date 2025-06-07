@@ -1,6 +1,5 @@
 pub mod app;
 mod args;
-mod colors;
 mod config;
 mod library;
 mod platform;

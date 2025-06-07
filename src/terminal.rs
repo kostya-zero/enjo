@@ -1,22 +1,17 @@
-use dialoguer::{
-    Confirm, Input,
-    console::{Style, style},
-    theme::{ColorfulTheme, Theme},
-};
 use colored::Colorize;
-
-use crate::colors;
+use dialoguer::{
+    console::{style, Style}, theme::{ColorfulTheme, Theme},
+    Confirm,
+    Input,
+};
 
 pub struct Message;
 
 impl Message {
     pub fn error(msg: &str) {
         eprintln!(
-            "{}{}error{}: {}",
-            "error".red
-            colors::RED,
-            colors::BOLD,
-            colors::RESET,
+            "{}: {}",
+            "err".red(),
             msg
         )
     }
@@ -27,18 +22,14 @@ impl Message {
 
     pub fn progress(msg: &str, current: i8, total: i8) {
         println!(
-            "{}{}[{}/{}]{} {}",
-            colors::WHITE,
-            colors::BOLD,
-            current,
-            total,
-            colors::RESET,
+            "{} {}",
+            format!("[{}/{}]", current, total).white().bold(),
             msg
         );
     }
 
     pub fn title(msg: &str) {
-        println!("{}{}{}{}", colors::BOLD, colors::WHITE, msg, colors::RESET);
+        println!("{}", msg.white().bold());
     }
 
     pub fn item(msg: &str) {
