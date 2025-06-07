@@ -64,13 +64,13 @@ pub fn build_cli() -> Command {
                 ]),
             Command::new("list").about("List available projects."),
             Command::new("rename").about("Rename project.").args([
-                Arg::new("name")
-                    .help("Name of the project to rename")
+                Arg::new("old")
+                    .help("Old project name.")
                     .value_parser(value_parser!(String))
                     .required(false)
                     .num_args(1),
-                Arg::new("newname")
-                    .help("New name for the project.")
+                Arg::new("new")
+                    .help("New project name.")
                     .value_parser(value_parser!(String))
                     .required(false)
                     .num_args(1),
@@ -93,6 +93,7 @@ pub fn build_cli() -> Command {
                 .subcommands([
                     Command::new("new").about("Create new template."),
                     Command::new("list").about("List available templates."),
+                    Command::new("edit").about("Edit templates."),
                     Command::new("clear").about("Clear all templates."),
                     Command::new("info")
                         .about("View information about template.")

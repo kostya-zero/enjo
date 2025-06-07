@@ -1,4 +1,8 @@
-# Enjo ![Crates.io Version](https://img.shields.io/crates/v/enjo) ![GitHub branch check runs](https://img.shields.io/github/check-runs/kostya-zero/enjo/main)
+# enjo 
+
+![Crates.io Version](https://img.shields.io/crates/v/enjo) ![GitHub branch check runs](https://img.shields.io/github/check-runs/kostya-zero/enjo/main)
+
+Yet another projects manager for your workspace.
 
 Enjo is a command-line tool designed for managing your projects.
 It offers a simple and user-friendly interface for creating, opening, and deleting projects.
@@ -6,7 +10,7 @@ Enjo is available for Windows, Linux, and macOS (compatibility with *BSD systems
 
 ## Installation
 
-We recommend using [Cargo](https://doc.rust-lang.org/cargo/) to install Enjo. You can install Enjo with the following commands:
+You can install Enjo with [Cargo](https://doc.rust-lang.org/cargo/) using the following commands:
 
 ```shell
 # Compile and install Enjo.

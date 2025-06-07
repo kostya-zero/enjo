@@ -1,11 +1,32 @@
 use std::{collections::HashMap, fs};
 
 use serde::{Deserialize, Serialize};
-
-use crate::{errors::TemplatesError, platform::Platform};
+use thiserror::Error;
+use crate::platform::Platform;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Templates(HashMap<String, Vec<String>>);
+
+#[derive(Debug, Error, Deserialize)]
+pub enum TemplatesError {
+    #[error("Template with the same name already exists.")]
+    AlreadyExists,
+
+    #[error("Template not found.")]
+    TemplateNotFound,
+
+    #[error("File system error occurred.")]
+    FileSystemError,
+
+    #[error("Failed to serialize templates data.")]
+    SerializationError,
+
+    #[error("Failed to deserialize templates data.")]
+    DeserializationError,
+
+    #[error("Commands in the template are empty.")]
+    CommandsAreEmpty,
+}
 
 impl Templates {
     pub fn new() -> Self {

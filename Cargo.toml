@@ -16,6 +16,7 @@ name = "enjo"
 [dependencies]
 anyhow = "1"
 clap = "4.5.7"
+colored = "3.0.0"
 dialoguer = "0.11.0"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.140"

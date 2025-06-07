@@ -6,7 +6,7 @@ use crate::program::Program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils::Utils;
-use anyhow::{Result, anyhow, bail, ensure};
+use anyhow::{anyhow, bail, ensure, Result};
 use std::time::Instant;
 
 fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
@@ -32,9 +32,11 @@ pub fn run() -> Result<()> {
 
     Utils::check_env()?;
 
+    let mut config: Config = Config::load()?;
+    let mut templates = Templates::load()?;
+
     match args.subcommand() {
         Some(("new", sub)) => {
-            let config: Config = Config::load()?;
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -74,7 +76,6 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("clone", sub)) => {
-            let config: Config = Config::load()?;
             let remote = sub
                 .get_one::<String>("remote")
                 .filter(|s| !s.trim().is_empty())
@@ -107,7 +108,6 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("open", sub)) => {
-            let mut config: Config = Config::load()?;
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -118,26 +118,27 @@ pub fn run() -> Result<()> {
 
             let name = resolve_project_name(project_name, &config, &projects)?;
 
-            let project = projects.get(&name).map_err(|_| anyhow!("Project not found."))?;
+            let project = projects
+                .get(&name)
+                .map_err(|_| anyhow!("Project not found."))?;
 
-            let (program, args, end_message, start_message, fork_mode) =
-                if sub.get_flag("shell") {
-                    (
-                        &config.shell.program,
-                        Vec::<String>::new(),
-                        "Shell session ended.",
-                        "Launching shell...",
-                        false,
-                    )
-                } else {
-                    (
-                        &config.editor.program,
-                        config.editor.args.clone(),
-                        "Editor session ended.",
-                        "Launching editor...",
-                        config.editor.fork_mode,
-                    )
-                };
+            let (program, args, end_message, start_message, fork_mode) = if sub.get_flag("shell") {
+                (
+                    &config.shell.program,
+                    Vec::<String>::new(),
+                    "Shell session ended.",
+                    "Launching shell...",
+                    false,
+                )
+            } else {
+                (
+                    &config.editor.program,
+                    config.editor.args.clone(),
+                    "Editor session ended.",
+                    "Launching editor...",
+                    config.editor.fork_mode,
+                )
+            };
 
             ensure!(
                 !program.is_empty(),
@@ -161,7 +162,6 @@ pub fn run() -> Result<()> {
             Message::print(end_message);
         }
         Some(("list", _sub)) => {
-            let config: Config = Config::load()?;
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -183,29 +183,27 @@ pub fn run() -> Result<()> {
             }
         }
         Some(("rename", sub)) => {
-            let config: Config = Config::load()?;
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
             )?;
 
             let args_name = sub
-                .get_one::<String>("name")
+                .get_one::<String>("old")
                 .ok_or_else(|| anyhow!("No project to rename."))?;
 
             let name = resolve_project_name(args_name, &config, &projects)?;
 
             let new_name = sub
-                .get_one::<String>("newname")
+                .get_one::<String>("new")
                 .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
 
             match projects.rename(name.as_ref(), new_name) {
-                Ok(_) => Message::print(&format!("The project was renamed to '{}'.", new_name)),
+                Ok(_) => Message::print("Done."),
                 Err(e) => bail!(e.to_string()),
             }
         }
         Some(("delete", sub)) => {
-            let config: Config = Config::load()?;
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -213,7 +211,7 @@ pub fn run() -> Result<()> {
 
             let args_name = sub
                 .get_one::<String>("name")
-                .ok_or_else(|| anyhow!("No project to delete."))?;
+                .ok_or_else(|| anyhow!("Provide a name of project to delete."))?;
 
             let project_name = resolve_project_name(args_name, &config, &projects)?;
 
@@ -221,12 +219,9 @@ pub fn run() -> Result<()> {
                 .get(&project_name)
                 .map_err(|_| anyhow!("Project not found."))?;
 
-            let force_delete = sub.get_flag("force");
-            let is_empty = project.is_empty()?;
-
-            if !is_empty
-                && !force_delete
-                && !Dialog::ask("Are you sure you want to delete this project?", false)
+            if !project.is_empty()
+                && !sub.get_flag("force")
+                && !Dialog::ask("The project is not empty. Continue?", false)
             {
                 Message::print("Aborting.");
                 return Ok(());
@@ -245,7 +240,6 @@ pub fn run() -> Result<()> {
         }
         Some(("templates", sub)) => match sub.subcommand() {
             Some(("new", _sub)) => {
-                let mut templates = Templates::load()?;
                 let name = Dialog::ask_string("Name of new template?");
                 if name.is_empty() {
                     bail!("Incorrect name for a template.");
@@ -253,7 +247,7 @@ pub fn run() -> Result<()> {
 
                 let mut commands: Vec<String> = Vec::new();
                 loop {
-                    let command = Dialog::ask_string("Enter a command (or press enter to finish):");
+                    let command = Dialog::ask_string("Enter a command (press enter to finish):");
                     if command.trim().is_empty() {
                         break;
                     } else {
@@ -265,6 +259,11 @@ pub fn run() -> Result<()> {
                     bail!("No commands entered.");
                 }
 
+                ensure!(
+                    commands.is_empty(),
+                    "No commands entered."
+                );
+
                 Message::print("Creating template...");
                 templates.add_template(&name, commands)?;
                 if templates.save().is_ok() {
@@ -274,7 +273,6 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("list", _sub)) => {
-                let templates = Templates::load()?;
                 if templates.is_empty() {
                     Message::print("No templates found.");
                     return Ok(());
@@ -286,11 +284,9 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("info", sub)) => {
-                let templates = Templates::load()?;
-
-                let name = sub.get_one::<String>("name").ok_or_else(|| {
-                    anyhow!("You need to provide a name of the template.")
-                })?;
+                let name = sub
+                    .get_one::<String>("name")
+                    .ok_or_else(|| anyhow!("Provide a name of the template."))?;
 
                 match templates.get_template(name) {
                     Some(template) => {
@@ -305,20 +301,15 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("clear", _sub)) => {
-                if Dialog::ask("Do you really want to clear all templates?", false) {
-                    let mut templates = Templates::load()?;
+                if Dialog::ask("Clear all templates?", false) {
                     templates.clear();
-                    if templates.save().is_ok() {
-                        Message::print("All templates have been cleared.");
-                    } else {
-                        bail!("Failed to save templates.");
-                    }
+                    templates.save()?;
+                    Message::print("All templates have been cleared.");
                 } else {
                     Message::print("Aborted.");
                 }
             }
             Some(("remove", sub)) => {
-                let mut templates = Templates::load()?;
                 match templates.remove_template(sub.get_one::<String>("name").unwrap()) {
                     Ok(_) => {
                         if templates.save().is_ok() {
@@ -332,7 +323,7 @@ pub fn run() -> Result<()> {
             }
             _ => {
                 bail!(
-                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands."
+                    "This command is not implemented."
                 );
             }
         },
@@ -341,7 +332,6 @@ pub fn run() -> Result<()> {
                 Message::print(Platform::get_config_path().to_str().unwrap());
             }
             Some(("edit", _sub)) => {
-                let config: Config = Config::load()?;
                 let editor = &config.editor.program;
                 if editor.is_empty() {
                     bail!("Editor program name is not set in the configuration file.");
@@ -350,10 +340,9 @@ pub fn run() -> Result<()> {
                 let path = Platform::get_config_path();
                 let mut editor_args = config.editor.args;
                 editor_args.push(path.to_str().unwrap().to_string());
-                Program::launch_program(editor.as_str(), editor_args, "", false)?
+                Program::launch_program(editor, editor_args, "", false)?
             }
             Some(("reset", _sub)) => {
-                let mut config: Config = Config::load()?;
                 if Dialog::ask("Reset your current configuration?", false) {
                     config.reset();
                     config.save()?;
@@ -364,7 +353,7 @@ pub fn run() -> Result<()> {
             }
             _ => {
                 bail!(
-                    "Unknown or not specified subcommand. Use `enjo config --help` to get list of all subcommands."
+                    "This command is not implemented."
                 );
             }
         },

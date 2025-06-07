@@ -3,6 +3,7 @@ use dialoguer::{
     console::{Style, style},
     theme::{ColorfulTheme, Theme},
 };
+use colored::Colorize;
 
 use crate::colors;
 
@@ -12,6 +13,7 @@ impl Message {
     pub fn error(msg: &str) {
         eprintln!(
             "{}{}error{}: {}",
+            "error".red
             colors::RED,
             colors::BOLD,
             colors::RESET,

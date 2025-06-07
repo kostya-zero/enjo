@@ -32,10 +32,10 @@ fn test_project_get_path_str() {
 fn test_project_is_empty() {
     let context = TestContext::setup();
     let project = Project::new("test_project", context.path().to_path_buf());
-    assert!(project.is_empty().unwrap());
+    assert!(project.is_empty());
 
     fs::write(context.path().join("test.txt"), "test").unwrap();
-    assert!(!project.is_empty().unwrap());
+    assert!(!project.is_empty());
 
     assert!(context.path().exists());
 }

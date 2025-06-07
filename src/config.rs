@@ -1,9 +1,24 @@
 use crate::{
-    errors::ConfigError,
     platform::{Platform, PlatformName},
 };
 use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum ConfigError {
+    #[error("Failed to write configuration file.")]
+    WriteFailed,
+
+    #[error("Failed to format configuration to TOML.")]
+    FormatFailed,
+
+    #[error("Cannot find configuration file.")]
+    FileNotFound,
+
+    #[error("Configuration file has a bad structure and cannot be deserialized.")]
+    BadStructure,
+}
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Options {

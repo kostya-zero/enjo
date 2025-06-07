@@ -1,6 +1,5 @@
 use crate::{
-    errors::LibraryError,
-    library::{CloneOptions, Library},
+    library::{CloneOptions, Library, LibraryError},
     tests::TestContext,
 };
 use std::fs;

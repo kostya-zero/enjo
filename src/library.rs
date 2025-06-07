@@ -5,8 +5,47 @@ use std::{
 };
 
 use anyhow::Result;
+use thiserror::Error;
+use crate::program::Program;
 
-use crate::{constants::SYSTEM_DIRECTORIES, errors::LibraryError, program::Program};
+#[derive(Debug, Error)]
+pub enum LibraryError {
+    #[error("Project with the same name already exists.")]
+    AlreadyExists,
+
+    #[error("Project not found.")]
+    ProjectNotFound,
+
+    #[error("Invalid path to the projects directory.")]
+    InvalidPath,
+
+    #[error("File system error occurred.")]
+    FileSystemError,
+
+    #[error("Failed to clone repository.")]
+    CloneFailed,
+
+    #[error("Failed to rename.")]
+    FailedToRename,
+
+    #[error("A project with the same name already exists.")]
+    ProjectExists,
+
+    #[error("This name of the project is not allowed.")]
+    InvalidProjectName,
+
+    #[error("An unexpected I/O error occurred: {0}.")]
+    IoError(String),
+}
+
+const SYSTEM_DIRECTORIES: [&str; 6] = [
+    ".",
+    "..",
+    "$RECYCLE.BIN",
+    "System Volume Information",
+    "msdownld.tmp",
+    ".Trash-1000",
+];
 
 #[derive(Debug, Clone, Default)]
 pub struct CloneOptions {
@@ -37,9 +76,12 @@ impl Project {
         self.path.to_str().unwrap_or_default()
     }
 
-    pub fn is_empty(&self) -> Result<bool, LibraryError> {
-        let entries = fs::read_dir(&self.path).map_err(|e| LibraryError::IoError(e.to_string()))?;
-        Ok(entries.count() == 0)
+    pub fn is_empty(&self) -> bool {
+        if let Ok(entries) = fs::read_dir(&self.path) {
+            entries.count() == 0
+        } else {
+            false
+        }
     }
 }
 
