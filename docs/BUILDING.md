@@ -1,112 +1,141 @@
 # Building Enjo
 
-If you want to build Enjo manually, this guide will be useful.
+This guide provides instructions for building Enjo manually from source.
 
 ### Prerequisites
 
-To build Enjo you need to follow the requirements:
+Before you begin, ensure you have the following:
 
 - The latest version of the Rust toolchain.
-- C/C++ compiler
-- - **Windows**: The latest version of _Visual Studio Build Tools 2022_ and _Windows SDK_.
-- - **Linux** and **macOS**: Latest version of _GCC_ or _Clang_.
+- A C/C++ compiler:
+  - **Windows**: The latest version of _Visual Studio Build Tools 2022_ (including the Windows SDK).
+  - **Linux** and **macOS**: The latest version of _GCC_ or _Clang_.
 
-If you already have installed Rust toolchain and C/C++ compiler, you can go to [Building](#building) section
+If you have already installed the Rust toolchain and a C/C++ compiler, you can proceed to [Step 2: Download Source Code](#step-2-download-source-code).
 
-> [!NOTE]
-> On Windows we recommend to use LLD as linker to speed up compilation. Learn more at [Tweaks](#tweaks) section.
+### Step 1: Install Required Tools
 
-### Install tools
+If you don't have Rust installed, visit the [official Rust installation page](https://www.rust-lang.org/tools/install) and follow the instructions.
 
-You can go to [official Rust install page](https://www.rust-lang.org/tools/install) and follow the instructions on the website. After installation, make sure that Rust toolchain and C compiler are installed correctly by running them through terminal.
+After installation, verify that the Rust toolchain (e.g., `rustc --version`, `cargo --version`) and your C/C++ compiler are correctly installed and accessible from your terminal.
 
-### Downloading source code
+### Step 2: Download Source Code
 
-If you have `git` installed you can use it to download the source code.
+You can download the Enjo source code using `git` or by downloading a ZIP archive.
 
+**Using Git (Recommended):**
 ```shell
 git clone https://github.com/kostya-zero/enjo.git
+cd enjo
 ```
 
-If not, you can download source code as ZIP. Extract its contents to wherever you want.
+**Downloading ZIP Archive:**
+1.  Go to the [Enjo GitHub repository](https://github.com/kostya-zero/enjo).
+2.  Click on "Code" -> "Download ZIP".
+3.  Extract the contents of the ZIP file to your desired location.
 
-### Building
+### Step 3: Build Enjo
 
-You can run building by running `cargo` with `build` argument. Also add `--release` argument to make optimized build.
+Navigate to the root directory of the Enjo source code in your terminal.
 
+To build Enjo, run:
+```shell
+cargo build
+```
+For an optimized release build (recommended for performance), run:
 ```shell
 cargo build --release
 ```
+The compiled binary will be located in `target/debug/` for a regular build or `target/release/` for a release build.
 
-The compiled binary will be located in `target/release/`.
+### Advanced Configuration & Tweaks
 
-#### Using Clang/LLD on Linux/macOS (Optional)
+These optional tweaks can improve compilation speed or runtime performance. 
+For persistent settings across sessions, it's recommended to use a `.cargo/config.toml` file.
 
-If you are using _Linux_ or _macOS_ and want to compile Enjo using `clang` as the C compiler and `lld` as the linker for potentially faster link times, you can set the `RUSTFLAGS` environment variable for your current terminal session:
+#### Using `.cargo/config.toml` for Persistent Settings
 
-```shell
-# Make sure clang and lld are installed
-export RUSTFLAGS="-C linker=clang -C link-arg=-fuse-ld=lld"
-# Then run: cargo build --release
-```
-For a more permanent configuration, see the [Tweaks](#tweaks) section about using `.cargo/config.toml`.
+Create a file named `config.toml` inside a `.cargo` directory at the root of the Enjo project (i.e., `enjo/.cargo/config.toml`). This file allows you to specify various build options, including linkers and compilation flags, which Cargo will automatically apply.
 
-### Tweaks
+#### Tweak 1: Faster Linking with LLD
 
-These optional tweaks can improve compilation speed or runtime performance.
+Using the LLD linker (from the LLVM project) can significantly speed up the linking phase of compilation.
 
-#### Recommended: Using `.cargo/config.toml`
+**A. Install LLD:**
 
-For persistent build configuration across sessions, it's recommended to create a file named `config.toml` inside a `.cargo` directory in the root of the project (`enjo/.cargo/config.toml`). This file allows you to specify various build options, including linkers and compilation flags.
+-   **Windows:**
+    1.  Ensure LLVM tools are installed. This can often be selected as an individual component ("C++ Clang tools for Windows") in the Visual Studio Installer, or by downloading the official LLVM toolchain installer.
+    2.  Verify that `lld-link.exe` is in your system's PATH.
+-   **Linux:**
+    1.  Install `lld` (and `clang` if not already present) using your package manager.
+        *   Debian/Ubuntu: `sudo apt update && sudo apt install lld clang`
+        *   Fedora: `sudo dnf install lld clang`
+-   **macOS:**
+    1.  Install LLVM via Homebrew: `brew install llvm`.
+    2.  `clang` usually comes with Xcode Command Line Tools. If `lld` is not found by default, you might need to add LLVM's `bin` directory to your PATH or specify the full path to `ld.lld` in `rustflags`.
 
-Examples for common tweaks are shown below. You can combine flags if needed.
+**B. Configure Cargo for LLD:**
 
-#### Faster Linking with LLD
-
-Using the LLD linker (from the LLVM project) can significantly speed up the linking phase of compilation (often 1.5x to 2x faster).
-
-**1. Install LLD:**
-   - **Windows:** Ensure LLVM tools are installed. You can often select this as an individual component ("C++ Clang tools for Windows") in the Visual Studio Installer or downloading official LLVM toolchain installer. Verify that `lld-link.exe` is in your system's PATH.
-   - **Linux:** Install `lld` using your package manager (e.g., `sudo apt install lld`, `sudo dnf install lld`). You also need `clang`.
-   - **macOS:** Install LLVM via Homebrew (`brew install llvm`). You also need `clang` (usually comes with Xcode Command Line Tools).
-
-**2. Configure Cargo:**
-   Add the following to your `.cargo/config.toml` file, adjusting the target triple if necessary:
-
-   ```toml
-   # Cargo.toml
-
-   # For Windows MSVC target
-   [target.x86_64-pc-windows-msvc]
-   rustflags = ["-C", "link-arg=-fuse-ld=lld-link"]
-
-   # For Linux targets (replace with your specific target if needed)
-   [target.x86_64-unknown-linux-gnu]
-   linker = "clang"
-   rustflags = ["-C", "link-arg=-fuse-ld=lld"]
-
-   # For macOS targets (replace with your specific target if needed)
-   [target.x86_64-apple-darwin]
-   linker = "clang"
-   rustflags = ["-C", "link-arg=-fuse-ld=lld"]
-   ```
-
-#### Native Compilation
-
-This optimizes the build for the specific CPU architecture of the machine you are compiling on. This can potentially increase runtime performance but makes the resulting binary less portable (it might not run on machines with older CPUs).
-
-Add the following to your `Cargo.toml`:
+Add the appropriate lines to your `enjo/.cargo/config.toml` file:
 
 ```toml
-[target.*]
-rustflags = ["-C", "target-cpu=native"]
-```
+# .cargo/config.toml
 
-You can combine this with other flags, for example:
+# For Windows MSVC target
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "link-arg=-fuse-ld=lld-link"]
 
-```toml
-# Add linker settings for your platform as shown above
+# For Linux targets (e.g., x86_64-unknown-linux-gnu)
+# Replace with your specific target if needed.
 [target.x86_64-unknown-linux-gnu]
 linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+# For macOS targets (e.g., x86_64-apple-darwin or aarch64-apple-darwin)
+# Replace with your specific target if needed.
+[target.x86_64-apple-darwin]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[target.aarch64-apple-darwin]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+```
+
+#### Tweak 2: Native Compilation for Performance
+
+This optimizes the build for the specific CPU architecture of the machine you are compiling on. 
+This can potentially increase runtime performance but makes the resulting binary less portable (it will not run on machines with different CPU microarchitecture).
+
+To enable native compilation, add the `-C target-cpu=native` flag to your `rustflags` in `enjo/.cargo/config.toml`.
+
+**Option 1: Global Native Compilation (applies to all builds for this project)**
+Add to the `[build]` section in `enjo/.cargo/config.toml`:
+```toml
+# .cargo/config.toml
+[build]
 rustflags = ["-C", "target-cpu=native"]
 ```
+
+**Option 2: Target-Specific Native Compilation**
+Add to a specific target section in `enjo/.cargo/config.toml` (e.g., for `x86_64-unknown-linux-gnu`):
+```toml
+# .cargo/config.toml
+[target.x86_64-unknown-linux-gnu] # Replace with your actual target triple
+rustflags = ["-C", "target-cpu=native"]
+```
+
+#### Combining Tweaks
+
+You can combine multiple `rustflags` in your `.cargo/config.toml`. For example, to use LLD and enable native CPU optimization for a Linux target:
+
+```toml
+# .cargo/config.toml
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = [
+    "-C", "link-arg=-fuse-ld=lld", # Use LLD
+    "-C", "target-cpu=native"      # Optimize for native CPU
+]
+```
+Ensure that `rustflags` is an array of strings, with each flag or flag-value pair as separate elements if they contain spaces or need to be distinct arguments for the compiler.
