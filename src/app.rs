@@ -2,12 +2,12 @@ use crate::args::build_cli;
 use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
-use crate::program::Program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
-use crate::utils::Utils;
 use anyhow::{anyhow, bail, ensure, Result};
 use std::time::Instant;
+use crate::program::launch_program;
+use crate::utils;
 
 fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
     if project_name == "-" {
@@ -16,7 +16,7 @@ fn resolve_project_name(project_name: &str, config: &Config, projects: &Library)
         }
         Ok(config.recent.recent_project.clone())
     } else if config.autocomplete.enabled {
-        let name = Utils::autocomplete(project_name, projects.get_names());
+        let name = utils::autocomplete(project_name, projects.get_names());
         if let Some(name) = name {
             Ok(name)
         } else {
@@ -30,7 +30,7 @@ fn resolve_project_name(project_name: &str, config: &Config, projects: &Library)
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
 
-    Utils::check_env()?;
+    utils::check_env()?;
 
     let mut config: Config = Config::load()?;
     let mut templates = Templates::load()?;
@@ -50,7 +50,7 @@ pub fn run() -> Result<()> {
 
             if let Some(template_name) = sub.get_one::<String>("template") {
                 let started_time = Instant::now();
-                if let Err(e) = Utils::apply_template(
+                if let Err(e) = utils::apply_template(
                     template_name,
                     &config,
                     name,
@@ -151,7 +151,7 @@ pub fn run() -> Result<()> {
             }
 
             Message::print(start_message);
-            Program::launch_program(program, &args, Some(project.get_path_str()), fork_mode)?;
+            launch_program(program, &args, Some(project.get_path_str()), fork_mode)?;
 
             if fork_mode {
                 // Because only editor could be launched in fork mode.
@@ -335,7 +335,7 @@ pub fn run() -> Result<()> {
                 let path = Platform::get_config_path();
                 let mut editor_args = config.editor.args;
                 editor_args.push(path.to_str().unwrap().to_string());
-                Program::launch_program(editor, &editor_args, None, false)?
+                launch_program(editor, &editor_args, None, false)?
             }
             Some(("reset", _sub)) => {
                 if Dialog::ask("Reset your current configuration?", false) {

@@ -1,10 +1,10 @@
-use crate::utils::{CompletionResult, Utils};
+use crate::utils::{suggest_completion, CompletionResult};
 
 #[test]
 pub fn test_autocomplete_found_similar() {
     let words: Vec<&str> = vec!["apple", "orange", "watermelon"];
 
-    let result = Utils::suggest_completion("ap", words);
+    let result = suggest_completion("ap", words);
     assert_eq!(
         result,
         CompletionResult::FoundSimilar(String::from("apple"))
@@ -15,7 +15,7 @@ pub fn test_autocomplete_found_similar() {
 pub fn test_autocomplete_found() {
     let words: Vec<&str> = vec!["apple", "orange", "watermelon"];
 
-    let result = Utils::suggest_completion("apple", words);
+    let result = suggest_completion("apple", words);
     assert_eq!(result, CompletionResult::Found)
 }
 
@@ -23,6 +23,6 @@ pub fn test_autocomplete_found() {
 pub fn test_autocomplete_nothing() {
     let words: Vec<&str> = vec!["apple", "orange", "watermelon"];
 
-    let result = Utils::suggest_completion("enjo", words);
+    let result = suggest_completion("enjo", words);
     assert_eq!(result, CompletionResult::Nothing)
 }
