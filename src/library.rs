@@ -72,7 +72,7 @@ impl Project {
         &self.name
     }
 
-    pub fn get_path_str(&self) -> &str {
+    pub fn get_path(&self) -> &str {
         self.path.to_str().unwrap_or_default()
     }
 

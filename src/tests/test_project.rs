@@ -11,7 +11,7 @@ fn test_project_new() {
     let project = Project::new("test_project", path.clone());
 
     assert_eq!(project.get_name(), "test_project");
-    assert_eq!(project.get_path_str(), path.to_str().unwrap());
+    assert_eq!(project.get_path(), path.to_str().unwrap());
 }
 
 #[test]
@@ -25,7 +25,7 @@ fn test_project_get_name() {
 fn test_project_get_path_str() {
     let context = TestContext::setup();
     let project = Project::new("test_project", context.path().to_path_buf());
-    assert_eq!(project.get_path_str(), context.path_str());
+    assert_eq!(project.get_path(), context.path_str());
 }
 
 #[test]

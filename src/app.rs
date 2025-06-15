@@ -2,35 +2,18 @@ use crate::args::build_cli;
 use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
+use crate::program::launch_program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
+use crate::utils;
+use crate::utils::{check_env, resolve_project_name};
 use anyhow::{anyhow, bail, ensure, Result};
 use std::time::Instant;
-use crate::program::launch_program;
-use crate::utils;
-
-fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
-    if project_name == "-" {
-        if config.recent.recent_project.is_empty() {
-            bail!("No project was opened recently.")
-        }
-        Ok(config.recent.recent_project.clone())
-    } else if config.autocomplete.enabled {
-        let name = utils::autocomplete(project_name, projects.get_names());
-        if let Some(name) = name {
-            Ok(name)
-        } else {
-            bail!("Project not found.")
-        }
-    } else {
-        Ok(project_name.to_string())
-    }
-}
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
 
-    utils::check_env()?;
+    check_env()?;
 
     let mut config: Config = Config::load()?;
     let mut templates = Templates::load()?;
@@ -50,21 +33,15 @@ pub fn run() -> Result<()> {
 
             if let Some(template_name) = sub.get_one::<String>("template") {
                 let started_time = Instant::now();
-                if let Err(e) = utils::apply_template(
-                    template_name,
-                    &config,
-                    name,
-                    sub.get_flag("quiet"),
-                ) {
+
+                let result =
+                    utils::apply_template(template_name, &config, name, sub.get_flag("quiet"));
+                if let Err(e) = result {
                     Message::error("Failed to apply template. Cleaning up...");
                     if let Err(cleanup_err) = projects.delete(name) {
-                        bail!(
-                            "Failed to apply template: {}. Additionally, cleanup failed: {}",
-                            e,
-                            cleanup_err
-                        )
+                        bail!("Additionally, cleanup failed: {}", cleanup_err);
                     }
-                    bail!(e)
+                    bail!(e);
                 }
                 let elapsed_time = started_time.elapsed().as_millis();
                 Message::print(&format!(
@@ -151,7 +128,7 @@ pub fn run() -> Result<()> {
             }
 
             Message::print(start_message);
-            launch_program(program, &args, Some(project.get_path_str()), fork_mode)?;
+            launch_program(program, &args, Some(project.get_path()), fork_mode)?;
 
             if fork_mode {
                 // Because only editor could be launched in fork mode.
@@ -198,10 +175,8 @@ pub fn run() -> Result<()> {
                 .get_one::<String>("new")
                 .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
 
-            match projects.rename(name.as_ref(), new_name) {
-                Ok(_) => Message::print("Done."),
-                Err(e) => bail!(e.to_string()),
-            }
+            projects.rename(&name, new_name)?;
+            Message::print("Done.");
         }
         Some(("delete", sub)) => {
             let projects = Library::new(
@@ -228,15 +203,9 @@ pub fn run() -> Result<()> {
             }
 
             Message::print("Deleting project...");
+            projects.delete(&project_name)?;
 
-            match projects.delete(&project_name) {
-                Ok(_) => {
-                    Message::print("The project has been deleted.");
-                }
-                Err(_) => {
-                    bail!("Failed to remove project directory because of the file system error.");
-                }
-            }
+            Message::print("The project has been deleted.");
         }
         Some(("templates", sub)) => match sub.subcommand() {
             Some(("new", _sub)) => {
@@ -248,15 +217,11 @@ pub fn run() -> Result<()> {
                 let mut commands: Vec<String> = Vec::new();
                 loop {
                     let command = Dialog::ask_string("Enter a command (press enter to finish):");
-                    if command.trim().is_empty() {
+                    if command.is_empty() {
                         break;
                     } else {
-                        commands.push(command.trim().to_string());
+                        commands.push(command.to_string());
                     }
-                }
-
-                if commands.is_empty() {
-                    bail!("No commands entered.");
                 }
 
                 ensure!(commands.is_empty(), "No commands entered.");

@@ -1,8 +1,10 @@
 use crate::config::Config;
+use crate::library::Library;
 use crate::platform::Platform;
 use crate::program::execute_command;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
+use crate::utils;
 use anyhow::{anyhow, bail, Error, Result};
 use std::path::Path;
 
@@ -65,25 +67,6 @@ pub fn suggest_completion(word: &str, words_list: Vec<&str>) -> CompletionResult
     }
 }
 
-pub fn check_env() -> Result<(), Error> {
-    if !Platform::check_config_exists() {
-        let default_config: Config = Config::default();
-        match default_config.save() {
-            Ok(_) => {}
-            Err(e) => bail!(e.to_string()),
-        }
-    }
-
-    if !Platform::check_templates_exists() {
-        let templates = Templates::new();
-        if templates.save().is_err() {
-            bail!("Failed to generate templates file.");
-        }
-    }
-
-    Ok(())
-}
-
 pub fn apply_template(
     template_name: &str,
     config: &Config,
@@ -114,4 +97,41 @@ pub fn apply_template(
     }
 
     Ok(())
+}
+
+pub fn check_env() -> Result<(), Error> {
+    if !Platform::check_config_exists() {
+        let default_config: Config = Config::default();
+        match default_config.save() {
+            Ok(_) => {}
+            Err(e) => bail!(e.to_string()),
+        }
+    }
+
+    if !Platform::check_templates_exists() {
+        let templates = Templates::new();
+        if templates.save().is_err() {
+            bail!("Failed to generate templates file.");
+        }
+    }
+
+    Ok(())
+}
+
+pub fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
+    if project_name == "-" {
+        if config.recent.recent_project.is_empty() {
+            bail!("No project was opened recently.")
+        }
+        Ok(config.recent.recent_project.clone())
+    } else if config.autocomplete.enabled {
+        let name = utils::autocomplete(project_name, projects.get_names());
+        if let Some(name) = name {
+            Ok(name)
+        } else {
+            bail!("Project not found.")
+        }
+    } else {
+        Ok(project_name.to_string())
+    }
 }
