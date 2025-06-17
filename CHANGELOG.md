@@ -1,8 +1,41 @@
 # Enjo changelog
 
-# Next
+# 0.7.0
 
 - Now templates will be stored in a separate JSON file called `templates.json`. It will be created in the same directory as the configuration file. You can add your templates to this file manually or use the `templates` command to manage them.
+- Added support for `code-insiders` editor.
+- A new layout for configuration file present:
+  ```toml
+  [options]
+  projects_directory = '/home/user'
+  display_hidden = false
+
+  [editor]
+  program = "nvim"
+  fork_mode = false
+  args = []
+    
+  [shell]
+  program = "bash"
+  args = ["-c"]
+    
+  [recent]
+  enabled = true
+  recent_project = "example"
+    
+  [autocomplete]
+  enabled = true
+  ``` 
+  Note that you need to reset your current configuration because it will be incompatible with new one.
+- A new field for `shell` section called `args`. Value inside this field will be used to call commands to initialize project with template. Example configuration for PowerShell:
+  ```toml
+  [shell]
+  program = "pwsh.exe"
+  args = ["-NoLogo", "-c"]
+  # Enjo will execute it like this: `powershell.exe -NoLogo -c "{command}"
+  ```
+- Removed the spinner animation when removing the project.
+- Various internal refactorings and code improvements for better maintainability and error handling.
 
 ## 0.6.1
 
