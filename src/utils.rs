@@ -71,7 +71,7 @@ pub fn apply_template(
     template_name: &str,
     config: &Config,
     project_name: &str,
-    quite: bool,
+    quiet: bool,
 ) -> Result<(), Error> {
     let templates = Templates::load().map_err(|e| anyhow!("Failed to load templates: {}", e))?;
     let template = templates
@@ -92,7 +92,7 @@ pub fn apply_template(
         let mut args = config.shell.args.clone();
         args.push(command.clone());
 
-        launch_program(program, &args, Some(cwd.to_str().unwrap()), quite, false)
+        launch_program(program, &args, Some(cwd.to_str().unwrap()), false, quiet)
             .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;
     }
 

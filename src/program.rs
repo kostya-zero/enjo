@@ -45,9 +45,7 @@ pub fn launch_program(
     // user will lose control over the shell. I don't know why it happens, but it does.
     // On Linux and macOS Ctrl+C works as expected.
     #[cfg(windows)]
-    if let Err(e) = ctrlc::set_handler(|| {}) {
-        return Err(ProgramError::UnexpectedError(e.to_string()));
-    }
+    let _ = ctrlc::set_handler(|| {});
 
     let result = if fork_mode {
         cmd.spawn().err()
@@ -63,5 +61,6 @@ pub fn launch_program(
             _ => Err(ProgramError::UnexpectedError(e.to_string())),
         };
     }
+
     Ok(())
 }
