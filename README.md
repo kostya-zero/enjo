@@ -8,6 +8,9 @@ Enjo is a command-line tool designed for managing your projects.
 It offers a simple and user-friendly interface for creating, opening, and deleting projects.
 Enjo is available for Windows, Linux, and macOS (compatibility with *BSD systems is not guaranteed).
 
+> [!NOTE]
+> This project is in beta. Some changes in newer version may not be backward compatible with previous versions.
+
 ## Installation
 
 You can install Enjo with [Cargo](https://doc.rust-lang.org/cargo/) using the following commands:
