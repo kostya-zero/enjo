@@ -147,10 +147,7 @@ impl Library {
         }
 
         let cwd = self.base_path.to_str().unwrap();
-        match launch_program("git", &args, Some(cwd), false) {
-            Ok(_) => Ok(()),
-            Err(_) => Err(LibraryError::CloneFailed),
-        }
+        launch_program("git", &args, Some(cwd), false, false).map_err(|_| LibraryError::CloneFailed)
     }
 
     pub fn create(&self, name: &str) -> Result<(), LibraryError> {

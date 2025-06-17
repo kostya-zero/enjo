@@ -9,6 +9,7 @@ use crate::utils;
 use crate::utils::{check_env, resolve_project_name};
 use anyhow::{anyhow, bail, ensure, Result};
 use std::time::Instant;
+use colored::Colorize;
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
@@ -128,7 +129,7 @@ pub fn run() -> Result<()> {
             }
 
             Message::print(start_message);
-            launch_program(program, &args, Some(project.get_path()), fork_mode)?;
+            launch_program(program, &args, Some(project.get_path()), fork_mode, false)?;
 
             if fork_mode {
                 // Because only editor could be launched in fork mode.
@@ -153,7 +154,7 @@ pub fn run() -> Result<()> {
             Message::title("Your projects:");
             for project in projects.get_vec().iter() {
                 if project.get_name() == recent {
-                    Message::item(&format!("{} \x1b[1m(recent)\x1b[0m", project.get_name()));
+                    Message::item(&format!("{} {}", project.get_name(), "(recent)".white().bold()));
                 } else {
                     Message::item(project.get_name());
                 }
@@ -300,7 +301,7 @@ pub fn run() -> Result<()> {
                 let path = Platform::get_config_path();
                 let mut editor_args = config.editor.args;
                 editor_args.push(path.to_str().unwrap().to_string());
-                launch_program(editor, &editor_args, None, false)?
+                launch_program(editor, &editor_args, None, false, false)?
             }
             Some(("reset", _sub)) => {
                 if Dialog::ask("Reset your current configuration?", false) {

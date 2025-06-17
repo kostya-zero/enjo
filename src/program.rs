@@ -1,56 +1,67 @@
-use anyhow::{anyhow, Result};
-use std::{
-    path::Path,
-    process::{Command, Stdio},
-};
+use anyhow::Result;
+use std::process::{Command, Stdio};
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum ProgramError {
+    #[error("Failed to launch program: {0}")]
+    ProgramNotFound(String),
+
+    #[error("Process was interrupted")]
+    ProcessInterrupted,
+
+    #[error("No permission to execute the program")]
+    NoPermission,
+
+    #[error("An unexpected error occurred: {0}")]
+    UnexpectedError(String),
+}
 
 pub fn launch_program(
     program: &str,
     args: &Vec<String>,
     cwd: Option<&str>,
     fork_mode: bool,
-) -> Result<()> {
+    quiet: bool,
+) -> Result<(), ProgramError> {
     let mut cmd = Command::new(program);
-    cmd.stdin(Stdio::inherit())
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit());
-    cmd.args(args);
-    if let Some(cwd_path) = cwd {
-        cmd.current_dir(cwd_path);
-    }
 
-    #[cfg(windows)]
-    ctrlc::set_handler(|| {})?;
-
-    if fork_mode {
-        match cmd.spawn() {
-            Ok(_) => Ok(()),
-            Err(e) => Err(anyhow!(e.to_string())),
-        }
+    if quiet {
+        cmd.stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
     } else {
-        match cmd.output() {
-            Ok(_) => Ok(()),
-            Err(e) => match e.kind() {
-                std::io::ErrorKind::NotFound => Err(anyhow!("Executable not found: {}", program)),
-                std::io::ErrorKind::Interrupted => Err(anyhow!("Process interrupted")),
-                _ => Err(anyhow!(e.kind().to_string())),
-            },
-        }
-    }
-}
-
-pub fn execute_command(program: &str, args: &Vec<String>, cwd: &Path, quiet: bool) -> Result<()> {
-    let mut cmd = Command::new(program);
-    cmd.args(args).current_dir(cwd);
-
-    if !quiet {
         cmd.stdin(Stdio::inherit())
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit());
     }
 
-    match cmd.output() {
-        Ok(_) => Ok(()),
-        Err(e) => Err(anyhow!(e.to_string())),
+    cmd.args(args);
+    if let Some(cwd_path) = cwd {
+        cmd.current_dir(cwd_path);
     }
+
+    // Required for Windows because if user runs program inside a shell and presses Ctrl+C,
+    // user will lose control over the shell. I don't know why it happens, but it does.
+    // On Linux and macOS Ctrl+C works as expected.
+    #[cfg(windows)]
+    if let Err(e) = ctrlc::set_handler(|| {}) {
+        return Err(ProgramError::UnexpectedError(e.to_string()));
+    }
+
+    let result = if fork_mode {
+        cmd.spawn().err()
+    } else {
+        cmd.status().err()
+    };
+
+    if let Some(e) = result {
+        return match e.kind() {
+            std::io::ErrorKind::NotFound => Err(ProgramError::ProgramNotFound(program.to_string())),
+            std::io::ErrorKind::PermissionDenied => Err(ProgramError::NoPermission),
+            std::io::ErrorKind::Interrupted => Err(ProgramError::ProcessInterrupted),
+            _ => Err(ProgramError::UnexpectedError(e.to_string())),
+        };
+    }
+    Ok(())
 }

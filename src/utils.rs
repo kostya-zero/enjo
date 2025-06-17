@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::library::Library;
 use crate::platform::Platform;
-use crate::program::execute_command;
+use crate::program::launch_program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils;
@@ -92,7 +92,7 @@ pub fn apply_template(
         let mut args = config.shell.args.clone();
         args.push(command.clone());
 
-        execute_command(program, &args, &cwd, quite)
+        launch_program(program, &args, Some(cwd.to_str().unwrap()), quite, false)
             .map_err(|e| anyhow!("Template command '{}' failed: {}", command, e))?;
     }
 
