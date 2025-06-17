@@ -7,7 +7,7 @@ use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils;
 use crate::utils::{check_env, resolve_project_name};
-use anyhow::{Result, anyhow, bail, ensure};
+use anyhow::{anyhow, bail, ensure, Result};
 use colored::Colorize;
 use std::time::Instant;
 
@@ -229,7 +229,7 @@ pub fn run() -> Result<()> {
                     }
                 }
 
-                ensure!(commands.is_empty(), "No commands entered.");
+                ensure!(!commands.is_empty(), "No commands entered.");
 
                 Message::print("Creating template...");
                 templates.add_template(&name, commands)?;
@@ -288,7 +288,10 @@ pub fn run() -> Result<()> {
                 }
             }
             Some(("remove", sub)) => {
-                match templates.remove_template(sub.get_one::<String>("name").unwrap()) {
+                let name = sub
+                    .get_one::<String>("name")
+                    .ok_or_else(|| anyhow!("Provide a name of template to delete."))?;
+                match templates.remove_template(name) {
                     Ok(_) => {
                         if templates.save().is_ok() {
                             Message::print("Template removed.");
