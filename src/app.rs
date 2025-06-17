@@ -7,9 +7,9 @@ use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils;
 use crate::utils::{check_env, resolve_project_name};
-use anyhow::{anyhow, bail, ensure, Result};
-use std::time::Instant;
+use anyhow::{Result, anyhow, bail, ensure};
 use colored::Colorize;
+use std::time::Instant;
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
@@ -154,7 +154,11 @@ pub fn run() -> Result<()> {
             Message::title("Your projects:");
             for project in projects.get_vec().iter() {
                 if project.get_name() == recent {
-                    Message::item(&format!("{} {}", project.get_name(), "(recent)".white().bold()));
+                    Message::item(&format!(
+                        "{} {}",
+                        project.get_name(),
+                        "(recent)".white().bold()
+                    ));
                 } else {
                     Message::item(project.get_name());
                 }
@@ -245,6 +249,17 @@ pub fn run() -> Result<()> {
                 for template in templates.list_templates().iter() {
                     Message::item(template);
                 }
+            }
+            Some(("edit", _sub)) => {
+                let editor = &config.editor.program;
+                if editor.is_empty() {
+                    bail!("Editor program name is not set in the configuration file.");
+                }
+
+                let path = Platform::get_templates_path();
+                let mut editor_args = config.editor.args;
+                editor_args.push(path.to_str().unwrap().to_string());
+                launch_program(editor, &editor_args, None, false, false)?
             }
             Some(("info", sub)) => {
                 let name = sub

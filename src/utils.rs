@@ -5,7 +5,7 @@ use crate::program::launch_program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils;
-use anyhow::{anyhow, bail, Error, Result};
+use anyhow::{Error, Result, anyhow, bail};
 use std::path::Path;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -118,7 +118,11 @@ pub fn check_env() -> Result<(), Error> {
     Ok(())
 }
 
-pub fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
+pub fn resolve_project_name(
+    project_name: &str,
+    config: &Config,
+    projects: &Library,
+) -> Result<String> {
     if project_name == "-" {
         if config.recent.recent_project.is_empty() {
             bail!("No project was opened recently.")

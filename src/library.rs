@@ -4,9 +4,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::program::launch_program;
 use anyhow::Result;
 use thiserror::Error;
-use crate::program::launch_program;
 
 #[derive(Debug, Error)]
 pub enum LibraryError {
