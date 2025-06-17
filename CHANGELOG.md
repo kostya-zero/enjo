@@ -1,10 +1,11 @@
 # Enjo changelog
 
-# 0.7.0
+## 0.7.0
 
-- Now templates will be stored in a separate JSON file called `templates.json`. It will be created in the same directory as the configuration file. You can add your templates to this file manually or use the `templates` command to manage them.
-- Added support for `code-insiders` editor.
-- A new layout for configuration file present:
+- Templates are now stored in a separate `templates.json` file, created in the same directory as the configuration file. You can add templates manually or manage them using the `templates` command.
+- Added `edit` subcommand for `templates` to launch editor with opened `templates.json` file.
+- Added support for the `code-insiders` editor.
+- The configuration file has a new layout:
   ```toml
   [options]
   projects_directory = '/home/user'
@@ -26,15 +27,15 @@
   [autocomplete]
   enabled = true
   ``` 
-  Note that you need to reset your current configuration because it will be incompatible with new one.
-- A new field for `shell` section called `args`. Value inside this field will be used to call commands to initialize project with template. Example configuration for PowerShell:
+  **Note**: You need to reset your current configuration file; the new version is not compatible with the old format.
+- The `shell` section now includes an `args` field. The values in this field will be used when running commands to initialize a project with a template. For example, in PowerShell:
   ```toml
   [shell]
   program = "pwsh.exe"
   args = ["-NoLogo", "-c"]
-  # Enjo will execute it like this: `powershell.exe -NoLogo -c "{command}"
+  # Enjo will execute: powershell.exe -NoLogo -c "{command}"
   ```
-- Removed the spinner animation when removing the project.
+- Removed the spinner animation when removing a project.
 - Various internal refactorings and code improvements for better maintainability and error handling.
 
 ## 0.6.1
