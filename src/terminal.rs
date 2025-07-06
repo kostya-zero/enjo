@@ -13,15 +13,11 @@ impl Message {
     }
 
     pub fn print(msg: &str) {
-        println!("{}", msg);
+        println!("{msg}");
     }
 
     pub fn progress(msg: &str, current: i8, total: i8) {
-        println!(
-            "{} {}",
-            format!("[{}/{}]", current, total).white().bold(),
-            msg
-        );
+        println!("{} {}", format!("[{current}/{total}]").white().bold(), msg);
     }
 
     pub fn title(msg: &str) {
@@ -29,7 +25,7 @@ impl Message {
     }
 
     pub fn item(msg: &str) {
-        println!(" {}", msg);
+        println!(" {msg}");
     }
 }
 

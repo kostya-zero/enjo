@@ -6,10 +6,41 @@ use crate::program::launch_program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils;
-use crate::utils::{check_env, resolve_project_name};
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{Result, anyhow, bail, ensure};
 use colored::Colorize;
 use std::time::Instant;
+
+fn check_env() -> Result<()> {
+    if !Platform::check_config_exists() {
+        let default_config: Config = Config::default();
+        default_config.save().map_err(|e| anyhow!(e.to_string()))?;
+    }
+
+    if !Platform::check_templates_exists() {
+        let templates = Templates::new();
+        templates.save().map_err(|e| anyhow!(e.to_string()))?;
+    }
+
+    Ok(())
+}
+
+fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
+    if project_name == "-" {
+        ensure!(
+            config.recent.recent_project.is_empty(),
+            "No recent project found."
+        );
+        Ok(config.recent.recent_project.clone())
+    } else if config.autocomplete.enabled {
+        if let Some(name) = utils::autocomplete(project_name, projects.get_names()) {
+            Ok(name)
+        } else {
+            bail!("Project not found.")
+        }
+    } else {
+        Ok(project_name.to_string())
+    }
+}
 
 pub fn run() -> Result<()> {
     let args = build_cli().get_matches();
@@ -37,21 +68,19 @@ pub fn run() -> Result<()> {
 
                 let result =
                     utils::apply_template(template_name, &config, name, sub.get_flag("quiet"));
-                if let Err(e) = result {
+                if result.is_err() {
                     Message::error("Failed to apply template. Cleaning up...");
-                    if let Err(cleanup_err) = projects.delete(name) {
-                        bail!("Additionally, cleanup failed: {}", cleanup_err);
-                    }
-                    bail!(e);
+                    projects
+                        .delete(name)
+                        .map_err(|e| anyhow!("Additionally, cleanup failed: {}", e.to_string()))?;
                 }
                 let elapsed_time = started_time.elapsed().as_millis();
                 Message::print(&format!(
-                    "Generated project from template in {} ms.",
-                    elapsed_time
+                    "Generated project from template in {elapsed_time} ms."
                 ));
-            } else {
-                Message::print("Done.")
             }
+
+            Message::print("Done.")
         }
         Some(("clone", sub)) => {
             let remote = sub
@@ -80,10 +109,12 @@ pub fn run() -> Result<()> {
                 &config.options.projects_directory,
                 config.options.display_hidden,
             )?;
-            match projects.clone(&clone_options) {
-                Ok(_) => Message::print("The project has been cloned."),
-                Err(e) => bail!(e.to_string()),
-            }
+
+            projects
+                .clone(&clone_options)
+                .map_err(|e| anyhow!(e.to_string()))?;
+
+            Message::print("The project has been cloned.");
         }
         Some(("open", sub)) => {
             let projects = Library::new(
@@ -153,15 +184,15 @@ pub fn run() -> Result<()> {
 
             Message::title("Your projects:");
             for project in projects.get_vec().iter() {
-                if project.get_name() == recent {
-                    Message::item(&format!(
-                        "{} {}",
-                        project.get_name(),
+                Message::item(&format!(
+                    "{} {}",
+                    project.get_name(),
+                    if project.get_name() == recent {
                         "(recent)".white().bold()
-                    ));
-                } else {
-                    Message::item(project.get_name());
-                }
+                    } else {
+                        "".dimmed()
+                    }
+                ));
             }
         }
         Some(("rename", sub)) => {
@@ -183,7 +214,7 @@ pub fn run() -> Result<()> {
             projects.rename(&name, new_name)?;
             Message::print("Done.");
         }
-        Some(("delete", sub)) => {
+        Some(("remove", sub)) => {
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -191,7 +222,7 @@ pub fn run() -> Result<()> {
 
             let args_name = sub
                 .get_one::<String>("name")
-                .ok_or_else(|| anyhow!("Provide a name of project to delete."))?;
+                .ok_or_else(|| anyhow!("Provide a name of project to remove."))?;
 
             let project_name = resolve_project_name(args_name, &config, &projects)?;
 
@@ -207,10 +238,10 @@ pub fn run() -> Result<()> {
                 return Ok(());
             }
 
-            Message::print("Deleting project...");
+            Message::print("Removing project...");
             projects.delete(&project_name)?;
 
-            Message::print("The project has been deleted.");
+            Message::print("The project has been removed.");
         }
         Some(("templates", sub)) => match sub.subcommand() {
             Some(("new", _sub)) => {
@@ -224,9 +255,8 @@ pub fn run() -> Result<()> {
                     let command = Dialog::ask_string("Enter a command (press enter to finish):");
                     if command.is_empty() {
                         break;
-                    } else {
-                        commands.push(command.to_string());
                     }
+                    commands.push(command.to_string());
                 }
 
                 ensure!(!commands.is_empty(), "No commands entered.");

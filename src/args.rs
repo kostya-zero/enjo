@@ -75,16 +75,16 @@ pub fn build_cli() -> Command {
                     .required(false)
                     .num_args(1),
             ]),
-            Command::new("delete").about("Delete project.").args([
+            Command::new("remove").about("Remove project.").args([
                 Arg::new("name")
-                    .help("Name of the project to delete.")
+                    .help("Name of the project to remove.")
                     .value_parser(value_parser!(String))
                     .required(false)
                     .num_args(1),
                 Arg::new("force")
                     .short('f')
                     .long("force")
-                    .help("Force delete without confirmation.")
+                    .help("Force remove without confirmation.")
                     .action(ArgAction::SetTrue),
             ]),
             Command::new("templates")
