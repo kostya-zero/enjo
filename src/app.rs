@@ -24,21 +24,13 @@ fn check_env() -> Result<()> {
     Ok(())
 }
 
-fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Result<String> {
-    if project_name == "-" {
-        ensure!(
-            config.recent.recent_project.is_empty(),
-            "No recent project found."
-        );
-        Ok(config.recent.recent_project.clone())
+fn resolve_project_name(project_name: &str, config: &Config, projects: &Library) -> Option<String> {
+    if project_name == "-" && config.recent.enabled {
+        Some(config.recent.recent_project.clone())
     } else if config.autocomplete.enabled {
-        if let Some(name) = utils::autocomplete(project_name, projects.get_names()) {
-            Ok(name)
-        } else {
-            bail!("Project not found.")
-        }
+        utils::autocomplete(project_name, projects.get_names())
     } else {
-        Ok(project_name.to_string())
+        Some(project_name.to_string())
     }
 }
 
@@ -121,11 +113,12 @@ pub fn run() -> Result<()> {
                 &config.options.projects_directory,
                 config.options.display_hidden,
             )?;
+
             let project_name = sub
                 .get_one::<String>("name")
                 .ok_or_else(|| anyhow!("The project name is not provided."))?;
 
-            let name = resolve_project_name(project_name, &config, &projects)?;
+            let name = resolve_project_name(project_name, &config, &projects).ok_or_else(|| anyhow!("Project not found."))?;
 
             let project = projects
                 .get(&name)
@@ -205,13 +198,11 @@ pub fn run() -> Result<()> {
                 .get_one::<String>("old")
                 .ok_or_else(|| anyhow!("No project to rename."))?;
 
-            let name = resolve_project_name(args_name, &config, &projects)?;
-
             let new_name = sub
                 .get_one::<String>("new")
                 .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
 
-            projects.rename(&name, new_name)?;
+            projects.rename(args_name, new_name)?;
             Message::print("Done.");
         }
         Some(("remove", sub)) => {
@@ -224,10 +215,8 @@ pub fn run() -> Result<()> {
                 .get_one::<String>("name")
                 .ok_or_else(|| anyhow!("Provide a name of project to remove."))?;
 
-            let project_name = resolve_project_name(args_name, &config, &projects)?;
-
             let project = projects
-                .get(&project_name)
+                .get(args_name)
                 .map_err(|_| anyhow!("Project not found."))?;
 
             if !project.is_empty()
@@ -239,7 +228,7 @@ pub fn run() -> Result<()> {
             }
 
             Message::print("Removing project...");
-            projects.delete(&project_name)?;
+            projects.delete(args_name)?;
 
             Message::print("The project has been removed.");
         }
