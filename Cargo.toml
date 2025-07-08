@@ -1,6 +1,6 @@
 [package]
 name = "enjo"
-description = "Yet another projects manager."
+description = "Yet another manager for your projects."
 authors = ["Konstantin Zhigaylo <zero@kostyazero.com>"]
 repository = "https://github.com/kostya-zero/enjo"
 homepage = "https://github.com/kostya-zero/enjo"
@@ -15,7 +15,7 @@ name = "enjo"
 
 [dependencies]
 anyhow = "1"
-clap = "4.5.7"
+clap = { version = "4.5.7", features = ["derive"] }
 colored = "3.0.0"
 dialoguer = "0.11.0"
 serde = { version = "1.0.203", features = ["derive"] }

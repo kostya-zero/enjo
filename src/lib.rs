@@ -1,5 +1,5 @@
 pub mod app;
-mod args;
+mod cli;
 mod config;
 mod library;
 mod platform;

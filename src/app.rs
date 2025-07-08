@@ -1,4 +1,4 @@
-use crate::args::build_cli;
+use crate::cli::{Cli, Commands, ConfigCommands, TemplatesCommands};
 use crate::config::Config;
 use crate::library::{CloneOptions, Library};
 use crate::platform::Platform;
@@ -6,7 +6,8 @@ use crate::program::launch_program;
 use crate::templates::Templates;
 use crate::terminal::{Dialog, Message};
 use crate::utils;
-use anyhow::{Result, anyhow, bail, ensure};
+use anyhow::{anyhow, bail, ensure, Result};
+use clap::Parser;
 use colored::Colorize;
 use std::time::Instant;
 
@@ -35,35 +36,34 @@ fn resolve_project_name(project_name: &str, config: &Config, projects: &Library)
 }
 
 pub fn run() -> Result<()> {
-    let args = build_cli().get_matches();
+    let cli = Cli::parse();
 
     check_env()?;
 
     let mut config: Config = Config::load()?;
     let mut templates = Templates::load()?;
 
-    match args.subcommand() {
-        Some(("new", sub)) => {
+    match cli.cmd {
+        Commands::New(args) => {
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
             )?;
 
-            let name = sub
-                .get_one::<String>("name")
+            let name = args
+                .name
                 .ok_or_else(|| anyhow!("Provide a name for a new project."))?;
 
-            projects.create(name)?;
+            projects.create(&name)?;
 
-            if let Some(template_name) = sub.get_one::<String>("template") {
+            if let Some(template_name) = args.template {
                 let started_time = Instant::now();
 
-                let result =
-                    utils::apply_template(template_name, &config, name, sub.get_flag("quiet"));
+                let result = utils::apply_template(&template_name, &config, &name, args.quiet);
                 if result.is_err() {
                     Message::error("Failed to apply template. Cleaning up...");
                     projects
-                        .delete(name)
+                        .delete(&name)
                         .map_err(|e| anyhow!("Additionally, cleanup failed: {}", e.to_string()))?;
                 }
                 let elapsed_time = started_time.elapsed().as_millis();
@@ -74,22 +74,13 @@ pub fn run() -> Result<()> {
 
             Message::print("Done.")
         }
-        Some(("clone", sub)) => {
-            let remote = sub
-                .get_one::<String>("remote")
-                .filter(|s| !s.trim().is_empty())
-                .map(String::from)
+        Commands::Clone(args) => {
+            let remote = args
+                .remote
                 .ok_or_else(|| anyhow!("You need to provide a remote URL."))?;
 
-            let branch = sub
-                .get_one::<String>("branch")
-                .filter(|s| !s.trim().is_empty())
-                .map(String::from);
-
-            let name = sub
-                .get_one::<String>("name")
-                .filter(|s| !s.trim().is_empty())
-                .map(String::from);
+            let branch = args.branch;
+            let name = args.name;
 
             let clone_options = CloneOptions {
                 remote,
@@ -108,23 +99,24 @@ pub fn run() -> Result<()> {
 
             Message::print("The project has been cloned.");
         }
-        Some(("open", sub)) => {
+        Commands::Open(args) => {
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
             )?;
 
-            let project_name = sub
-                .get_one::<String>("name")
+            let project_name = args
+                .name
                 .ok_or_else(|| anyhow!("The project name is not provided."))?;
 
-            let name = resolve_project_name(project_name, &config, &projects).ok_or_else(|| anyhow!("Project not found."))?;
+            let name = resolve_project_name(&project_name, &config, &projects)
+                .ok_or_else(|| anyhow!("Project not found."))?;
 
             let project = projects
                 .get(&name)
                 .map_err(|_| anyhow!("Project not found."))?;
 
-            let (program, args, end_message, start_message, fork_mode) = if sub.get_flag("shell") {
+            let (program, args, end_message, start_message, fork_mode) = if args.shell {
                 (
                     &config.shell.program,
                     Vec::<String>::new(),
@@ -163,7 +155,7 @@ pub fn run() -> Result<()> {
 
             Message::print(end_message);
         }
-        Some(("list", _sub)) => {
+        Commands::List => {
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
@@ -188,39 +180,38 @@ pub fn run() -> Result<()> {
                 ));
             }
         }
-        Some(("rename", sub)) => {
+        Commands::Rename(args) => {
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
             )?;
 
-            let args_name = sub
-                .get_one::<String>("old")
+            let old_name = args
+                .old_name
                 .ok_or_else(|| anyhow!("No project to rename."))?;
-
-            let new_name = sub
-                .get_one::<String>("new")
+            let new_name = args
+                .new_name
                 .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
 
-            projects.rename(args_name, new_name)?;
+            projects.rename(&old_name, &new_name)?;
             Message::print("Done.");
         }
-        Some(("remove", sub)) => {
+        Commands::Remove(args) => {
             let projects = Library::new(
                 &config.options.projects_directory,
                 config.options.display_hidden,
             )?;
 
-            let args_name = sub
-                .get_one::<String>("name")
+            let name = args
+                .name
                 .ok_or_else(|| anyhow!("Provide a name of project to remove."))?;
 
             let project = projects
-                .get(args_name)
+                .get(&name)
                 .map_err(|_| anyhow!("Project not found."))?;
 
             if !project.is_empty()
-                && !sub.get_flag("force")
+                && !args.force
                 && !Dialog::ask("The project is not empty. Continue?", false)
             {
                 Message::print("Aborting.");
@@ -228,12 +219,12 @@ pub fn run() -> Result<()> {
             }
 
             Message::print("Removing project...");
-            projects.delete(args_name)?;
+            projects.delete(&name)?;
 
             Message::print("The project has been removed.");
         }
-        Some(("templates", sub)) => match sub.subcommand() {
-            Some(("new", _sub)) => {
+        Commands::Templates { command } => match command {
+            TemplatesCommands::New => {
                 let name = Dialog::ask_string("Name of new template?");
                 if name.is_empty() {
                     bail!("Incorrect name for a template.");
@@ -258,7 +249,7 @@ pub fn run() -> Result<()> {
                     bail!("Failed to save templates.");
                 }
             }
-            Some(("list", _sub)) => {
+            TemplatesCommands::List => {
                 if templates.is_empty() {
                     Message::print("No templates found.");
                     return Ok(());
@@ -269,7 +260,7 @@ pub fn run() -> Result<()> {
                     Message::item(template);
                 }
             }
-            Some(("edit", _sub)) => {
+            TemplatesCommands::Edit => {
                 let editor = &config.editor.program;
                 if editor.is_empty() {
                     bail!("Editor program name is not set in the configuration file.");
@@ -280,12 +271,12 @@ pub fn run() -> Result<()> {
                 editor_args.push(path.to_str().unwrap().to_string());
                 launch_program(editor, &editor_args, None, false, false)?
             }
-            Some(("info", sub)) => {
-                let name = sub
-                    .get_one::<String>("name")
+            TemplatesCommands::Info(args) => {
+                let name = args
+                    .name
                     .ok_or_else(|| anyhow!("Provide a name of the template."))?;
 
-                match templates.get_template(name) {
+                match templates.get_template(&name) {
                     Some(template) => {
                         Message::title("Commands of this template:");
                         for command in template.iter() {
@@ -297,7 +288,7 @@ pub fn run() -> Result<()> {
                     }
                 }
             }
-            Some(("clear", _sub)) => {
+            TemplatesCommands::Clear => {
                 if Dialog::ask("Clear all templates?", false) {
                     templates.clear();
                     templates.save()?;
@@ -306,30 +297,19 @@ pub fn run() -> Result<()> {
                     Message::print("Aborted.");
                 }
             }
-            Some(("remove", sub)) => {
-                let name = sub
-                    .get_one::<String>("name")
+            TemplatesCommands::Remove(args) => {
+                let name = args
+                    .name
                     .ok_or_else(|| anyhow!("Provide a name of template to delete."))?;
-                match templates.remove_template(name) {
-                    Ok(_) => {
-                        if templates.save().is_ok() {
-                            Message::print("Template removed.");
-                        } else {
-                            bail!("Failed to save templates.");
-                        }
-                    }
-                    Err(_) => bail!("Template not found."),
-                }
-            }
-            _ => {
-                bail!("This command is not implemented.");
+                templates.remove_template(&name).map_err(|e| anyhow!(e))?;
+                templates.save().map_err(|e| anyhow!(e))?;
             }
         },
-        Some(("config", sub)) => match sub.subcommand() {
-            Some(("path", _sub)) => {
+        Commands::Config { command } => match command {
+            ConfigCommands::Path => {
                 Message::print(Platform::get_config_path().to_str().unwrap());
             }
-            Some(("edit", _sub)) => {
+            ConfigCommands::Edit => {
                 let editor = &config.editor.program;
                 if editor.is_empty() {
                     bail!("Editor program name is not set in the configuration file.");
@@ -340,7 +320,7 @@ pub fn run() -> Result<()> {
                 editor_args.push(path.to_str().unwrap().to_string());
                 launch_program(editor, &editor_args, None, false, false)?
             }
-            Some(("reset", _sub)) => {
+            ConfigCommands::Reset => {
                 if Dialog::ask("Reset your current configuration?", false) {
                     config.reset();
                     config.save()?;
@@ -349,11 +329,7 @@ pub fn run() -> Result<()> {
                     Message::print("Aborted.");
                 }
             }
-            _ => {
-                bail!("This command is not implemented.");
-            }
         },
-        _ => bail!("This command is not implemented."),
     }
     Ok(())
 }
