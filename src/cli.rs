@@ -22,9 +22,11 @@ pub enum Commands {
     Clone(CloneArgs),
 
     /// Open project in editor or shell.
+    #[command(alias = "o")]
     Open(OpenArgs),
 
     /// List available projects.
+    #[command(alias = "ls")]
     List,
 
     /// Rename project.
