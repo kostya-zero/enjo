@@ -1,6 +1,7 @@
 pub mod app;
 mod cli;
 mod config;
+mod handlers;
 mod library;
 mod platform;
 mod program;
