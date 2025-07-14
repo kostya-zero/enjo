@@ -78,7 +78,6 @@ pub fn apply_template(
     Message::print("Generating project from template...");
 
     let program = &config.shell.program;
-
     let cwd = Path::new(&config.options.projects_directory).join(project_name);
     let total_commands = template.len();
 

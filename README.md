@@ -5,11 +5,11 @@
 Yet another projects manager for your workspace.
 
 Enjo is a command-line tool designed for managing your projects.
-It offers a simple and user-friendly interface for creating, opening, and deleting projects.
+It offers a simple and user-friendly interface for managing your projects using CLI.
 Enjo is available for Windows, Linux, and macOS (compatibility with *BSD systems is not guaranteed).
 
 > [!NOTE]
-> This project is in beta. Some changes in newer version may not be backward compatible with previous versions.
+> This project is in beta. Some changes in newer version may not be backward compatible with previous versions and may require actions from user for an update.
 
 ## Installation
 
@@ -54,7 +54,7 @@ enjo delete bookshelf
 
 ### Working with Projects
 
-Open project directories directly in your configured editor or shell using the `open` subcommand:
+Open project directly in your configured editor or shell using the `open` subcommand:
 
 ```shell
 # Open the project in your editor.
