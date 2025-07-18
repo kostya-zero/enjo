@@ -42,14 +42,14 @@ enjo list
 
 ### Managing Projects
 
-Creating and deleting projects with Enjo is straightforward:
+Creating and removing projects with Enjo is straightforward:
 
 ```shell
 # Create a new project.
 enjo new bookshelf
 
-# Delete an existing project.
-enjo delete bookshelf
+# Remove an existing project.
+enjo remove bookshelf
 ```
 
 ### Working with Projects
