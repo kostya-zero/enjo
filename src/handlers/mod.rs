@@ -101,20 +101,12 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
         .get(&name)
         .map_err(|_| anyhow!("Project not found."))?;
 
-    let (program, args, end_message, start_message, fork_mode) = if args.shell {
-        (
-            &config.shell.program,
-            Vec::<String>::new(),
-            "Shell session ended.",
-            "Launching shell...",
-            false,
-        )
+    let (program, launch_args, fork_mode) = if args.shell {
+        (&config.shell.program, Vec::<String>::new(), false)
     } else {
         (
             &config.editor.program,
             config.editor.args.clone(),
-            "Editor session ended.",
-            "Launching editor...",
             config.editor.fork_mode,
         )
     };
@@ -129,8 +121,27 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
         config.save()?;
     }
 
-    Message::print(start_message);
-    launch_program(program, &args, Some(project.get_path()), fork_mode, false)?;
+    if args.shell {
+        println!(
+            "{}",
+            "======== SHELL SESSION STARTED ========".bold().white()
+        );
+    }
+
+    launch_program(
+        program,
+        &launch_args,
+        Some(project.get_path()),
+        fork_mode,
+        false,
+    )?;
+
+    if args.shell {
+        println!(
+            "{}",
+            "========  SHELL SESSION ENDED  ========".bold().white()
+        );
+    }
 
     if fork_mode {
         // Because only editor could be launched in fork mode.
@@ -138,7 +149,6 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
         return Ok(());
     }
 
-    Message::print(end_message);
     Ok(())
 }
 
