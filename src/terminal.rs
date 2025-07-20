@@ -12,10 +12,6 @@ impl Message {
         eprintln!("{}: {}", "error".bright_red().bold(), msg)
     }
 
-    pub fn print(msg: &str) {
-        println!("{msg}");
-    }
-
     pub fn progress(msg: &str, current: i8, total: i8) {
         println!("{} {}", format!("[{current}/{total}]").white().bold(), msg);
     }

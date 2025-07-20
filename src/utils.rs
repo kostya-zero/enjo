@@ -75,7 +75,7 @@ pub fn apply_template(
         .get_template(template_name)
         .ok_or_else(|| anyhow!("Template '{}' not found", template_name))?;
 
-    Message::print("Generating project from template...");
+    println!("Generating project from template...");
 
     let program = &config.shell.program;
     let cwd = Path::new(&config.options.projects_directory).join(project_name);

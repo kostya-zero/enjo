@@ -26,10 +26,10 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
 
     ensure!(!commands.is_empty(), "No commands entered.");
 
-    Message::print("Creating template...");
+    println!("Creating template...");
     templates.add_template(&name, commands)?;
     if templates.save().is_ok() {
-        Message::print("Template created.");
+        println!("Template created.");
     } else {
         bail!("Failed to save templates.");
     }
@@ -38,7 +38,7 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
 
 pub fn handle_list(templates: &Templates) -> Result<()> {
     if templates.is_empty() {
-        Message::print("No templates found.");
+        println!("No templates found.");
         return Ok(());
     }
 
@@ -84,9 +84,9 @@ pub fn handle_clear(templates: &mut Templates) -> Result<()> {
     if Dialog::ask("Clear all templates?", false) {
         templates.clear();
         templates.save()?;
-        Message::print("All templates have been cleared.");
+        println!("All templates have been cleared.");
     } else {
-        Message::print("Aborted.");
+        println!("Aborted.");
     }
     Ok(())
 }

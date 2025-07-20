@@ -48,12 +48,10 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
                 .map_err(|e| anyhow!("Additionally, cleanup failed: {}", e.to_string()))?;
         }
         let elapsed_time = started_time.elapsed().as_millis();
-        Message::print(&format!(
-            "Generated project from template in {elapsed_time} ms."
-        ));
+        println!("Generated project from template in {elapsed_time} ms.");
     }
 
-    Message::print("Done.");
+    println!("Done.");
     Ok(())
 }
 
@@ -80,7 +78,7 @@ pub fn handle_clone(args: CloneArgs, config: &Config) -> Result<()> {
         .clone(&clone_options)
         .map_err(|e| anyhow!(e.to_string()))?;
 
-    Message::print("The project has been cloned.");
+    println!("The project has been cloned.");
     Ok(())
 }
 
@@ -145,7 +143,7 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
 
     if fork_mode {
         // Because only editor could be launched in fork mode.
-        Message::print("Editor launched.");
+        println!("Editor launched.");
         return Ok(());
     }
 
@@ -158,7 +156,7 @@ pub fn handle_list(config: &Config) -> Result<()> {
         config.options.display_hidden,
     )?;
     if projects.is_empty() {
-        Message::print("No projects found.");
+        println!("No projects found.");
         return Ok(());
     }
 
@@ -194,7 +192,7 @@ pub fn handle_rename(args: RenameArgs, config: &Config) -> Result<()> {
         .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
 
     projects.rename(&old_name, &new_name)?;
-    Message::print("Done.");
+    println!("Done.");
     Ok(())
 }
 
@@ -216,13 +214,13 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
         && !args.force
         && !Dialog::ask("The project is not empty. Continue?", false)
     {
-        Message::print("Aborting.");
+        println!("Aborting.");
         return Ok(());
     }
 
-    Message::print("Removing project...");
+    println!("Removing project...");
     projects.delete(&name)?;
 
-    Message::print("The project has been removed.");
+    println!("The project has been removed.");
     Ok(())
 }
