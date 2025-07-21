@@ -26,39 +26,12 @@ pub fn autocomplete(word: &str, words_list: Vec<&str>) -> Option<String> {
 }
 
 pub fn suggest_completion(word: &str, words_list: Vec<&str>) -> CompletionResult {
-    let mut found = false;
-    let mut similar = false;
-    let mut similar_word = String::new();
-
-    // Searching if the same word exists in list.
-    for entry in words_list.iter() {
-        if found {
-            break;
-        }
-
-        if *entry == word {
-            found = true;
-        }
+    if words_list.contains(&word) {
+        return CompletionResult::Found;
     }
 
-    if !found {
-        // Searching for similar word.
-        for entry in words_list.iter() {
-            if similar {
-                break;
-            }
-
-            if entry.starts_with(word) {
-                similar = true;
-                similar_word.push_str(entry);
-            }
-        }
-    }
-
-    if found {
-        CompletionResult::Found
-    } else if similar {
-        CompletionResult::FoundSimilar(similar_word)
+    if let Some(similiar) = words_list.iter().find(|entry| entry.starts_with(word)) {
+        CompletionResult::FoundSimilar(similiar.to_string())
     } else {
         CompletionResult::Nothing
     }
