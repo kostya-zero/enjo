@@ -49,9 +49,9 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
         }
         let elapsed_time = started_time.elapsed().as_millis();
         println!("Generated project from template in {elapsed_time} ms.");
+    } else {
+        println!("Done.")
     }
-
-    println!("Done.");
     Ok(())
 }
 
@@ -60,13 +60,10 @@ pub fn handle_clone(args: CloneArgs, config: &Config) -> Result<()> {
         .remote
         .ok_or_else(|| anyhow!("You need to provide a remote URL."))?;
 
-    let branch = args.branch;
-    let name = args.name;
-
     let clone_options = CloneOptions {
         remote,
-        branch,
-        name,
+        name: args.name,
+        branch: args.branch
     };
 
     let projects = Library::new(

@@ -25,8 +25,8 @@ pub enum LibraryError {
     #[error("Failed to clone repository.")]
     CloneFailed,
 
-    #[error("Failed to rename.")]
-    FailedToRename,
+    #[error("Could not rename due to error: {0}")]
+    FailedToRename(String),
 
     #[error("A project with the same name already exists.")]
     ProjectExists,
@@ -207,8 +207,8 @@ impl Library {
         let old_path = Path::new(&self.base_path).join(old_name);
         let new_path = Path::new(&self.base_path).join(new_name);
 
-        fs::rename(old_path, new_path).map_err(|_| LibraryError::FailedToRename)?;
-
+        fs::rename(old_path, new_path)
+            .map_err(|e| LibraryError::FailedToRename(e.kind().to_string()))?;
         Ok(())
     }
 }
