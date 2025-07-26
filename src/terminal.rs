@@ -8,8 +8,12 @@ use dialoguer::{
 pub struct Message;
 
 impl Message {
+    pub fn done(msg: &str) {
+        println!("{} {}", "✓".bold().green(), msg)
+    }
+
     pub fn error(msg: &str) {
-        eprintln!("{}: {}", "error".bright_red().bold(), msg)
+        eprintln!("{}: {}", "Error".bright_red().bold(), msg);
     }
 
     pub fn progress(msg: &str, current: i8, total: i8) {

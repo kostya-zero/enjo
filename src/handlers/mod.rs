@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::{path::Path, time::Instant};
 
 use anyhow::{Result, anyhow, ensure};
 use colored::Colorize;
@@ -8,6 +8,7 @@ use crate::{
     config::Config,
     library::{CloneOptions, Library},
     program::launch_program,
+    templates::Templates,
     terminal::{Dialog, Message},
     utils,
 };
@@ -38,20 +39,55 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
     projects.create(&name)?;
 
     if let Some(template_name) = args.template {
+        let templates = Templates::load()?;
+        let template = templates
+            .get_template(&template_name)
+            .ok_or_else(|| anyhow!("Template '{}' not found.", template_name))?;
         let started_time = Instant::now();
 
-        let result = utils::apply_template(&template_name, config, &name, args.quiet);
-        if result.is_err() {
-            Message::error("Failed to apply template. Cleaning up...");
-            projects
-                .delete(&name)
-                .map_err(|e| anyhow!("Additionally, cleanup failed: {}", e.to_string()))?;
+        println!("Generating project from template...");
+
+        let program = &config.shell.program;
+        ensure!(
+            !program.is_empty(),
+            "Shell is not configured in the configuration file."
+        );
+        let project_path = Path::new(&config.options.projects_directory)
+            .join(&name)
+            .to_string_lossy()
+            .to_string();
+        let total_commands = template.len() as i8;
+
+        for (idx, command) in template.iter().enumerate() {
+            let current = idx as i8 + 1;
+            Message::progress(command, current, total_commands);
+
+            let mut args_vec = config.shell.args.clone();
+            args_vec.push(command.clone());
+
+            if let Err(e) = launch_program(
+                program,
+                &args_vec,
+                Some(project_path.as_str()),
+                false,
+                args.quiet,
+            ) {
+                Message::error("Failed to apply template. Cleaning up...");
+                projects
+                    .delete(&name)
+                    .map_err(|err| anyhow!("Additionally, cleanup failed: {}", err.to_string()))?;
+                return Err(anyhow!("Template command '{}' failed: {}", command, e));
+            }
         }
+
         let elapsed_time = started_time.elapsed().as_millis();
-        println!("Generated project from template in {elapsed_time} ms.");
+        Message::done(&format!(
+            "Generated project from template in {elapsed_time} ms."
+        ));
     } else {
-        println!("Done.")
+        Message::done("Created.");
     }
+
     Ok(())
 }
 
@@ -63,7 +99,7 @@ pub fn handle_clone(args: CloneArgs, config: &Config) -> Result<()> {
     let clone_options = CloneOptions {
         remote,
         name: args.name,
-        branch: args.branch
+        branch: args.branch,
     };
 
     let projects = Library::new(
@@ -219,5 +255,25 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
     projects.delete(&name)?;
 
     println!("The project has been removed.");
+    Ok(())
+}
+
+const ENJO_ZEN: [&str; 10] = [
+    "Projects should be simple.",
+    "Each command does one thing well.",
+    "Configuration is explicit.",
+    "Sensible defaults guide the way.",
+    "The shell is a friend.",
+    "Templates accelerate your workflow.",
+    "Cross-platform by design.",
+    "Clear messages beat surprises.",
+    "Your editor is respected.",
+    "Enjoy your work.",
+];
+
+pub fn handle_zen() -> Result<()> {
+    for line in ENJO_ZEN.iter() {
+        println!(" {} {line}", "*".dimmed());
+    }
     Ok(())
 }

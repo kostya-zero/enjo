@@ -29,7 +29,7 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
     println!("Creating template...");
     templates.add_template(&name, commands)?;
     if templates.save().is_ok() {
-        println!("Template created.");
+        Message::done("Template created.");
     } else {
         bail!("Failed to save templates.");
     }
@@ -97,5 +97,6 @@ pub fn handle_remove(args: TemplatesRemoveArgs, templates: &mut Templates) -> Re
         .ok_or_else(|| anyhow!("Provide a name of template to delete."))?;
     templates.remove_template(&name).map_err(|e| anyhow!(e))?;
     templates.save().map_err(|e| anyhow!(e))?;
+    Message::done("Removed.");
     Ok(())
 }

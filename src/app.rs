@@ -2,7 +2,7 @@ use crate::cli::{Cli, Commands, ConfigCommands, TemplatesCommands};
 use crate::config::Config;
 use crate::handlers::{
     config, handle_clone, handle_list, handle_new, handle_open, handle_remove, handle_rename,
-    templates,
+    handle_zen, templates,
 };
 use crate::platform::Platform;
 use crate::templates::Templates;
@@ -51,5 +51,6 @@ pub fn run() -> Result<()> {
             ConfigCommands::Edit => config::handle_edit(&config),
             ConfigCommands::Reset => config::handle_reset(&mut config),
         },
+        Commands::Zen => handle_zen(),
     }
 }

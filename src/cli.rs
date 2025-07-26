@@ -46,6 +46,9 @@ pub enum Commands {
         #[command(subcommand)]
         command: ConfigCommands,
     },
+
+    /// Display the Zen of Enjo.
+    Zen,
 }
 
 #[derive(Args)]
