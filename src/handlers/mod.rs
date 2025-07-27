@@ -239,8 +239,11 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
         .name
         .ok_or_else(|| anyhow!("Provide a name of project to remove."))?;
 
+    let project_name = resolve_project_name(&name, config, &projects)
+        .ok_or_else(|| anyhow!("Project not found."))?;
+
     let project = projects
-        .get(&name)
+        .get(&project_name)
         .map_err(|_| anyhow!("Project not found."))?;
 
     if !project.is_empty()
@@ -252,7 +255,7 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
     }
 
     println!("Removing project...");
-    projects.delete(&name)?;
+    projects.delete(&project_name)?;
 
     println!("The project has been removed.");
     Ok(())
