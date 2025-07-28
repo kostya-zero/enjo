@@ -4,13 +4,13 @@ use anyhow::{Result, anyhow, ensure};
 use colored::Colorize;
 
 use crate::{
+    autocomplete,
     cli::{CloneArgs, NewArgs, OpenArgs, RemoveArgs, RenameArgs},
     config::Config,
     library::{CloneOptions, Library},
     program::launch_program,
     templates::Templates,
-    terminal::{Dialog, Message},
-    utils,
+    terminal::{ask_dialog, print_done, print_error, print_item, print_progress, print_title},
 };
 
 pub mod config;
@@ -20,7 +20,7 @@ fn resolve_project_name(project_name: &str, config: &Config, projects: &Library)
     if project_name == "-" && config.recent.enabled {
         Some(config.recent.recent_project.clone())
     } else if config.autocomplete.enabled {
-        utils::autocomplete(project_name, projects.get_names())
+        autocomplete::autocomplete(project_name, projects.get_names())
     } else {
         Some(project_name.to_string())
     }
@@ -60,7 +60,7 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
 
         for (idx, command) in template.iter().enumerate() {
             let current = idx as i8 + 1;
-            Message::progress(command, current, total_commands);
+            print_progress(command, current, total_commands);
 
             let mut args_vec = config.shell.args.clone();
             args_vec.push(command.clone());
@@ -72,7 +72,7 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
                 false,
                 args.quiet,
             ) {
-                Message::error("Failed to apply template. Cleaning up...");
+                print_error("Failed to apply template. Cleaning up...");
                 projects
                     .delete(&name)
                     .map_err(|err| anyhow!("Additionally, cleanup failed: {}", err.to_string()))?;
@@ -81,11 +81,11 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
         }
 
         let elapsed_time = started_time.elapsed().as_millis();
-        Message::done(&format!(
+        print_done(&format!(
             "Generated project from template in {elapsed_time} ms."
         ));
     } else {
-        Message::done("Created.");
+        print_done("Created.");
     }
 
     Ok(())
@@ -111,7 +111,7 @@ pub fn handle_clone(args: CloneArgs, config: &Config) -> Result<()> {
         .clone(&clone_options)
         .map_err(|e| anyhow!(e.to_string()))?;
 
-    println!("The project has been cloned.");
+    print_done("Cloned.");
     Ok(())
 }
 
@@ -195,9 +195,9 @@ pub fn handle_list(config: &Config) -> Result<()> {
 
     let recent = &config.recent.recent_project;
 
-    Message::title("Your projects:");
+    print_title("Your projects:");
     for project in projects.get_vec().iter() {
-        Message::item(&format!(
+        print_item(&format!(
             "{} {}",
             project.get_name(),
             if project.get_name() == recent {
@@ -248,7 +248,7 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
 
     if !project.is_empty()
         && !args.force
-        && !Dialog::ask("The project is not empty. Continue?", false)
+        && !ask_dialog("The project is not empty. Continue?", false)
     {
         println!("Aborting.");
         return Ok(());

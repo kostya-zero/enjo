@@ -6,18 +6,18 @@ use crate::{
     platform::Platform,
     program::launch_program,
     templates::Templates,
-    terminal::{Dialog, Message},
+    terminal::{ask_dialog, ask_string_dialog, print_done, print_item, print_title},
 };
 
 pub fn handle_new(templates: &mut Templates) -> Result<()> {
-    let name = Dialog::ask_string("Name of new template?");
+    let name = ask_string_dialog("Name of new template?");
     if name.is_empty() {
         bail!("Incorrect name for a template.");
     }
 
     let mut commands: Vec<String> = Vec::new();
     loop {
-        let command = Dialog::ask_string("Enter a command (press enter to finish):");
+        let command = ask_string_dialog("Enter a command (press enter to finish):");
         if command.is_empty() {
             break;
         }
@@ -29,7 +29,7 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
     println!("Creating template...");
     templates.add_template(&name, commands)?;
     if templates.save().is_ok() {
-        Message::done("Template created.");
+        print_done("Template created.");
     } else {
         bail!("Failed to save templates.");
     }
@@ -42,9 +42,9 @@ pub fn handle_list(templates: &Templates) -> Result<()> {
         return Ok(());
     }
 
-    Message::title("Templates:");
+    print_title("Templates:");
     for template in templates.list_templates().iter() {
-        Message::item(template);
+        print_item(template);
     }
     Ok(())
 }
@@ -68,9 +68,9 @@ pub fn handle_info(args: TemplatesInfoArgs, templates: &Templates) -> Result<()>
 
     match templates.get_template(&name) {
         Some(template) => {
-            Message::title("Commands of this template:");
+            print_title("Commands of this template:");
             for command in template.iter() {
-                Message::item(command);
+                print_item(command);
             }
         }
         None => {
@@ -81,7 +81,7 @@ pub fn handle_info(args: TemplatesInfoArgs, templates: &Templates) -> Result<()>
 }
 
 pub fn handle_clear(templates: &mut Templates) -> Result<()> {
-    if Dialog::ask("Clear all templates?", false) {
+    if ask_dialog("Clear all templates?", false) {
         templates.clear();
         templates.save()?;
         println!("All templates have been cleared.");
@@ -97,6 +97,6 @@ pub fn handle_remove(args: TemplatesRemoveArgs, templates: &mut Templates) -> Re
         .ok_or_else(|| anyhow!("Provide a name of template to delete."))?;
     templates.remove_template(&name).map_err(|e| anyhow!(e))?;
     templates.save().map_err(|e| anyhow!(e))?;
-    Message::done("Removed.");
+    print_done("Removed.");
     Ok(())
 }

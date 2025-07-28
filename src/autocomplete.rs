@@ -1,4 +1,4 @@
-use crate::terminal::Dialog;
+use crate::terminal::ask_dialog;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum CompletionResult {
@@ -13,7 +13,7 @@ pub fn autocomplete(word: &str, words_list: Vec<&str>) -> Option<String> {
     match suggested {
         CompletionResult::Found => Some(word.to_string()),
         CompletionResult::FoundSimilar(name) => {
-            let answer = Dialog::ask(&format!("Did you mean '{name}'?"), true);
+            let answer = ask_dialog(&format!("Did you mean '{name}'?"), true);
             if answer { Some(name) } else { None }
         }
         CompletionResult::Nothing => None,

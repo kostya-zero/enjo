@@ -1,4 +1,4 @@
-use crate::utils::{CompletionResult, suggest_completion};
+use crate::autocomplete::{CompletionResult, suggest_completion};
 
 #[test]
 pub fn test_autocomplete_found_similar() {
