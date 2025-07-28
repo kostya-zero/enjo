@@ -81,9 +81,7 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
         }
 
         let elapsed_time = started_time.elapsed().as_millis();
-        print_done(&format!(
-            "Generated project from template in {elapsed_time} ms."
-        ));
+        print_done(&format!("Generated in {elapsed_time} ms."));
     } else {
         print_done("Created.");
     }
@@ -176,7 +174,7 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
 
     if fork_mode {
         // Because only editor could be launched in fork mode.
-        println!("Editor launched.");
+        print_done("Editor launched.");
         return Ok(());
     }
 
@@ -225,7 +223,7 @@ pub fn handle_rename(args: RenameArgs, config: &Config) -> Result<()> {
         .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
 
     projects.rename(&old_name, &new_name)?;
-    println!("Done.");
+    print_done("Renamed.");
     Ok(())
 }
 
@@ -250,14 +248,14 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
         && !args.force
         && !ask_dialog("The project is not empty. Continue?", false)
     {
-        println!("Aborting.");
+        print_done("Aborting.");
         return Ok(());
     }
 
     println!("Removing project...");
     projects.delete(&project_name)?;
 
-    println!("The project has been removed.");
+    print_done("Removed.");
     Ok(())
 }
 

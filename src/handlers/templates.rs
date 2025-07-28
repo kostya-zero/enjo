@@ -29,7 +29,7 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
     println!("Creating template...");
     templates.add_template(&name, commands)?;
     if templates.save().is_ok() {
-        print_done("Template created.");
+        print_done("Created.");
     } else {
         bail!("Failed to save templates.");
     }
@@ -84,9 +84,9 @@ pub fn handle_clear(templates: &mut Templates) -> Result<()> {
     if ask_dialog("Clear all templates?", false) {
         templates.clear();
         templates.save()?;
-        println!("All templates have been cleared.");
+        print_done("Cleared.");
     } else {
-        println!("Aborted.");
+        print_done("Aborted.");
     }
     Ok(())
 }

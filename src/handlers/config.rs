@@ -1,6 +1,11 @@
 use anyhow::{Result, anyhow, bail};
 
-use crate::{config::Config, platform::Platform, program::launch_program, terminal::ask_dialog};
+use crate::{
+    config::Config,
+    platform::Platform,
+    program::launch_program,
+    terminal::{ask_dialog, print_done},
+};
 
 pub fn handle_path() -> Result<()> {
     println!("{}", Platform::get_config_path().to_str().unwrap());
@@ -23,9 +28,9 @@ pub fn handle_reset(config: &mut Config) -> Result<()> {
     if ask_dialog("Reset your current configuration?", false) {
         config.reset();
         config.save()?;
-        println!("The configuration has been reset.");
+        print_done("Reset.");
     } else {
-        println!("Aborted.");
+        print_done("Aborted.");
     }
     Ok(())
 }
