@@ -4,6 +4,7 @@ use dialoguer::{
     console::{Style, style},
     theme::{ColorfulTheme, Theme},
 };
+use indicatif::ProgressBar;
 
 pub fn print_done(msg: &str) {
     println!("{} {}", "✓".bold().green(), msg)
@@ -27,7 +28,7 @@ pub fn print_item(msg: &str) {
 
 fn get_dialog_theme() -> impl Theme {
     ColorfulTheme {
-        prompt_prefix: style("?".to_string()).for_stdout().yellow(),
+        prompt_prefix: style("?".to_string()).for_stdout().cyan(),
         success_prefix: style("✔".to_string()).for_stdout().green(),
         error_prefix: style("✘".to_string()).for_stderr().red(),
         defaults_style: Style::new().for_stdout().dim().white(),
@@ -52,4 +53,12 @@ pub fn ask_string_dialog(question: &str) -> String {
         .report(false)
         .interact_text()
         .unwrap()
+}
+
+pub fn generate_progress() -> ProgressBar {
+    ProgressBar::new_spinner().with_style(
+        indicatif::ProgressStyle::with_template("{spinner:.green} {msg}")
+            .unwrap()
+            .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"),
+    )
 }

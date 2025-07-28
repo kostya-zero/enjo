@@ -1,4 +1,7 @@
-use std::{path::Path, time::Instant};
+use std::{
+    path::Path,
+    time::{Duration, Instant},
+};
 
 use anyhow::{Result, anyhow, ensure};
 use colored::Colorize;
@@ -10,7 +13,10 @@ use crate::{
     library::{CloneOptions, Library},
     program::launch_program,
     templates::Templates,
-    terminal::{ask_dialog, print_done, print_error, print_item, print_progress, print_title},
+    terminal::{
+        ask_dialog, generate_progress, print_done, print_error, print_item, print_progress,
+        print_title,
+    },
 };
 
 pub mod config;
@@ -252,8 +258,11 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
         return Ok(());
     }
 
-    println!("Removing project...");
+    let spinner = generate_progress().with_message("Removing project...");
+
+    spinner.enable_steady_tick(Duration::from_millis(100));
     projects.delete(&project_name)?;
+    spinner.finish_and_clear();
 
     print_done("Removed.");
     Ok(())
