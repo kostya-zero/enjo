@@ -22,10 +22,6 @@ pub fn print_title(msg: &str) {
     println!("{}", msg.white().bold());
 }
 
-pub fn print_item(msg: &str) {
-    println!(" {msg}");
-}
-
 fn get_dialog_theme() -> impl Theme {
     ColorfulTheme {
         prompt_prefix: style("?".to_string()).for_stdout().cyan(),

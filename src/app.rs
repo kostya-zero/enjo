@@ -30,12 +30,13 @@ pub fn run() -> Result<()> {
 
     let mut config: Config = Config::load()?;
     let mut templates = Templates::load()?;
+    
 
     match cli.cmd {
         Commands::New(args) => handle_new(args, &config),
         Commands::Clone(args) => handle_clone(args, &config),
         Commands::Open(args) => handle_open(args, &mut config),
-        Commands::List => handle_list(&config),
+        Commands::List(args) => handle_list(args, &config),
         Commands::Rename(args) => handle_rename(args, &config),
         Commands::Remove(args) => handle_remove(args, &config),
         Commands::Templates { command } => match command {

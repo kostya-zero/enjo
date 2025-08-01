@@ -27,7 +27,7 @@ pub enum Commands {
 
     /// List available projects.
     #[command(alias = "ls")]
-    List,
+    List(ListArgs),
 
     /// Rename project.
     Rename(RenameArgs),
@@ -87,6 +87,13 @@ pub struct OpenArgs {
     /// Open shell in this project.
     #[arg(short, long, action = ArgAction::SetTrue)]
     pub shell: bool,
+}
+
+#[derive(Args)]
+pub struct ListArgs {
+    /// Display list without styling
+    #[arg(short, long, action = ArgAction::SetTrue)]
+    pub pure: bool,
 }
 
 #[derive(Args)]

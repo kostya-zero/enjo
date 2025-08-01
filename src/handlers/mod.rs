@@ -8,14 +8,13 @@ use colored::Colorize;
 
 use crate::{
     autocomplete,
-    cli::{CloneArgs, NewArgs, OpenArgs, RemoveArgs, RenameArgs},
+    cli::{CloneArgs, ListArgs, NewArgs, OpenArgs, RemoveArgs, RenameArgs},
     config::Config,
     library::{CloneOptions, Library},
     program::launch_program,
     templates::Templates,
     terminal::{
-        ask_dialog, generate_progress, print_done, print_error, print_item, print_progress,
-        print_title,
+        ask_dialog, generate_progress, print_done, print_error, print_progress, print_title,
     },
 };
 
@@ -187,7 +186,7 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_list(config: &Config) -> Result<()> {
+pub fn handle_list(args: ListArgs, config: &Config) -> Result<()> {
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -199,17 +198,23 @@ pub fn handle_list(config: &Config) -> Result<()> {
 
     let recent = &config.recent.recent_project;
 
-    print_title("Your projects:");
+    if !args.pure {
+        print_title("Your projects:");
+    }
     for project in projects.get_vec().iter() {
-        print_item(&format!(
-            "{} {}",
-            project.get_name(),
-            if project.get_name() == recent {
-                "(recent)".white().bold()
-            } else {
-                "".dimmed()
-            }
-        ));
+        if args.pure {
+            println!("{}", project.get_name());
+        } else {
+            println!(
+                " {} {}",
+                project.get_name(),
+                if project.get_name() == recent {
+                    "(recent)".white().bold()
+                } else {
+                    "".dimmed()
+                }
+            );
+        }
     }
 
     Ok(())

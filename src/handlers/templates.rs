@@ -6,7 +6,7 @@ use crate::{
     platform::Platform,
     program::launch_program,
     templates::Templates,
-    terminal::{ask_dialog, ask_string_dialog, print_done, print_item, print_title},
+    terminal::{ask_dialog, ask_string_dialog, print_done, print_title},
 };
 
 pub fn handle_new(templates: &mut Templates) -> Result<()> {
@@ -44,7 +44,7 @@ pub fn handle_list(templates: &Templates) -> Result<()> {
 
     print_title("Templates:");
     for template in templates.list_templates().iter() {
-        print_item(template);
+        println!("{template}");
     }
     Ok(())
 }
@@ -70,7 +70,7 @@ pub fn handle_info(args: TemplatesInfoArgs, templates: &Templates) -> Result<()>
         Some(template) => {
             print_title("Commands of this template:");
             for command in template.iter() {
-                print_item(command);
+                println!("{command}");
             }
         }
         None => {
