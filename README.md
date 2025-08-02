@@ -1,8 +1,8 @@
-# enjo 
+# enjo
 
 ![Crates.io Version](https://img.shields.io/crates/v/enjo) ![GitHub branch check runs](https://img.shields.io/github/check-runs/kostya-zero/enjo/main)
 
-Yet another projects manager for your workspace.
+Yet another manager for your projects.
 
 Enjo is a command-line tool designed for managing your projects.
 It offers a simple and user-friendly interface for managing your projects using CLI.
