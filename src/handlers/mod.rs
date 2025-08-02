@@ -126,7 +126,7 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
 
     let project_name = args
         .name
-        .ok_or_else(|| anyhow!("The project name is not provided."))?;
+        .ok_or_else(|| anyhow!("Project name is required."))?;
 
     let name = resolve_project_name(&project_name, config, &projects)
         .ok_or_else(|| anyhow!("Project not found."))?;
@@ -202,18 +202,16 @@ pub fn handle_list(args: ListArgs, config: &Config) -> Result<()> {
         print_title("Your projects:");
     }
     for project in projects.get_vec().iter() {
+        let project_name = project.get_name();
         if args.pure {
-            println!("{}", project.get_name());
+            println!("{project_name}");
         } else {
-            println!(
-                " {} {}",
-                project.get_name(),
-                if project.get_name() == recent {
-                    "(recent)".white().bold()
-                } else {
-                    "".dimmed()
-                }
-            );
+            let is_recent = if project_name == recent.as_str() {
+                "(recent)".white().bold()
+            } else {
+                "".dimmed()
+            };
+            println!(" {project_name} {is_recent}");
         }
     }
 
@@ -228,7 +226,7 @@ pub fn handle_rename(args: RenameArgs, config: &Config) -> Result<()> {
 
     let old_name = args
         .old_name
-        .ok_or_else(|| anyhow!("No project to rename."))?;
+        .ok_or_else(|| anyhow!("Provide a project name to rename."))?;
     let new_name = args
         .new_name
         .ok_or_else(|| anyhow!("Provide a new name for a project."))?;
@@ -259,7 +257,7 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
         && !args.force
         && !ask_dialog("The project is not empty. Continue?", false)
     {
-        print_done("Aborting.");
+        print_done("Canceled.");
         return Ok(());
     }
 
@@ -287,6 +285,7 @@ const ENJO_ZEN: [&str; 10] = [
 ];
 
 pub fn handle_zen() -> Result<()> {
+    println!("{}", "========  THE ZEN OF ENJO   ========".bold().white());
     for line in ENJO_ZEN.iter() {
         println!(" {} {line}", "*".dimmed());
     }
