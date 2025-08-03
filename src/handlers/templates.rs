@@ -1,7 +1,7 @@
 use anyhow::{Result, anyhow, bail, ensure};
 
 use crate::{
-    cli::{TemplatesInfoArgs, TemplatesRemoveArgs},
+    cli::{TemplatesInfoArgs, TemplatesListArgs, TemplatesRemoveArgs},
     config::Config,
     platform::Platform,
     program::launch_program,
@@ -36,15 +36,21 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_list(templates: &Templates) -> Result<()> {
+pub fn handle_list(args: TemplatesListArgs, templates: &Templates) -> Result<()> {
     if templates.is_empty() {
         println!("No templates found.");
         return Ok(());
     }
 
-    print_title("Templates:");
+    if !args.pure {
+        print_title("Templates:");
+    }
     for template in templates.list_templates().iter() {
-        println!("{template}");
+        if args.pure {
+            println!("{template}")
+        } else {
+            println!(" {template}");
+        }
     }
     Ok(())
 }

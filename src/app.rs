@@ -30,7 +30,6 @@ pub fn run() -> Result<()> {
 
     let mut config: Config = Config::load()?;
     let mut templates = Templates::load()?;
-    
 
     match cli.cmd {
         Commands::New(args) => handle_new(args, &config),
@@ -41,7 +40,7 @@ pub fn run() -> Result<()> {
         Commands::Remove(args) => handle_remove(args, &config),
         Commands::Templates { command } => match command {
             TemplatesCommands::New => templates::handle_new(&mut templates),
-            TemplatesCommands::List => templates::handle_list(&templates),
+            TemplatesCommands::List(args) => templates::handle_list(args, &templates),
             TemplatesCommands::Edit => templates::handle_edit(&config),
             TemplatesCommands::Info(args) => templates::handle_info(args, &templates),
             TemplatesCommands::Clear => templates::handle_clear(&mut templates),

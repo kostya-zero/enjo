@@ -121,7 +121,7 @@ pub enum TemplatesCommands {
     New,
 
     /// List available templates.
-    List,
+    List(TemplatesListArgs),
 
     /// Edit templates.
     Edit,
@@ -134,6 +134,13 @@ pub enum TemplatesCommands {
 
     /// Remove template.
     Remove(TemplatesRemoveArgs),
+}
+
+#[derive(Args)]
+pub struct TemplatesListArgs {
+    /// Display list without styling
+    #[arg(short, long, action = ArgAction::SetTrue)]
+    pub pure: bool,
 }
 
 #[derive(Args)]
