@@ -147,6 +147,10 @@ pub struct TemplatesListArgs {
 pub struct TemplatesInfoArgs {
     /// Name of the template.
     pub name: Option<String>,
+
+    /// Display list without styling
+    #[arg(short, long, action = ArgAction::SetTrue)]
+    pub pure: bool,
 }
 
 #[derive(Args)]
