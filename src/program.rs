@@ -23,16 +23,20 @@ pub enum ProgramError {
     UnexpectedError(String),
 }
 
-pub fn launch_program(
-    program: &str,
-    args: &Vec<String>,
-    cwd: Option<&str>,
-    fork_mode: bool,
-    quiet: bool,
-) -> Result<(), ProgramError> {
-    let mut cmd = Command::new(program);
+#[derive(Debug, Clone, Default)]
+pub struct LaunchOptions {
+    pub program: String,
+    pub args: Vec<String>,
+    pub cwd: Option<String>,
+    pub fork_mode: bool,
+    pub quiet: bool,
+    pub env: Option<Vec<(String, String)>>,
+}
 
-    if quiet {
+pub fn launch_program(options: LaunchOptions) -> Result<(), ProgramError> {
+    let mut cmd = Command::new(&options.program);
+
+    if options.quiet {
         cmd.stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::null());
@@ -42,9 +46,15 @@ pub fn launch_program(
             .stderr(Stdio::inherit());
     }
 
-    cmd.args(args);
-    if let Some(cwd_path) = cwd {
+    cmd.args(options.args);
+    if let Some(cwd_path) = options.cwd {
         cmd.current_dir(cwd_path);
+    }
+
+    if let Some(env) = options.env {
+        for (key, value) in env {
+            cmd.env(key, value);
+        }
     }
 
     // Required for Windows because if user runs program inside a shell and presses Ctrl+C,
@@ -53,12 +63,14 @@ pub fn launch_program(
     #[cfg(windows)]
     let _ = ctrlc::set_handler(|| {});
 
-    if fork_mode {
+    if options.fork_mode {
         // In fork mode, we just spawn and don't wait for completion
         let result = cmd.spawn();
         if let Err(e) = result {
             return match e.kind() {
-                ErrorKind::NotFound => Err(ProgramError::ProgramNotFound(program.to_string())),
+                ErrorKind::NotFound => {
+                    Err(ProgramError::ProgramNotFound(options.program.to_string()))
+                }
                 ErrorKind::PermissionDenied => Err(ProgramError::NoPermission),
                 ErrorKind::Interrupted => Err(ProgramError::ProcessInterrupted),
                 _ => Err(ProgramError::UnexpectedError(e.to_string())),
@@ -81,7 +93,9 @@ pub fn launch_program(
             }
             Err(e) => {
                 return match e.kind() {
-                    ErrorKind::NotFound => Err(ProgramError::ProgramNotFound(program.to_string())),
+                    ErrorKind::NotFound => {
+                        Err(ProgramError::ProgramNotFound(options.program.to_string()))
+                    }
                     ErrorKind::PermissionDenied => Err(ProgramError::NoPermission),
                     ErrorKind::Interrupted => Err(ProgramError::ProcessInterrupted),
                     _ => Err(ProgramError::UnexpectedError(e.to_string())),

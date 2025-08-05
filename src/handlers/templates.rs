@@ -4,7 +4,7 @@ use crate::{
     cli::{TemplatesInfoArgs, TemplatesListArgs, TemplatesRemoveArgs},
     config::Config,
     platform::Platform,
-    program::launch_program,
+    program::{LaunchOptions, launch_program},
     templates::Templates,
     terminal::{ask_dialog, ask_string_dialog, print_done, print_title},
 };
@@ -61,7 +61,17 @@ pub fn handle_edit(config: &Config) -> Result<()> {
     let path = Platform::get_templates_path();
     let mut editor_args = config.editor.args.clone();
     editor_args.push(path.to_str().unwrap().to_string());
-    launch_program(editor, &editor_args, None, false, false).map_err(|e| anyhow!(e.to_string()))
+
+    let launch_options = LaunchOptions {
+        program: editor.to_string(),
+        args: editor_args,
+        fork_mode: false,
+        quiet: false,
+        cwd: None,
+        env: None,
+    };
+
+    launch_program(launch_options).map_err(|e| anyhow!(e.to_string()))
 }
 
 pub fn handle_info(args: TemplatesInfoArgs, templates: &Templates) -> Result<()> {

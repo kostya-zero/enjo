@@ -11,7 +11,7 @@ use crate::{
     cli::{CloneArgs, ListArgs, NewArgs, OpenArgs, RemoveArgs, RenameArgs},
     config::Config,
     library::{CloneOptions, Library},
-    program::launch_program,
+    program::{LaunchOptions, launch_program},
     templates::Templates,
     terminal::{
         ask_dialog, generate_progress, print_done, print_error, print_progress, print_title,
@@ -70,13 +70,16 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
             let mut args_vec = config.shell.args.clone();
             args_vec.push(command.clone());
 
-            if let Err(e) = launch_program(
-                program,
-                &args_vec,
-                Some(project_path.as_str()),
-                false,
-                args.quiet,
-            ) {
+            let launch_options = LaunchOptions {
+                program: program.to_string(),
+                args: args_vec,
+                cwd: Some(project_path.clone()),
+                fork_mode: false,
+                quiet: args.quiet,
+                env: None,
+            };
+
+            if let Err(e) = launch_program(launch_options) {
                 print_error("Failed to apply template. Cleaning up...");
                 projects
                     .delete(&name)
@@ -162,13 +165,16 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
         );
     }
 
-    launch_program(
-        program,
-        &launch_args,
-        Some(project.get_path()),
+    let launch_options = LaunchOptions {
+        program: program.to_string(),
+        args: launch_args,
+        cwd: Some(project.get_path().to_string()),
         fork_mode,
-        false,
-    )?;
+        quiet: false,
+        env: None,
+    };
+
+    launch_program(launch_options)?;
 
     if args.shell {
         println!(

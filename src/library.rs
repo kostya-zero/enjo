@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::program::launch_program;
+use crate::program::{LaunchOptions, launch_program};
 use anyhow::Result;
 use thiserror::Error;
 
@@ -147,7 +147,17 @@ impl Library {
         }
 
         let cwd = self.base_path.to_str().unwrap();
-        launch_program("git", &args, Some(cwd), false, false).map_err(|_| LibraryError::CloneFailed)
+
+        let launch_options = LaunchOptions {
+            program: "git".to_string(),
+            args,
+            cwd: Some(cwd.to_string()),
+            fork_mode: false,
+            quiet: false,
+            env: None,
+        };
+
+        launch_program(launch_options).map_err(|_| LibraryError::CloneFailed)
     }
 
     pub fn create(&self, name: &str) -> Result<(), LibraryError> {
