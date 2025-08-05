@@ -70,13 +70,15 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
             let mut args_vec = config.shell.args.clone();
             args_vec.push(command.clone());
 
+            let env_map = Vec::from([(String::from("ENJO_PROJECT"), name.clone())]);
+
             let launch_options = LaunchOptions {
                 program: program.to_string(),
                 args: args_vec,
                 cwd: Some(project_path.clone()),
                 fork_mode: false,
                 quiet: args.quiet,
-                env: None,
+                env: Some(env_map),
             };
 
             if let Err(e) = launch_program(launch_options) {
