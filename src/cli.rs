@@ -33,6 +33,7 @@ pub enum Commands {
     Rename(RenameArgs),
 
     /// Remove project.
+    #[command(alias = "rm")]
     Remove(RemoveArgs),
 
     /// Manage your templates.
