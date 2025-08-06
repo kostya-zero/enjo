@@ -98,6 +98,10 @@ impl Library {
             return Err(LibraryError::InvalidPath);
         }
         let projects = Self::collect_projects(path, display_hidden)?;
+
+        // Check if .ignore is present in this directory
+        if Path::new(path).join(".ignore").exists() {}
+
         Ok(Self {
             projects,
             base_path,
@@ -122,6 +126,12 @@ impl Library {
             }
         }
 
+        // Check if .ignore is present in this directory
+        if Path::new(path).join(".ignore").exists() {
+            let paths = Self::get_ignored_paths(path)?;
+            projects.retain(|project| !paths.iter().any(|p| p == project.get_name()));
+        }
+
         Ok(projects)
     }
 
@@ -132,6 +142,28 @@ impl Library {
 
         entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false)
             && !SYSTEM_DIRECTORIES.contains(&name)
+    }
+
+    fn get_ignored_paths(base_path: &str) -> Result<Vec<String>, LibraryError> {
+        if !Path::new(base_path).join(".ignore").exists() {
+            return Err(LibraryError::IoError(
+                "No .ignore file found in the specified path.".to_string(),
+            ));
+        }
+
+        let ignore_content = fs::read_to_string(Path::new(base_path).join(".ignore"))
+            .map_err(|e| LibraryError::IoError(e.to_string()))?;
+
+        let paths = Vec::from_iter(ignore_content.lines().filter_map(|line| {
+            let trimmed = line.trim();
+            if !trimmed.is_empty() && !trimmed.starts_with('#') {
+                Some(trimmed.to_string().replace('/', ""))
+            } else {
+                None
+            }
+        }));
+
+        Ok(paths)
     }
 
     pub fn clone(&self, options: &CloneOptions) -> Result<(), LibraryError> {
