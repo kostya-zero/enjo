@@ -1,4 +1,4 @@
-use crate::terminal::ask_dialog;
+use crate::{config::Config, terminal::ask_dialog};
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum CompletionResult {
@@ -7,12 +7,15 @@ pub enum CompletionResult {
     Nothing,
 }
 
-pub fn autocomplete(word: &str, words_list: Vec<&str>) -> Option<String> {
+pub fn autocomplete(word: &str, words_list: Vec<&str>, config: &Config) -> Option<String> {
     let suggested = suggest_completion(word, words_list.clone());
 
     match suggested {
         CompletionResult::Found => Some(word.to_string()),
         CompletionResult::FoundSimilar(name) => {
+            if config.autocomplete.always_accept {
+                return Some(name);
+            }
             let answer = ask_dialog(&format!("Did you mean '{name}'?"), true);
             if answer { Some(name) } else { None }
         }

@@ -39,11 +39,15 @@ pub struct Options {
 #[serde(default)]
 pub struct Autocomplete {
     pub enabled: bool,
+    pub always_accept: bool,
 }
 
 impl Default for Autocomplete {
     fn default() -> Self {
-        Self { enabled: true }
+        Self {
+            enabled: true,
+            always_accept: true,
+        }
     }
 }
 

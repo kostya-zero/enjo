@@ -13,6 +13,7 @@ Enjo generates the configuration based on your environment settings, such as the
 
 >[!NOTE]
 > On Windows, Enjo appends `.cmd` to the `program` field for specific editors. This is because Enjo requires the `.cmd` files to launch these editors. The affected editors are:
+>
 > - Visual Studio Code
 > - Visual Studio Code - Insiders
 > - Code - OSS
@@ -41,6 +42,7 @@ recent_project = "example"
 
 [autocomplete]
 enabled = true
+always_accept = true
 ```
 
 For more information about the fields in the configuration, refer to the [Parameters section](#parameters).
@@ -81,3 +83,4 @@ This section details the configuration parameters available in the `config.toml`
 ### `autocomplete`
 
 - `enabled` - Controls whether the autocomplete feature is enabled. By default, set to `true`.
+- `always_accept` - Determines whether the autocomplete feature should automatically accept the suggestion. If set to `true`, it will automatically select the suggestion. By default, this is set to `true`.
