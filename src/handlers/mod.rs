@@ -167,7 +167,7 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
         );
     }
 
-    let launch_options = LaunchOptions {
+    let mut launch_options = LaunchOptions {
         program: program.to_string(),
         args: launch_args,
         cwd: Some(project.get_path().to_string()),
@@ -175,6 +175,11 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
         quiet: false,
         env: None,
     };
+
+    if args.shell {
+        let env_map = Vec::from([(String::from("ENJO_SESSION"), "1".to_string())]);
+        launch_options.env = Some(env_map);
+    }
 
     launch_program(launch_options)?;
 
