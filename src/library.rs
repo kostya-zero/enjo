@@ -99,9 +99,6 @@ impl Library {
         }
         let projects = Self::collect_projects(path, display_hidden)?;
 
-        // Check if .ignore is present in this directory
-        if Path::new(path).join(".ignore").exists() {}
-
         Ok(Self {
             projects,
             base_path,
