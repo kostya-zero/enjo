@@ -1,13 +1,13 @@
 use colored::Colorize;
 use dialoguer::{
-    Confirm, Input,
-    console::{Style, style},
+    console::{style, Style},
     theme::{ColorfulTheme, Theme},
+    Confirm, Input,
 };
 use indicatif::ProgressBar;
 
 pub fn print_done(msg: &str) {
-    println!("{} {}", "✓".bold().green(), msg)
+    println!(" {} {}", "✓".bold().green(), msg)
 }
 
 pub fn print_error(msg: &str) {

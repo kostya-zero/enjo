@@ -12,7 +12,8 @@ pub fn handle_path() -> Result<()> {
     Ok(())
 }
 
-pub fn handle_edit(config: &Config) -> Result<()> {
+pub fn handle_edit() -> Result<()> {
+    let config = Config::load()?;
     let editor = &config.editor.program;
     if editor.is_empty() {
         bail!("Editor program name is not set in the configuration file.");
@@ -34,7 +35,8 @@ pub fn handle_edit(config: &Config) -> Result<()> {
     launch_program(launch_options).map_err(|e| anyhow!(e.to_string()))
 }
 
-pub fn handle_reset(config: &mut Config) -> Result<()> {
+pub fn handle_reset() -> Result<()> {
+    let mut config = Config::load()?;
     if ask_dialog("Reset your current configuration?", false) {
         config.reset();
         config.save()?;

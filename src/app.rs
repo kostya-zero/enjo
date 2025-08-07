@@ -28,28 +28,25 @@ pub fn run() -> Result<()> {
 
     check_env()?;
 
-    let mut config: Config = Config::load()?;
-    let mut templates = Templates::load()?;
-
     match cli.cmd {
-        Commands::New(args) => handle_new(args, &config),
-        Commands::Clone(args) => handle_clone(args, &config),
-        Commands::Open(args) => handle_open(args, &mut config),
-        Commands::List(args) => handle_list(args, &config),
-        Commands::Rename(args) => handle_rename(args, &config),
-        Commands::Remove(args) => handle_remove(args, &config),
+        Commands::New(args) => handle_new(args),
+        Commands::Clone(args) => handle_clone(args),
+        Commands::Open(args) => handle_open(args),
+        Commands::List(args) => handle_list(args),
+        Commands::Rename(args) => handle_rename(args),
+        Commands::Remove(args) => handle_remove(args),
         Commands::Templates { command } => match command {
-            TemplatesCommands::New => templates::handle_new(&mut templates),
-            TemplatesCommands::List(args) => templates::handle_list(args, &templates),
-            TemplatesCommands::Edit => templates::handle_edit(&config),
-            TemplatesCommands::Info(args) => templates::handle_info(args, &templates),
-            TemplatesCommands::Clear => templates::handle_clear(&mut templates),
-            TemplatesCommands::Remove(args) => templates::handle_remove(args, &mut templates),
+            TemplatesCommands::New => templates::handle_new(),
+            TemplatesCommands::List(args) => templates::handle_list(args),
+            TemplatesCommands::Edit => templates::handle_edit(),
+            TemplatesCommands::Info(args) => templates::handle_info(args),
+            TemplatesCommands::Clear => templates::handle_clear(),
+            TemplatesCommands::Remove(args) => templates::handle_remove(args),
         },
         Commands::Config { command } => match command {
             ConfigCommands::Path => config::handle_path(),
-            ConfigCommands::Edit => config::handle_edit(&config),
-            ConfigCommands::Reset => config::handle_reset(&mut config),
+            ConfigCommands::Edit => config::handle_edit(),
+            ConfigCommands::Reset => config::handle_reset(),
         },
         Commands::Zen => handle_zen(),
     }

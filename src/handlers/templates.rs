@@ -9,7 +9,7 @@ use crate::{
     terminal::{ask_dialog, ask_string_dialog, print_done, print_title},
 };
 
-pub fn handle_new(templates: &mut Templates) -> Result<()> {
+pub fn handle_new() -> Result<()> {
     let name = ask_string_dialog("Name of new template?");
     if name.is_empty() {
         bail!("Incorrect name for a template.");
@@ -27,6 +27,7 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
     ensure!(!commands.is_empty(), "No commands entered.");
 
     println!("Creating template...");
+    let mut templates = Templates::load()?;
     templates.add_template(&name, commands)?;
     if templates.save().is_ok() {
         print_done("Created.");
@@ -36,7 +37,8 @@ pub fn handle_new(templates: &mut Templates) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_list(args: TemplatesListArgs, templates: &Templates) -> Result<()> {
+pub fn handle_list(args: TemplatesListArgs) -> Result<()> {
+    let templates = Templates::load()?;
     if templates.is_empty() {
         println!("No templates found.");
         return Ok(());
@@ -52,7 +54,8 @@ pub fn handle_list(args: TemplatesListArgs, templates: &Templates) -> Result<()>
     Ok(())
 }
 
-pub fn handle_edit(config: &Config) -> Result<()> {
+pub fn handle_edit() -> Result<()> {
+    let config = Config::load()?;
     let editor = &config.editor.program;
     if editor.is_empty() {
         bail!("Editor program name is not set in the configuration file.");
@@ -74,11 +77,12 @@ pub fn handle_edit(config: &Config) -> Result<()> {
     launch_program(launch_options).map_err(|e| anyhow!(e.to_string()))
 }
 
-pub fn handle_info(args: TemplatesInfoArgs, templates: &Templates) -> Result<()> {
+pub fn handle_info(args: TemplatesInfoArgs) -> Result<()> {
     let name = args
         .name
         .ok_or_else(|| anyhow!("Provide a name of the template."))?;
 
+    let templates = Templates::load()?;
     match templates.get_template(&name) {
         Some(template) => {
             if !args.pure {
@@ -95,7 +99,8 @@ pub fn handle_info(args: TemplatesInfoArgs, templates: &Templates) -> Result<()>
     Ok(())
 }
 
-pub fn handle_clear(templates: &mut Templates) -> Result<()> {
+pub fn handle_clear() -> Result<()> {
+    let mut templates = Templates::load()?;
     if ask_dialog("Clear all templates?", false) {
         templates.clear();
         templates.save()?;
@@ -106,10 +111,11 @@ pub fn handle_clear(templates: &mut Templates) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_remove(args: TemplatesRemoveArgs, templates: &mut Templates) -> Result<()> {
+pub fn handle_remove(args: TemplatesRemoveArgs) -> Result<()> {
     let name = args
         .name
         .ok_or_else(|| anyhow!("Provide a name of template to delete."))?;
+    let mut templates = Templates::load()?;
     templates.remove_template(&name).map_err(|e| anyhow!(e))?;
     templates.save().map_err(|e| anyhow!(e))?;
     print_done("Removed.");

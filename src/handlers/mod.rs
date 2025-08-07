@@ -31,7 +31,8 @@ fn resolve_project_name(project_name: &str, config: &Config, projects: &Library)
     }
 }
 
-pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
+pub fn handle_new(args: NewArgs) -> Result<()> {
+    let config = Config::load()?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -50,7 +51,7 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
             .ok_or_else(|| anyhow!("Template '{}' not found.", template_name))?;
         let started_time = Instant::now();
 
-        println!("Generating project from template...");
+        println!("Generating project from '{}' template...", &name);
 
         let program = &config.shell.program;
         ensure!(
@@ -99,7 +100,9 @@ pub fn handle_new(args: NewArgs, config: &Config) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_clone(args: CloneArgs, config: &Config) -> Result<()> {
+pub fn handle_clone(args: CloneArgs) -> Result<()> {
+    let config = Config::load()?;
+
     let remote = args
         .remote
         .ok_or_else(|| anyhow!("You need to provide a remote URL."))?;
@@ -123,7 +126,8 @@ pub fn handle_clone(args: CloneArgs, config: &Config) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
+pub fn handle_open(args: OpenArgs) -> Result<()> {
+    let mut config = Config::load()?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -133,7 +137,7 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
         .name
         .ok_or_else(|| anyhow!("Project name is required."))?;
 
-    let name = resolve_project_name(&project_name, config, &projects)
+    let name = resolve_project_name(&project_name, &config, &projects)
         .ok_or_else(|| anyhow!("Project not found."))?;
 
     let project = projects
@@ -199,7 +203,8 @@ pub fn handle_open(args: OpenArgs, config: &mut Config) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_list(args: ListArgs, config: &Config) -> Result<()> {
+pub fn handle_list(args: ListArgs) -> Result<()> {
+    let config = Config::load()?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -231,7 +236,8 @@ pub fn handle_list(args: ListArgs, config: &Config) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_rename(args: RenameArgs, config: &Config) -> Result<()> {
+pub fn handle_rename(args: RenameArgs) -> Result<()> {
+    let config = Config::load()?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -249,7 +255,8 @@ pub fn handle_rename(args: RenameArgs, config: &Config) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
+pub fn handle_remove(args: RemoveArgs) -> Result<()> {
+    let config = Config::load()?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -259,7 +266,7 @@ pub fn handle_remove(args: RemoveArgs, config: &Config) -> Result<()> {
         .name
         .ok_or_else(|| anyhow!("Provide a name of project to remove."))?;
 
-    let project_name = resolve_project_name(&name, config, &projects)
+    let project_name = resolve_project_name(&name, &config, &projects)
         .ok_or_else(|| anyhow!("Project not found."))?;
 
     let project = projects
