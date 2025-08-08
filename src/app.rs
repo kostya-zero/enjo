@@ -26,6 +26,11 @@ fn check_env() -> Result<()> {
 pub fn run() -> Result<()> {
     let cli = Cli::parse();
 
+    if cli.version {
+        println!("{}", env!("CARGO_PKG_VERSION"),);
+        return Ok(());
+    }
+
     check_env()?;
 
     match cli.cmd {

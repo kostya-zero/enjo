@@ -6,11 +6,16 @@ use std::env;
 #[command(
     name = "enjo",
     about = env!("CARGO_PKG_DESCRIPTION"),
-    version = env!("CARGO_PKG_VERSION")
+    version = env!("CARGO_PKG_VERSION"),
+    disable_version_flag = true
 )]
 pub struct Cli {
     #[command(subcommand)]
     pub cmd: Commands,
+
+    /// Print the version of Enjo.
+    #[arg(short, long, action = ArgAction::SetTrue)]
+    pub version: bool,
 }
 
 #[derive(Subcommand)]
@@ -21,18 +26,18 @@ pub enum Commands {
     /// Clone Git repository (requires git to be installed).
     Clone(CloneArgs),
 
-    /// Open project in editor or shell.
+    /// Open project in editor or shell [alias: o]
     #[command(alias = "o")]
     Open(OpenArgs),
 
-    /// List available projects.
+    /// List available projects [alias: ls]
     #[command(alias = "ls")]
     List(ListArgs),
 
     /// Rename project.
     Rename(RenameArgs),
 
-    /// Remove project.
+    /// Remove project [alias: rm]
     #[command(alias = "rm")]
     Remove(RemoveArgs),
 
