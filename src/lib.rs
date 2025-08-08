@@ -1,8 +1,8 @@
 pub mod app;
 mod autocomplete;
 mod cli;
+mod commands;
 mod config;
-mod handlers;
 mod library;
 mod platform;
 mod program;
