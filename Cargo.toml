@@ -12,6 +12,7 @@ edition = "2024"
 
 [[bin]]
 name = "enjo"
+path = "src/main.rs"
 
 [dependencies]
 anyhow = "1"

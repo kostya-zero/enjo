@@ -14,8 +14,8 @@ pub enum ConfigError {
     #[error("Cannot find configuration file.")]
     FileNotFound,
 
-    #[error("Configuration file has a bad structure and cannot be deserialized.")]
-    BadStructure,
+    #[error("Error parsing configuration file: {0}.")]
+    BadConfiguration(String),
 }
 
 #[derive(Deserialize, Serialize, Default, Clone)]
@@ -143,7 +143,7 @@ impl Config {
     pub fn load() -> Result<Self, ConfigError> {
         let config_path = Platform::get_config_path();
         let content = fs::read_to_string(config_path).map_err(|_| ConfigError::FileNotFound)?;
-        toml::from_str(&content).map_err(|_| ConfigError::BadStructure)
+        toml::from_str(&content).map_err(|e| ConfigError::BadConfiguration(e.message().to_string()))
     }
 
     pub fn save(&self) -> Result<(), ConfigError> {

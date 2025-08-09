@@ -1,12 +1,11 @@
-pub mod app;
 mod autocomplete;
-mod cli;
-mod commands;
-mod config;
+pub mod cli;
+pub mod commands;
+pub mod config;
 mod library;
-mod platform;
+pub mod platform;
 mod program;
-mod templates;
+pub mod templates;
 pub mod terminal;
 
 #[cfg(test)]

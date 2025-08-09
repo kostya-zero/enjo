@@ -1,13 +1,18 @@
-use crate::cli::{Cli, Commands, ConfigCommands, TemplatesCommands};
-use crate::commands::{
-    config, handle_clone, handle_list, handle_new, handle_open, handle_remove, handle_rename,
-    handle_zen, templates,
-};
-use crate::config::Config;
-use crate::platform::Platform;
-use crate::templates::Templates;
+use std::process::exit;
+
 use anyhow::{Result, anyhow};
 use clap::Parser;
+use enjo::{
+    cli::{Cli, Commands, ConfigCommands, TemplatesCommands},
+    commands::{
+        config, handle_clone, handle_list, handle_new, handle_open, handle_remove, handle_rename,
+        handle_zen, templates,
+    },
+    config::Config,
+    platform::Platform,
+    templates::Templates,
+    terminal::print_error,
+};
 
 fn check_env() -> Result<()> {
     if !Platform::check_config_exists() {
@@ -23,17 +28,20 @@ fn check_env() -> Result<()> {
     Ok(())
 }
 
-pub fn run() -> Result<()> {
+fn main() {
     let cli = Cli::parse();
 
     if cli.version {
         println!("{}", env!("CARGO_PKG_VERSION"),);
-        return Ok(());
+        return;
     }
 
-    check_env()?;
+    if let Err(e) = check_env() {
+        print_error(&e.to_string());
+        exit(1);
+    }
 
-    match cli.cmd {
+    let result = match cli.cmd {
         Commands::New(args) => handle_new(args),
         Commands::Clone(args) => handle_clone(args),
         Commands::Open(args) => handle_open(args),
@@ -54,5 +62,10 @@ pub fn run() -> Result<()> {
             ConfigCommands::Reset => config::handle_reset(),
         },
         Commands::Zen => handle_zen(),
+    };
+
+    if let Err(e) = result {
+        print_error(&e.to_string());
+        exit(1);
     }
 }
