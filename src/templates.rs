@@ -4,7 +4,7 @@ use crate::platform::Platform;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Templates(HashMap<String, Vec<String>>);
 
 #[derive(Debug, Error, Deserialize)]

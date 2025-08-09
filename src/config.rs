@@ -140,16 +140,15 @@ impl Default for ShellOptions {
 }
 
 impl Config {
-    pub fn load() -> Result<Self, ConfigError> {
-        let config_path = Platform::get_config_path();
-        let content = fs::read_to_string(config_path).map_err(|_| ConfigError::FileNotFound)?;
+    pub fn load(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
+        let content = fs::read_to_string(&path).map_err(|_| ConfigError::FileNotFound)?;
         toml::from_str(&content).map_err(|e| ConfigError::BadConfiguration(e.message().to_string()))
     }
 
-    pub fn save(&self) -> Result<(), ConfigError> {
-        let dir_path = Platform::get_config_dir_path();
-        if !Path::new(&dir_path).exists() {
-            fs::create_dir(&dir_path).map_err(|_| ConfigError::WriteFailed)?;
+    pub fn save(&self, path: impl AsRef<Path>) -> Result<(), ConfigError> {
+        let path = path.as_ref();
+        if !Path::new(&path).exists() {
+            fs::create_dir(path).map_err(|_| ConfigError::WriteFailed)?;
         }
         let content = toml::to_string(self).map_err(|_| ConfigError::FormatFailed)?;
         fs::write(Platform::get_config_path(), content).map_err(|_| ConfigError::WriteFailed)

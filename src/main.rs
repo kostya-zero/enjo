@@ -17,7 +17,9 @@ use enjo::{
 fn check_env() -> Result<()> {
     if !Platform::check_config_exists() {
         let default_config: Config = Config::default();
-        default_config.save().map_err(|e| anyhow!(e.to_string()))?;
+        default_config
+            .save(Platform::get_config_path())
+            .map_err(|e| anyhow!(e.to_string()))?;
     }
 
     if !Platform::check_templates_exists() {

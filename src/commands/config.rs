@@ -13,7 +13,7 @@ pub fn handle_path() -> Result<()> {
 }
 
 pub fn handle_edit() -> Result<()> {
-    let config = Config::load()?;
+    let config = Config::load(Platform::get_config_path())?;
     let editor = &config.editor.program;
     if editor.is_empty() {
         bail!("Editor program name is not set in the configuration file.");
@@ -36,10 +36,10 @@ pub fn handle_edit() -> Result<()> {
 }
 
 pub fn handle_reset() -> Result<()> {
-    let mut config = Config::load()?;
+    let mut config = Config::load(Platform::get_config_path())?;
     if ask_dialog("Reset your current configuration?", false) {
         config.reset();
-        config.save()?;
+        config.save(Platform::get_config_path())?;
         print_done("Reset.");
     } else {
         print_done("Aborted.");

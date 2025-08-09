@@ -55,7 +55,7 @@ pub fn handle_list(args: TemplatesListArgs) -> Result<()> {
 }
 
 pub fn handle_edit() -> Result<()> {
-    let config = Config::load()?;
+    let config = Config::load(Platform::get_config_path())?;
     let editor = &config.editor.program;
     if editor.is_empty() {
         bail!("Editor program name is not set in the configuration file.");
