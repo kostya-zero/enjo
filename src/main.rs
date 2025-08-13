@@ -24,7 +24,9 @@ fn check_env() -> Result<()> {
 
     if !Platform::check_templates_exists() {
         let templates = Templates::new();
-        templates.save().map_err(|e| anyhow!(e.to_string()))?;
+        templates
+            .save(&Platform::get_templates_path())
+            .map_err(|e| anyhow!(e.to_string()))?;
     }
 
     Ok(())

@@ -1,6 +1,5 @@
 use std::{collections::HashMap, fs, path::PathBuf};
 
-use crate::platform::Platform;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -80,8 +79,7 @@ impl Templates {
         Ok(templates)
     }
 
-    pub fn save(&self) -> Result<(), TemplatesError> {
-        let path = Platform::get_templates_path();
+    pub fn save(&self, path: &PathBuf) -> Result<(), TemplatesError> {
         let content =
             serde_json::to_string(self).map_err(|_| TemplatesError::SerializationError)?;
         fs::write(path, content).map_err(|_| TemplatesError::FileSystemError)
