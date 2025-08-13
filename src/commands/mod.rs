@@ -46,7 +46,7 @@ pub fn handle_new(args: NewArgs) -> Result<()> {
     projects.create(&name)?;
 
     if let Some(template_name) = args.template {
-        let templates = Templates::load()?;
+        let templates = Templates::load(&Platform::get_templates_path())?;
         let template = templates
             .get_template(&template_name)
             .ok_or_else(|| anyhow!("Template '{}' not found.", template_name))?;

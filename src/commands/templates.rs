@@ -27,7 +27,7 @@ pub fn handle_new() -> Result<()> {
     ensure!(!commands.is_empty(), "No commands entered.");
 
     println!("Creating template...");
-    let mut templates = Templates::load()?;
+    let mut templates = Templates::load(&Platform::get_templates_path())?;
     templates.add_template(&name, commands)?;
     if templates.save().is_ok() {
         print_done("Created.");
@@ -38,7 +38,7 @@ pub fn handle_new() -> Result<()> {
 }
 
 pub fn handle_list(args: TemplatesListArgs) -> Result<()> {
-    let templates = Templates::load()?;
+    let templates = Templates::load(&Platform::get_templates_path())?;
     if templates.is_empty() {
         println!("No templates found.");
         return Ok(());
@@ -82,7 +82,7 @@ pub fn handle_info(args: TemplatesInfoArgs) -> Result<()> {
         .name
         .ok_or_else(|| anyhow!("Provide a name of the template."))?;
 
-    let templates = Templates::load()?;
+    let templates = Templates::load(&Platform::get_templates_path())?;
     match templates.get_template(&name) {
         Some(template) => {
             if !args.pure {
@@ -100,7 +100,7 @@ pub fn handle_info(args: TemplatesInfoArgs) -> Result<()> {
 }
 
 pub fn handle_clear() -> Result<()> {
-    let mut templates = Templates::load()?;
+    let mut templates = Templates::load(&Platform::get_templates_path())?;
     if ask_dialog("Clear all templates?", false) {
         templates.clear();
         templates.save()?;
@@ -115,7 +115,7 @@ pub fn handle_remove(args: TemplatesRemoveArgs) -> Result<()> {
     let name = args
         .name
         .ok_or_else(|| anyhow!("Provide a name of template to delete."))?;
-    let mut templates = Templates::load()?;
+    let mut templates = Templates::load(&Platform::get_templates_path())?;
     templates.remove_template(&name).map_err(|e| anyhow!(e))?;
     templates.save().map_err(|e| anyhow!(e))?;
     print_done("Removed.");

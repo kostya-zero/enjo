@@ -1,8 +1,8 @@
 use colored::Colorize;
 use dialoguer::{
-    console::{style, Style},
-    theme::{ColorfulTheme, Theme},
     Confirm, Input,
+    console::{Style, style},
+    theme::{ColorfulTheme, Theme},
 };
 use indicatif::ProgressBar;
 
@@ -11,7 +11,7 @@ pub fn print_done(msg: &str) {
 }
 
 pub fn print_error(msg: &str) {
-    eprintln!(" {}: {}", "Error".bright_red().bold(), msg);
+    eprintln!(" {}: {}", "Error".red().bold(), msg);
 }
 
 pub fn print_progress(msg: &str, current: i8, total: i8) {

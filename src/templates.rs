@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::platform::Platform;
 use serde::{Deserialize, Serialize};
@@ -73,14 +73,11 @@ impl Templates {
         self.0.keys().cloned().collect()
     }
 
-    pub fn load() -> Result<Self, TemplatesError> {
-        let path = Platform::get_templates_path();
-        match fs::read_to_string(&path) {
-            Ok(content) => {
-                serde_json::from_str::<Self>(&content).map_err(|_| TemplatesError::FileSystemError)
-            }
-            Err(_) => Ok(Self::new()),
-        }
+    pub fn load(path: &PathBuf) -> Result<Self, TemplatesError> {
+        let content = fs::read_to_string(path).map_err(|_| TemplatesError::FileSystemError)?;
+        let templates: Self =
+            serde_json::from_str(&content).map_err(|_| TemplatesError::DeserializationError)?;
+        Ok(templates)
     }
 
     pub fn save(&self) -> Result<(), TemplatesError> {
