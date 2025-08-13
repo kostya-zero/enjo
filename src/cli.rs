@@ -7,11 +7,13 @@ use std::env;
     name = "enjo",
     about = env!("CARGO_PKG_DESCRIPTION"),
     version = env!("CARGO_PKG_VERSION"),
+    subcommand_required = false, 
+    arg_required_else_help = false,
     disable_version_flag = true
 )]
 pub struct Cli {
     #[command(subcommand)]
-    pub cmd: Commands,
+    pub cmd: Option<Commands>,
 
     /// Print the version of Enjo.
     #[arg(short, long, action = ArgAction::SetTrue)]

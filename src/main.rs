@@ -32,11 +32,21 @@ fn check_env() -> Result<()> {
     Ok(())
 }
 
+fn print_version() {
+    let mode = if cfg!(debug_assertions) {
+        "debug"
+    } else {
+        "release"
+    };
+
+    println!("enjo {} {mode}", env!("CARGO_PKG_VERSION"));
+}
+
 fn main() {
     let cli = Cli::parse();
 
     if cli.version {
-        println!("{}", env!("CARGO_PKG_VERSION"),);
+        print_version();
         return;
     }
 
@@ -45,7 +55,12 @@ fn main() {
         exit(1);
     }
 
-    let result = match cli.cmd {
+    if cli.cmd.is_none() {
+        println!("Nothing to do. Use `enjo --help` to see available commands.");
+        return;
+    }
+
+    let result = match cli.cmd.unwrap() {
         Commands::New(args) => handle_new(args),
         Commands::Clone(args) => handle_clone(args),
         Commands::Open(args) => handle_open(args),
