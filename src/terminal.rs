@@ -19,7 +19,7 @@ pub fn print_progress(msg: &str, current: i8, total: i8) {
 }
 
 pub fn print_title(msg: &str) {
-    println!("{}", msg.white().bold());
+    println!("{}", msg.bold().underline());
 }
 
 fn get_dialog_theme() -> impl Theme {

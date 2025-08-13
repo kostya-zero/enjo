@@ -218,7 +218,7 @@ pub fn handle_list(args: ListArgs) -> Result<()> {
     let recent = &config.recent.recent_project;
 
     if !args.pure {
-        print_title("Your projects:");
+        print_title("Your projects");
     }
     for project in projects.get_vec().iter() {
         let project_name = project.get_name();
