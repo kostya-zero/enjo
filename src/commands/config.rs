@@ -2,24 +2,24 @@ use anyhow::{Result, anyhow, bail};
 
 use crate::{
     config::Config,
-    platform::Platform,
+    platform,
     program::{LaunchOptions, launch_program},
     terminal::{ask_dialog, print_done},
 };
 
 pub fn handle_path() -> Result<()> {
-    println!("{}", Platform::get_config_path().to_str().unwrap());
+    println!("{}", platform::get_config_path().to_str().unwrap());
     Ok(())
 }
 
 pub fn handle_edit() -> Result<()> {
-    let config = Config::load(Platform::get_config_path())?;
+    let config = Config::load(platform::get_config_path())?;
     let editor = &config.editor.program;
     if editor.is_empty() {
         bail!("Editor program name is not set in the configuration file.");
     }
 
-    let path = Platform::get_config_path();
+    let path = platform::get_config_path();
     let mut editor_args = config.editor.args.clone();
     editor_args.push(path.to_str().unwrap().to_string());
 
@@ -36,10 +36,10 @@ pub fn handle_edit() -> Result<()> {
 }
 
 pub fn handle_reset() -> Result<()> {
-    let mut config = Config::load(Platform::get_config_path())?;
+    let mut config = Config::load(platform::get_config_path())?;
     if ask_dialog("Reset your current configuration?", false) {
         config.reset();
-        config.save(Platform::get_config_path())?;
+        config.save(platform::get_config_path())?;
         print_done("Reset.");
     } else {
         print_done("Aborted.");

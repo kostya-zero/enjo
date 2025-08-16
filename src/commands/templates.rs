@@ -3,7 +3,7 @@ use anyhow::{Result, anyhow, bail, ensure};
 use crate::{
     cli::{TemplatesInfoArgs, TemplatesListArgs, TemplatesRemoveArgs},
     config::Config,
-    platform::Platform,
+    platform,
     program::{LaunchOptions, launch_program},
     templates::Templates,
     terminal::{ask_dialog, ask_string_dialog, print_done, print_title},
@@ -27,9 +27,9 @@ pub fn handle_new() -> Result<()> {
     ensure!(!commands.is_empty(), "No commands entered.");
 
     println!("Creating template...");
-    let mut templates = Templates::load(&Platform::get_templates_path())?;
+    let mut templates = Templates::load(platform::get_templates_path())?;
     templates.add_template(&name, commands)?;
-    if templates.save(&Platform::get_templates_path()).is_ok() {
+    if templates.save(platform::get_templates_path()).is_ok() {
         print_done("Created.");
     } else {
         bail!("Failed to save templates.");
@@ -38,7 +38,7 @@ pub fn handle_new() -> Result<()> {
 }
 
 pub fn handle_list(args: TemplatesListArgs) -> Result<()> {
-    let templates = Templates::load(&Platform::get_templates_path())?;
+    let templates = Templates::load(platform::get_templates_path())?;
     if templates.is_empty() {
         println!("No templates found.");
         return Ok(());
@@ -55,13 +55,13 @@ pub fn handle_list(args: TemplatesListArgs) -> Result<()> {
 }
 
 pub fn handle_edit() -> Result<()> {
-    let config = Config::load(Platform::get_templates_path())?;
+    let config = Config::load(platform::get_templates_path())?;
     let editor = &config.editor.program;
     if editor.is_empty() {
         bail!("Editor program name is not set in the configuration file.");
     }
 
-    let path = Platform::get_templates_path();
+    let path = platform::get_templates_path();
     let mut editor_args = config.editor.args.clone();
     editor_args.push(path.to_str().unwrap().to_string());
 
@@ -82,7 +82,7 @@ pub fn handle_info(args: TemplatesInfoArgs) -> Result<()> {
         .name
         .ok_or_else(|| anyhow!("Provide a name of the template."))?;
 
-    let templates = Templates::load(&Platform::get_templates_path())?;
+    let templates = Templates::load(platform::get_templates_path())?;
     match templates.get_template(&name) {
         Some(template) => {
             if !args.pure {
@@ -100,10 +100,10 @@ pub fn handle_info(args: TemplatesInfoArgs) -> Result<()> {
 }
 
 pub fn handle_clear() -> Result<()> {
-    let mut templates = Templates::load(&Platform::get_templates_path())?;
+    let mut templates = Templates::load(platform::get_templates_path())?;
     if ask_dialog("Clear all templates?", false) {
         templates.clear();
-        templates.save(&Platform::get_templates_path())?;
+        templates.save(platform::get_templates_path())?;
         print_done("Cleared.");
     } else {
         print_done("Aborted.");
@@ -115,10 +115,10 @@ pub fn handle_remove(args: TemplatesRemoveArgs) -> Result<()> {
     let name = args
         .name
         .ok_or_else(|| anyhow!("Provide a name of template to delete."))?;
-    let mut templates = Templates::load(&Platform::get_templates_path())?;
+    let mut templates = Templates::load(platform::get_templates_path())?;
     templates.remove_template(&name).map_err(|e| anyhow!(e))?;
     templates
-        .save(&Platform::get_templates_path())
+        .save(platform::get_templates_path())
         .map_err(|e| anyhow!(e))?;
     print_done("Removed.");
     Ok(())

@@ -11,7 +11,7 @@ use crate::{
     cli::{CloneArgs, ListArgs, NewArgs, OpenArgs, RemoveArgs, RenameArgs},
     config::Config,
     library::{CloneOptions, Library},
-    platform::Platform,
+    platform::{get_config_path, get_templates_path},
     program::{LaunchOptions, launch_program},
     templates::Templates,
     terminal::{
@@ -33,7 +33,7 @@ fn resolve_project_name(project_name: &str, config: &Config, projects: &Library)
 }
 
 pub fn handle_new(args: NewArgs) -> Result<()> {
-    let config = Config::load(Platform::get_config_path())?;
+    let config = Config::load(get_config_path())?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -46,7 +46,7 @@ pub fn handle_new(args: NewArgs) -> Result<()> {
     projects.create(&name)?;
 
     if let Some(template_name) = args.template {
-        let templates = Templates::load(&Platform::get_templates_path())?;
+        let templates = Templates::load(get_templates_path())?;
         let template = templates
             .get_template(&template_name)
             .ok_or_else(|| anyhow!("Template '{}' not found.", template_name))?;
@@ -102,7 +102,7 @@ pub fn handle_new(args: NewArgs) -> Result<()> {
 }
 
 pub fn handle_clone(args: CloneArgs) -> Result<()> {
-    let config = Config::load(Platform::get_config_path())?;
+    let config = Config::load(get_config_path())?;
 
     let remote = args
         .remote
@@ -128,7 +128,7 @@ pub fn handle_clone(args: CloneArgs) -> Result<()> {
 }
 
 pub fn handle_open(args: OpenArgs) -> Result<()> {
-    let mut config = Config::load(Platform::get_config_path())?;
+    let mut config = Config::load(get_config_path())?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -162,7 +162,7 @@ pub fn handle_open(args: OpenArgs) -> Result<()> {
 
     if config.recent.enabled && name != config.recent.recent_project {
         config.recent.recent_project = name.clone();
-        config.save(Platform::get_config_path())?;
+        config.save(get_config_path())?;
     }
 
     if args.shell {
@@ -205,7 +205,7 @@ pub fn handle_open(args: OpenArgs) -> Result<()> {
 }
 
 pub fn handle_list(args: ListArgs) -> Result<()> {
-    let config = Config::load(Platform::get_config_path())?;
+    let config = Config::load(get_config_path())?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -238,7 +238,7 @@ pub fn handle_list(args: ListArgs) -> Result<()> {
 }
 
 pub fn handle_rename(args: RenameArgs) -> Result<()> {
-    let config = Config::load(Platform::get_config_path())?;
+    let config = Config::load(get_config_path())?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,
@@ -257,7 +257,7 @@ pub fn handle_rename(args: RenameArgs) -> Result<()> {
 }
 
 pub fn handle_remove(args: RemoveArgs) -> Result<()> {
-    let config = Config::load(Platform::get_config_path())?;
+    let config = Config::load(get_config_path())?;
     let projects = Library::new(
         &config.options.projects_directory,
         config.options.display_hidden,

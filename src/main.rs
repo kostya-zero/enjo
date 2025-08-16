@@ -9,23 +9,23 @@ use enjo::{
         handle_zen, templates,
     },
     config::Config,
-    platform::Platform,
+    platform::{self, get_config_path, get_templates_path},
     templates::Templates,
     terminal::print_error,
 };
 
 fn check_env() -> Result<()> {
-    if !Platform::check_config_exists() {
+    if !get_config_path().exists() {
         let default_config: Config = Config::default();
         default_config
-            .save(Platform::get_config_path())
+            .save(platform::get_config_path())
             .map_err(|e| anyhow!(e.to_string()))?;
     }
 
-    if !Platform::check_templates_exists() {
+    if !get_templates_path().exists() {
         let templates = Templates::new();
         templates
-            .save(&Platform::get_templates_path())
+            .save(platform::get_templates_path())
             .map_err(|e| anyhow!(e.to_string()))?;
     }
 

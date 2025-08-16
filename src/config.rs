@@ -1,4 +1,4 @@
-use crate::platform::{Platform, PlatformName};
+use crate::platform::{self, PlatformName};
 use serde::{Deserialize, Serialize};
 use std::{env, fs, path::Path};
 use thiserror::Error;
@@ -70,7 +70,7 @@ impl Default for Recent {
 impl Default for Options {
     fn default() -> Self {
         Self {
-            projects_directory: Platform::get_user_home().to_str().unwrap().to_string(),
+            projects_directory: platform::get_user_home().to_str().unwrap().to_string(),
             display_hidden: false,
         }
     }
@@ -86,7 +86,7 @@ pub struct EditorOptions {
 
 impl Default for EditorOptions {
     fn default() -> Self {
-        let mut new_editor: String = Platform::get_default_editor();
+        let mut new_editor: String = platform::get_default_editor();
         let mut new_args: Vec<String> = Vec::new();
         let mut fork_mode = false;
 
@@ -98,7 +98,7 @@ impl Default for EditorOptions {
             "code" | "code-insiders" | "codium" | "code-oss" | "windsurf" => {
                 new_args.push(".".to_string());
                 fork_mode = true;
-                if PlatformName::Windows == Platform::get_platform() {
+                if PlatformName::Windows == platform::get_platform() {
                     new_editor.push_str(".cmd");
                 }
             }
@@ -126,7 +126,7 @@ pub struct ShellOptions {
 
 impl Default for ShellOptions {
     fn default() -> Self {
-        let program = env::var("SHELL").unwrap_or_else(|_| Platform::get_default_shell());
+        let program = env::var("SHELL").unwrap_or_else(|_| platform::get_default_shell());
         let args = match program.as_str() {
             "powershell.exe" | "powershell" | "pwsh.exe" | "pwsh" => {
                 vec!["-NoLogo".to_string(), "-Command".to_string()]
@@ -151,7 +151,7 @@ impl Config {
             fs::create_dir(path).map_err(|_| ConfigError::WriteFailed)?;
         }
         let content = toml::to_string(self).map_err(|_| ConfigError::FormatFailed)?;
-        fs::write(Platform::get_config_path(), content).map_err(|_| ConfigError::WriteFailed)
+        fs::write(platform::get_config_path(), content).map_err(|_| ConfigError::WriteFailed)
     }
 
     pub fn reset(&mut self) {

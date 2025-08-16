@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -72,14 +72,14 @@ impl Templates {
         self.0.keys().cloned().collect()
     }
 
-    pub fn load(path: &PathBuf) -> Result<Self, TemplatesError> {
+    pub fn load(path: impl AsRef<Path>) -> Result<Self, TemplatesError> {
         let content = fs::read_to_string(path).map_err(|_| TemplatesError::FileSystemError)?;
         let templates: Self =
             serde_json::from_str(&content).map_err(|_| TemplatesError::DeserializationError)?;
         Ok(templates)
     }
 
-    pub fn save(&self, path: &PathBuf) -> Result<(), TemplatesError> {
+    pub fn save(&self, path: impl AsRef<Path>) -> Result<(), TemplatesError> {
         let content =
             serde_json::to_string(self).map_err(|_| TemplatesError::SerializationError)?;
         fs::write(path, content).map_err(|_| TemplatesError::FileSystemError)
