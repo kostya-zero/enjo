@@ -24,9 +24,9 @@ pub fn print_title(msg: &str) {
 
 fn get_dialog_theme() -> impl Theme {
     ColorfulTheme {
-        prompt_prefix: style("?".to_string()).for_stdout().cyan(),
-        success_prefix: style("✔".to_string()).for_stdout().green(),
-        error_prefix: style("✘".to_string()).for_stderr().red(),
+        prompt_prefix: style(" ?".to_string()).for_stdout().cyan(),
+        success_prefix: style(" ✔".to_string()).for_stdout().green(),
+        error_prefix: style(" ✘".to_string()).for_stderr().red(),
         defaults_style: Style::new().for_stdout().dim().white(),
         ..Default::default()
     }
@@ -53,7 +53,7 @@ pub fn ask_string_dialog(question: &str) -> String {
 
 pub fn generate_progress() -> ProgressBar {
     ProgressBar::new_spinner().with_style(
-        indicatif::ProgressStyle::with_template("{spinner:.green} {msg}")
+        indicatif::ProgressStyle::with_template(" {spinner:.green} {msg}")
             .unwrap()
             .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"),
     )
