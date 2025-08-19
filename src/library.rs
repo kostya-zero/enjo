@@ -190,10 +190,11 @@ impl Library {
     }
 
     pub fn create(&self, name: &str) -> Result<(), LibraryError> {
-        if self.base_path.join(name).exists() {
+        let path = &self.base_path.join(name);
+        if path.exists() {
             return Err(LibraryError::AlreadyExists);
         }
-        fs::create_dir_all(&self.base_path).map_err(|e| LibraryError::IoError(e.to_string()))
+        fs::create_dir(path).map_err(|e| LibraryError::IoError(e.to_string()))
     }
 
     pub fn delete(&self, name: &str) -> Result<(), LibraryError> {
