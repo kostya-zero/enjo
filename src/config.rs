@@ -1,6 +1,9 @@
 use crate::platform::{self, PlatformName};
 use serde::{Deserialize, Serialize};
-use std::{env, fs, path::Path};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -16,33 +19,36 @@ pub enum ConfigError {
 
     #[error("Error parsing configuration file: {0}.")]
     BadConfiguration(String),
+
+    #[error("File system error occured: {0}.")]
+    FileSystemError(#[from] std::io::Error),
 }
 
 #[derive(Deserialize, Serialize, Default, Clone)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 pub struct Config {
-    pub options: Options,
+    pub options: GeneralOptions,
     pub editor: EditorOptions,
     pub shell: ShellOptions,
-    pub recent: Recent,
-    pub autocomplete: Autocomplete,
+    pub recent: RecentOptions,
+    pub autocomplete: AutocompleteOptions,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-#[serde(default)]
-pub struct Options {
-    pub projects_directory: String,
+#[serde(default, deny_unknown_fields)]
+pub struct GeneralOptions {
+    pub projects_directory: PathBuf,
     pub display_hidden: bool,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-#[serde(default)]
-pub struct Autocomplete {
+#[serde(default, deny_unknown_fields)]
+pub struct AutocompleteOptions {
     pub enabled: bool,
     pub always_accept: bool,
 }
 
-impl Default for Autocomplete {
+impl Default for AutocompleteOptions {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -52,13 +58,13 @@ impl Default for Autocomplete {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-#[serde(default)]
-pub struct Recent {
+#[serde(default, deny_unknown_fields)]
+pub struct RecentOptions {
     pub enabled: bool,
     pub recent_project: String,
 }
 
-impl Default for Recent {
+impl Default for RecentOptions {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -67,17 +73,17 @@ impl Default for Recent {
     }
 }
 
-impl Default for Options {
+impl Default for GeneralOptions {
     fn default() -> Self {
         Self {
-            projects_directory: platform::get_user_home().to_str().unwrap().to_string(),
+            projects_directory: platform::get_user_home(),
             display_hidden: false,
         }
     }
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 pub struct EditorOptions {
     pub program: String,
     pub fork_mode: bool,
@@ -118,7 +124,7 @@ impl Default for EditorOptions {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 pub struct ShellOptions {
     pub program: String,
     pub args: Vec<String>,
@@ -142,16 +148,17 @@ impl Default for ShellOptions {
 impl Config {
     pub fn load(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
         let content = fs::read_to_string(&path).map_err(|_| ConfigError::FileNotFound)?;
-        toml::from_str(&content).map_err(|e| ConfigError::BadConfiguration(e.message().to_string()))
+        toml::from_str::<Config>(&content)
+            .map_err(|e| ConfigError::BadConfiguration(format!("{e}")))
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), ConfigError> {
         let path = path.as_ref();
-        if !Path::new(&path).exists() {
-            fs::create_dir(path).map_err(|_| ConfigError::WriteFailed)?;
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).map_err(|_| ConfigError::WriteFailed)?;
         }
         let content = toml::to_string(self).map_err(|_| ConfigError::FormatFailed)?;
-        fs::write(platform::get_config_path(), content).map_err(|_| ConfigError::WriteFailed)
+        fs::write(path, content).map_err(|_| ConfigError::WriteFailed)
     }
 
     pub fn reset(&mut self) {

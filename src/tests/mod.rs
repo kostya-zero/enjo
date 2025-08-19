@@ -20,8 +20,4 @@ impl TestContext {
     fn path(&self) -> &Path {
         self.temp_dir.path()
     }
-
-    fn path_str(&self) -> &str {
-        self.temp_dir.path().to_str().unwrap()
-    }
 }

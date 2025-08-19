@@ -2,19 +2,20 @@ use crate::{
     library::{CloneOptions, Library, LibraryError},
     tests::TestContext,
 };
-use std::fs;
+use std::{fs, path::PathBuf};
 
 #[test]
 fn test_library_new() {
     let context = TestContext::setup();
+    let path = context.path().to_path_buf();
 
-    let library = Library::new(context.path_str(), false).unwrap();
+    let library = Library::new(&path, false).unwrap();
     assert!(library.is_empty());
 
     assert!(context.path().exists());
 
     assert!(matches!(
-        Library::new("/non/existent/path", false),
+        Library::new(&PathBuf::from("/non/existent/path"), false),
         Err(LibraryError::InvalidPath)
     ));
 
@@ -24,7 +25,9 @@ fn test_library_new() {
 #[test]
 fn test_library_create_project() {
     let context = TestContext::setup();
-    let library = Library::new(context.path_str(), false).unwrap();
+    let path = context.path().to_path_buf();
+
+    let library = Library::new(&path, false).unwrap();
 
     assert!(library.create("new_project").is_ok());
     assert!(context.path().join("new_project").exists());
@@ -38,10 +41,11 @@ fn test_library_create_project() {
 #[test]
 fn test_library_contains() {
     let context = TestContext::setup();
+    let path = context.path().to_path_buf();
 
     fs::create_dir(context.path().join("test_project")).unwrap();
 
-    let library = Library::new(context.path_str(), false).unwrap();
+    let library = Library::new(&path, false).unwrap();
     assert!(library.contains("test_project"));
     assert!(!library.contains("non_existent_project"));
 }
@@ -49,10 +53,11 @@ fn test_library_contains() {
 #[test]
 fn test_library_get() {
     let context = TestContext::setup();
+    let path = context.path().to_path_buf();
 
     fs::create_dir(context.path().join("test_project")).unwrap();
 
-    let library = Library::new(context.path_str(), false).unwrap();
+    let library = Library::new(&path, false).unwrap();
     assert!(library.get("test_project").is_ok());
     assert!(library.get("non_existent_project").is_err());
 }
@@ -60,15 +65,16 @@ fn test_library_get() {
 #[test]
 fn test_hidden_projects() {
     let context = TestContext::setup();
+    let path = context.path().to_path_buf();
 
     fs::create_dir(context.path().join("visible_project")).unwrap();
     fs::create_dir(context.path().join(".hidden_project")).unwrap();
 
-    let library = Library::new(context.path_str(), false).unwrap();
+    let library = Library::new(&path, false).unwrap();
     assert!(library.contains("visible_project"));
     assert!(!library.contains(".hidden_project"));
 
-    let library_with_hidden = Library::new(context.path_str(), true).unwrap();
+    let library_with_hidden = Library::new(&path, true).unwrap();
     assert!(library_with_hidden.contains("visible_project"));
     assert!(library_with_hidden.contains(".hidden_project"));
 }

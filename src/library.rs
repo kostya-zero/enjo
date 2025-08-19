@@ -92,7 +92,7 @@ pub struct Library {
 }
 
 impl Library {
-    pub fn new(path: &str, display_hidden: bool) -> Result<Self, LibraryError> {
+    pub fn new(path: &PathBuf, display_hidden: bool) -> Result<Self, LibraryError> {
         let base_path = PathBuf::from(path);
         if !base_path.exists() || !base_path.is_dir() {
             return Err(LibraryError::InvalidPath);
@@ -106,7 +106,7 @@ impl Library {
     }
 
     pub fn collect_projects(
-        path: &str,
+        path: &PathBuf,
         display_hidden: bool,
     ) -> Result<Vec<Project>, LibraryError> {
         let dir_entries = fs::read_dir(path).map_err(|e| LibraryError::IoError(e.to_string()))?;
@@ -141,8 +141,8 @@ impl Library {
             && !SYSTEM_DIRECTORIES.contains(&name)
     }
 
-    fn get_ignored_paths(base_path: &str) -> Result<Vec<String>, LibraryError> {
-        if !Path::new(base_path).join(".ignore").exists() {
+    fn get_ignored_paths(base_path: &PathBuf) -> Result<Vec<String>, LibraryError> {
+        if !base_path.join(".ignore").exists() {
             return Err(LibraryError::IoError(
                 "No .ignore file found in the specified path.".to_string(),
             ));
