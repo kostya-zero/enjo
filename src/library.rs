@@ -193,11 +193,7 @@ impl Library {
         if self.base_path.join(name).exists() {
             return Err(LibraryError::AlreadyExists);
         }
-
-        match fs::create_dir(self.base_path.join(name)) {
-            Ok(_) => Ok(()),
-            Err(_) => Err(LibraryError::FileSystemError),
-        }
+        fs::create_dir_all(&self.base_path).map_err(|e| LibraryError::IoError(e.to_string()))
     }
 
     pub fn delete(&self, name: &str) -> Result<(), LibraryError> {
