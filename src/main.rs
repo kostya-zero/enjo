@@ -4,10 +4,7 @@ use anyhow::{Result, anyhow};
 use clap::Parser;
 use enjo::{
     cli::{Cli, Commands, ConfigCommands, TemplatesCommands},
-    commands::{
-        config, handle_clone, handle_list, handle_new, handle_open, handle_remove, handle_rename,
-        handle_zen, templates,
-    },
+    commands::{config, root, templates},
     config::Config,
     platform::{self, get_config_path, get_templates_path},
     templates::Templates,
@@ -61,12 +58,12 @@ fn main() {
     }
 
     let result = match cli.cmd.unwrap() {
-        Commands::New(args) => handle_new(args),
-        Commands::Clone(args) => handle_clone(args),
-        Commands::Open(args) => handle_open(args),
-        Commands::List(args) => handle_list(args),
-        Commands::Rename(args) => handle_rename(args),
-        Commands::Remove(args) => handle_remove(args),
+        Commands::New(args) => root::handle_new(args),
+        Commands::Clone(args) => root::handle_clone(args),
+        Commands::Open(args) => root::handle_open(args),
+        Commands::List(args) => root::handle_list(args),
+        Commands::Rename(args) => root::handle_rename(args),
+        Commands::Remove(args) => root::handle_remove(args),
         Commands::Templates { command } => match command {
             TemplatesCommands::New => templates::handle_new(),
             TemplatesCommands::List(args) => templates::handle_list(args),
@@ -80,7 +77,7 @@ fn main() {
             ConfigCommands::Edit => config::handle_edit(),
             ConfigCommands::Reset => config::handle_reset(),
         },
-        Commands::Zen => handle_zen(),
+        Commands::Zen => root::handle_zen(),
     };
 
     if let Err(e) = result {
