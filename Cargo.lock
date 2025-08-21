@@ -193,24 +193,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34aa73646ffb006b8f5147f3dc182bd4bcb190227ce861fc4a4844bf8e3cb2c0"
 
 [[package]]
-name = "enjo"
-version = "0.8.0-dev"
-dependencies = [
- "anyhow",
- "clap",
- "colored",
- "ctrlc",
- "dialoguer",
- "etcetera",
- "indicatif",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.12",
- "toml",
-]
-
-[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -319,6 +301,24 @@ checksum = "1cfaf33c695fc6e08064efbc1f72ec937429614f25eef83af942d0e227c3a28f"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "kanri"
+version = "0.8.0-dev"
+dependencies = [
+ "anyhow",
+ "clap",
+ "colored",
+ "ctrlc",
+ "dialoguer",
+ "etcetera",
+ "indicatif",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.12",
+ "toml",
 ]
 
 [[package]]

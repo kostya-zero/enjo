@@ -1,9 +1,9 @@
 [package]
-name = "enjo"
+name = "kanri"
 description = "Yet another manager for your projects."
 authors = ["Konstantin Zhigaylo <zero@kostyazero.com>"]
-repository = "https://github.com/kostya-zero/enjo"
-homepage = "https://github.com/kostya-zero/enjo"
+repository = "https://github.com/kostya-zero/kanri"
+homepage = "https://github.com/kostya-zero/kanri"
 keywords = ["workspace", "projects", "manager", "cli"]
 readme = "README.md"
 license = "MIT"
@@ -11,7 +11,7 @@ version = "0.8.0-dev"
 edition = "2024"
 
 [[bin]]
-name = "enjo"
+name = "kanri"
 path = "src/main.rs"
 
 [dependencies]

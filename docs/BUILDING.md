@@ -1,6 +1,6 @@
-# Building Enjo
+# Building Kanri
 
-This guide provides instructions for building Enjo manually from source.
+This guide provides instructions for building Kanri manually from source.
 
 ### Prerequisites
 
@@ -21,24 +21,24 @@ After installation, verify that the Rust toolchain (e.g., `rustc --version`, `ca
 
 ### Step 2: Download Source Code
 
-You can download the Enjo source code using `git` or by downloading a ZIP archive.
+You can download the Kanri source code using `git` or by downloading a ZIP archive.
 
 **Using Git (Recommended):**
 ```shell
-git clone https://github.com/kostya-zero/enjo.git
-cd enjo
+git clone https://github.com/kostya-zero/kanri.git
+cd kanri 
 ```
 
 **Downloading ZIP Archive:**
-1.  Go to the [Enjo GitHub repository](https://github.com/kostya-zero/enjo).
+1.  Go to the [Kanri GitHub repository](https://github.com/kostya-zero/kanri).
 2.  Click on "Code" -> "Download ZIP".
 3.  Extract the contents of the ZIP file to your desired location.
 
-### Step 3: Build Enjo
+### Step 3: Build Kanri
 
-Navigate to the root directory of the Enjo source code in your terminal.
+Navigate to the root directory of the Kanri source code in your terminal.
 
-To build Enjo, run:
+To build Kanri, run:
 ```shell
 cargo build
 ```
@@ -55,7 +55,7 @@ For persistent settings across sessions, it's recommended to use a `.cargo/confi
 
 #### Using `.cargo/config.toml` for Persistent Settings
 
-Create a file named `config.toml` inside a `.cargo` directory at the root of the Enjo project (i.e., `enjo/.cargo/config.toml`). This file allows you to specify various build options, including linkers and compilation flags, which Cargo will automatically apply.
+Create a file named `config.toml` inside a `.cargo` directory at the root of the Kanri project (i.e., `kanri/.cargo/config.toml`). This file allows you to specify various build options, including linkers and compilation flags, which Cargo will automatically apply.
 
 #### Tweak 1: Faster Linking with LLD
 
@@ -76,7 +76,7 @@ Using the LLD linker (from the LLVM project) can significantly speed up the link
 
 **B. Configure Cargo for LLD:**
 
-Add the appropriate lines to your `enjo/.cargo/config.toml` file:
+Add the appropriate lines to your `kanri/.cargo/config.toml` file:
 
 ```toml
 # .cargo/config.toml
@@ -107,10 +107,10 @@ rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 This optimizes the build for the specific CPU architecture of the machine you are compiling on. 
 This can potentially increase runtime performance but makes the resulting binary less portable (it will not run on machines with different CPU microarchitecture).
 
-To enable native compilation, add the `-C target-cpu=native` flag to your `rustflags` in `enjo/.cargo/config.toml`.
+To enable native compilation, add the `-C target-cpu=native` flag to your `rustflags` in `kanri/.cargo/config.toml`.
 
 **Option 1: Global Native Compilation (applies to all builds for this project)**
-Add to the `[build]` section in `enjo/.cargo/config.toml`:
+Add to the `[build]` section in `kanri/.cargo/config.toml`:
 ```toml
 # .cargo/config.toml
 [build]
@@ -118,7 +118,7 @@ rustflags = ["-C", "target-cpu=native"]
 ```
 
 **Option 2: Target-Specific Native Compilation**
-Add to a specific target section in `enjo/.cargo/config.toml` (e.g., for `x86_64-unknown-linux-gnu`):
+Add to a specific target section in `kanri/.cargo/config.toml` (e.g., for `x86_64-unknown-linux-gnu`):
 ```toml
 # .cargo/config.toml
 [target.x86_64-unknown-linux-gnu] # Replace with your actual target triple

@@ -2,7 +2,7 @@ use std::process::exit;
 
 use anyhow::{Result, anyhow};
 use clap::Parser;
-use enjo::{
+use kanri::{
     cli::{Cli, Commands, ConfigCommands, TemplatesCommands},
     commands::{config, root, templates},
     config::Config,
@@ -36,7 +36,7 @@ fn print_version() {
         "release"
     };
 
-    println!("enjo {} {mode}", env!("CARGO_PKG_VERSION"));
+    println!("kanri {} {mode}", env!("CARGO_PKG_VERSION"));
 }
 
 fn main() {
@@ -53,7 +53,7 @@ fn main() {
     }
 
     if cli.cmd.is_none() {
-        println!("Nothing to do. Use `enjo --help` to see available commands.");
+        println!("Nothing to do. Use `kanri --help` to see available commands.");
         return;
     }
 

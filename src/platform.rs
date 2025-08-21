@@ -20,8 +20,8 @@ pub fn get_config_dir_path() -> PathBuf {
     let platform_id = get_platform();
     let user_home = get_user_home();
     match platform_id {
-        PlatformName::Windows => user_home.join("AppData").join("Local").join("enjo"),
-        _ => user_home.join(".config").join("enjo"),
+        PlatformName::Windows => user_home.join("AppData").join("Local").join("kanri"),
+        _ => user_home.join(".config").join("kanri"),
     }
 }
 

@@ -289,7 +289,7 @@ pub fn handle_remove(args: RemoveArgs) -> Result<()> {
     Ok(())
 }
 
-const ENJO_ZEN: [&str; 10] = [
+const KANRI_ZEN: [&str; 10] = [
     "Projects should be simple.",
     "Each command does one thing well.",
     "Configuration is explicit.",
@@ -303,8 +303,8 @@ const ENJO_ZEN: [&str; 10] = [
 ];
 
 pub fn handle_zen() -> Result<()> {
-    println!("{}", "========  THE ZEN OF ENJO   ========".bold().white());
-    for line in ENJO_ZEN.iter() {
+    println!("{}", "========  THE ZEN OF KANRI  ========".bold().white());
+    for line in KANRI_ZEN.iter() {
         println!(" {} {line}", "*".dimmed());
     }
     Ok(())

@@ -1,18 +1,18 @@
 # Configuration Manual
 
-This manual provides guidance on configuring Enjo for your workspace.
+This manual provides guidance on configuring Kanri for your workspace.
 
 ### Configuration File
 
-If a configuration file does not exist in your file system, Enjo will generate one in the following locations:
+If a configuration file does not exist in your file system, Kanri will generate one in the following locations:
 
-- **Windows**: `%USERPROFILE%\enjo\config.toml`
-- **Linux** and **macOS**: `$HOME/.config/enjo/config.toml`
+- **Windows**: `%USERPROFILE%\kanri\config.toml`
+- **Linux** and **macOS**: `$HOME/.config/kanri/config.toml`
 
-Enjo generates the configuration based on your environment settings, such as the `EDITOR` and `SHELL` environment variables.
+Kanri generates the configuration based on your environment settings, such as the `EDITOR` and `SHELL` environment variables.
 
 >[!NOTE]
-> On Windows, Enjo appends `.cmd` to the `program` field for specific editors. This is because Enjo requires the `.cmd` files to launch these editors. The affected editors are:
+> On Windows, Kanri appends `.cmd` to the `program` field for specific editors. This is because Kanri requires the `.cmd` files to launch these editors. The affected editors are:
 >
 > - Visual Studio Code
 > - Visual Studio Code - Insiders
@@ -49,7 +49,7 @@ For more information about the fields in the configuration, refer to the [Parame
 
 ### Manage configuration
 
-Enjo allows you to manage the configuration through the `config` subcommand. Here is a list of available actions:
+Kanri allows you to manage the configuration through the `config` subcommand. Here is a list of available actions:
 
 - `edit` - Opens the configuration file in the editor specified in the `[editor]` section of the configuration. This allows you to manually edit the configuration settings.
 - `path` - Gets the path to the configuration file.
@@ -67,7 +67,7 @@ This section details the configuration parameters available in the `config.toml`
 ### `editor`
 
 - `program` - The name of the executable to be used as an editor to open projects and the configuration file. You can specify it as the name of an executable (e.g., `nvim`) or as an absolute path to the executable (e.g., `/usr/bin/nvim`).
-- `fork_mode` - Determines whether the editor should run as a separate process. Set this to `true` if you want Enjo to launch the editor and immediately return control to the terminal (useful for GUI editors).
+- `fork_mode` - Determines whether the editor should run as a separate process. Set this to `true` if you want Kanri to launch the editor and immediately return control to the terminal (useful for GUI editors).
 - `args` - Arguments to be passed to the editor. By default, this field is empty, but for _VS Code_, _VS Codium_, _Windsurf_, and _Zed_, it will contain a dot (`.`) to open the current directory.
 
 ### `shell`

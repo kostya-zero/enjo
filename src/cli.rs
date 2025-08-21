@@ -4,7 +4,7 @@ use std::env;
 /// Yet another manager for your projects.
 #[derive(Parser)]
 #[command(
-    name = "enjo",
+    name = "kanri",
     about = env!("CARGO_PKG_DESCRIPTION"),
     version = env!("CARGO_PKG_VERSION"),
     subcommand_required = false, 
@@ -15,7 +15,7 @@ pub struct Cli {
     #[command(subcommand)]
     pub cmd: Option<Commands>,
 
-    /// Print the version of Enjo.
+    /// Print the version of Kanri.
     #[arg(short, long, action = ArgAction::SetTrue)]
     pub version: bool,
 }
@@ -55,7 +55,7 @@ pub enum Commands {
         command: ConfigCommands,
     },
 
-    /// Display the Zen of Enjo.
+    /// Display the Zen of Kanri.
     Zen,
 }
 
