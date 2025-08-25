@@ -18,7 +18,7 @@ pub fn config_dir() -> PathBuf {
 
     #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
     {
-        if let Some(xdg) = env::var("XDG_CONFIG_HOME") {
+        if let Ok(xdg) = env::var("XDG_CONFIG_HOME") {
             return PathBuf::from(xdg).join("kanri");
         }
         let home = dirs_next::home_dir().unwrap_or_else(|| PathBuf::from("/"));
@@ -72,7 +72,7 @@ pub fn default_shell() -> Cow<'static, str> {
 pub fn default_projects_dir() -> PathBuf {
     #[cfg(target_os = "windows")]
     {
-        if let Some(up) = env::var_os("USERPROFILE") {
+        if let Ok(up) = env::var("USERPROFILE") {
             return PathBuf::from(up).join("Projects");
         }
         PathBuf::from(r"C:\Projects")
