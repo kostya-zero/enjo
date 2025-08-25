@@ -8,18 +8,18 @@ use crate::{
 };
 
 pub fn handle_path() -> Result<()> {
-    println!("{}", platform::get_config_path().to_str().unwrap());
+    println!("{}", platform::config_file().display());
     Ok(())
 }
 
 pub fn handle_edit() -> Result<()> {
-    let config = Config::load(platform::get_config_path())?;
+    let path = platform::config_file();
+    let config = Config::load(&path)?;
     let editor = &config.editor.program;
     if editor.is_empty() {
         bail!("Editor program name is not set in the configuration file.");
     }
 
-    let path = platform::get_config_path();
     let mut editor_args = config.editor.args.clone();
     editor_args.push(path.to_str().unwrap().to_string());
 
@@ -36,10 +36,11 @@ pub fn handle_edit() -> Result<()> {
 }
 
 pub fn handle_reset() -> Result<()> {
-    let mut config = Config::load(platform::get_config_path())?;
+    let path = platform::config_file();
+    let mut config = Config::load(&path)?;
     if ask_dialog("Reset your current configuration?", false) {
         config.reset();
-        config.save(platform::get_config_path())?;
+        config.save(path)?;
         print_done("Reset.");
     } else {
         print_done("Aborted.");

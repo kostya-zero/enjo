@@ -6,23 +6,25 @@ use kanri::{
     cli::{Cli, Commands, ConfigCommands, TemplatesCommands},
     commands::{config, root, templates},
     config::Config,
-    platform::{self, get_config_path, get_templates_path},
+    platform,
     templates::Templates,
     terminal::print_error,
 };
 
 fn check_env() -> Result<()> {
-    if !get_config_path().exists() {
+    let config_path = platform::config_file();
+    if !config_path.exists() {
         let default_config: Config = Config::default();
         default_config
-            .save(platform::get_config_path())
+            .save(config_path)
             .map_err(|e| anyhow!(e.to_string()))?;
     }
 
-    if !get_templates_path().exists() {
+    let templates_path = platform::templates_file();
+    if !templates_path.exists() {
         let templates = Templates::new();
         templates
-            .save(platform::get_templates_path())
+            .save(templates_path)
             .map_err(|e| anyhow!(e.to_string()))?;
     }
 

@@ -1,7 +1,7 @@
-use crate::platform::{self, PlatformName};
+use crate::platform;
 use serde::{Deserialize, Serialize};
 use std::{
-    env, fs,
+    fs,
     path::{Path, PathBuf},
 };
 use thiserror::Error;
@@ -76,7 +76,7 @@ impl Default for RecentOptions {
 impl Default for GeneralOptions {
     fn default() -> Self {
         Self {
-            projects_directory: platform::get_user_home(),
+            projects_directory: platform::default_projects_dir(),
             display_hidden: false,
         }
     }
@@ -92,21 +92,14 @@ pub struct EditorOptions {
 
 impl Default for EditorOptions {
     fn default() -> Self {
-        let mut new_editor: String = platform::get_default_editor();
+        let new_editor = platform::default_editor().to_string();
         let mut new_args: Vec<String> = Vec::new();
         let mut fork_mode = false;
-
-        if let Ok(env_editor) = env::var("EDITOR") {
-            new_editor = env_editor;
-        }
 
         match new_editor.as_str() {
             "code" | "code-insiders" | "codium" | "code-oss" | "windsurf" => {
                 new_args.push(".".to_string());
                 fork_mode = true;
-                if PlatformName::Windows == platform::get_platform() {
-                    new_editor.push_str(".cmd");
-                }
             }
             "zed" => {
                 fork_mode = true;
@@ -132,7 +125,7 @@ pub struct ShellOptions {
 
 impl Default for ShellOptions {
     fn default() -> Self {
-        let program = env::var("SHELL").unwrap_or_else(|_| platform::get_default_shell());
+        let program = platform::default_shell().to_string();
         let args = match program.as_str() {
             "powershell.exe" | "powershell" | "pwsh.exe" | "pwsh" => {
                 vec!["-NoLogo".to_string(), "-Command".to_string()]
