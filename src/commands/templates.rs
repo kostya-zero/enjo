@@ -78,6 +78,11 @@ pub fn handle_edit() -> Result<()> {
     launch_program(launch_options).map_err(|e| anyhow!(e.to_string()))
 }
 
+pub fn handle_path() -> Result<()> {
+    println!("{}", platform::templates_file().display());
+    Ok(())
+}
+
 pub fn handle_info(args: TemplatesInfoArgs) -> Result<()> {
     let name = args
         .name

@@ -49,7 +49,7 @@ pub enum Commands {
         command: TemplatesCommands,
     },
 
-    /// Manage your configuration.
+    /// Manage your configuraticlion.
     Config {
         #[command(subcommand)]
         command: ConfigCommands,
@@ -136,6 +136,9 @@ pub enum TemplatesCommands {
 
     /// Clear all templates.
     Clear,
+
+    // Prints the path to the file with templates.
+    Path,
 
     /// View information about template.
     Info(TemplatesInfoArgs),

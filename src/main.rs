@@ -70,6 +70,7 @@ fn main() {
             TemplatesCommands::New => templates::handle_new(),
             TemplatesCommands::List(args) => templates::handle_list(args),
             TemplatesCommands::Edit => templates::handle_edit(),
+            TemplatesCommands::Path => templates::handle_path(),
             TemplatesCommands::Info(args) => templates::handle_info(args),
             TemplatesCommands::Clear => templates::handle_clear(),
             TemplatesCommands::Remove(args) => templates::handle_remove(args),
