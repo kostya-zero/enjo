@@ -7,6 +7,7 @@ This manual provides guidance on configuring Kanri for your workspace.
 If a configuration file does not exist in your file system, Kanri will generate one in the following locations:
 
 - **Windows**: `%USERPROFILE%\kanri\config.toml`
+- **macOS**: `$HOME/Library/Application Support/kanri`
 - **Linux** and **macOS**: `$HOME/.config/kanri/config.toml`
 
 Kanri generates the configuration based on your environment settings, such as the `EDITOR` and `SHELL` environment variables.

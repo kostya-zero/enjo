@@ -12,7 +12,7 @@ pub fn config_dir() -> PathBuf {
 
     #[cfg(target_os = "macos")]
     {
-        let home = dirs_next::home_dir().unwrap_or_else(|_| PathBuf::from("/"));
+        let home = dirs_next::home_dir().unwrap_or_else(|| PathBuf::from("/"));
         home.join("Library/Application Support/kanri")
     }
 
@@ -21,7 +21,7 @@ pub fn config_dir() -> PathBuf {
         if let Some(xdg) = env::var("XDG_CONFIG_HOME") {
             return PathBuf::from(xdg).join("kanri");
         }
-        let home = dirs_next::home_dir().unwrap_or_else(|_| PathBuf::from("/"));
+        let home = dirs_next::home_dir().unwrap_or_else(|| PathBuf::from("/"));
         home.join(".config/kanri")
     }
 }
@@ -81,14 +81,14 @@ pub fn default_projects_dir() -> PathBuf {
     #[cfg(target_os = "macos")]
     {
         dirs_next::home_dir()
-            .unwrap_or_else(|_| PathBuf::from("/"))
+            .unwrap_or_else(|| PathBuf::from("/"))
             .join("Projects")
     }
 
     #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
     {
         dirs_next::home_dir()
-            .unwrap_or_else(|_| PathBuf::from("/"))
+            .unwrap_or_else(|| PathBuf::from("/"))
             .join("Projects")
     }
 }
